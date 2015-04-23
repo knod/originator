@@ -19,6 +19,7 @@ body { background-color: tan; }
 }
 
 .first {
+	position: sticky;
 	width: 200px;
 	height: 300px;
 
