@@ -63,7 +63,7 @@
 }
 
 #origin-container * {
-	pointer-events: auto;
+	pointer-events: all;
 }
 
 .origin-dot {
@@ -86,11 +86,6 @@
 .origin-bottom-right {
 	right: -0.25rem; bottom: -0.25rem;
 }
-
-/* Doesn't work for some reason? Did I havea typo at some point? */
-/*svg {
-	pointer-events: none;
-}*/
 
 .label {
 	position: absolute;

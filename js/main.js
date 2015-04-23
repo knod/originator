@@ -252,9 +252,10 @@ relationshipToOriginal can either be "original" or "ancestor"
 	// Get elem values
 	var elemStyle 	= window.getComputedStyle( elem )
 	var position 	= elemStyle.getPropertyValue( 'position' );
+	var tagName 	= elem.tagName;
 
 	// Build text and style based on values
-	var labelString = "position: " + position;
+	var labelString = "position: " + position + " <" + tagName + ">";
 
 	// ===============
 	// LABEL COLOR
