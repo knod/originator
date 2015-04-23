@@ -125,13 +125,15 @@ Removes all elements in elemList from the DOM
 
 	for ( var elemi = 0; elemi < elemList.length; elemi++ ) {
 
-		var elem = elemList[ elemi ];
+		// Can't use elemi because the list is being changed as its looped through
+		// Always get the first element as that keeps changing
+		var elem = elemList[ 0 ];
 		var parent = elem.parentNode;
 
 		parent.removeChild( elem );
 
 	}
-	// debugger;
+	debugger;
 
 	return true;
 };  // End removeElements()
