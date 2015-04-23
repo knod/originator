@@ -122,8 +122,11 @@ var removeElements = function ( elemList ) {
 /*
 Removes all elements in elemList from the DOM
 */
+	// Number in list changes as they are removed
+	// Original number has to be stored separately
+	var numElements = elemList.length;
 
-	for ( var elemi = 0; elemi < elemList.length; elemi++ ) {
+	for ( var elemi = 0; elemi < numElements; elemi++ ) {
 
 		// Can't use elemi because the list is being changed as its looped through
 		// Always get the first element as that keeps changing
