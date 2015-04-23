@@ -1,4 +1,8 @@
-// main.js
+/* 04/21/15
+
+!!! WARNING !!! This doesn't handle "position: sticky" yet
+	https://developer.mozilla.org/en-US/docs/Web/API/CSSRule
+*/
 
 'use strict'
 
@@ -52,22 +56,23 @@ document.addEventListener( "click", function (event) {
 		// If stuff is visible, make it look good
 		if ( originatorVisible ) {
 
-			// ORIGINATOR
-			placeOriginator( currentTarget, oldTarget );
+			// TODO: imo, it's kind of awkward that placeLabel returns a position value
+			// 		Not sure what to do about it though
+			var position = placeLabel( currentTarget, "original" );
 
 			// ================
 			// LABELS
 			// ================
 			// Always show the label of the current element
-			// TODO: imo, it's kind of awkward that placeLabel returns a position value
-			// 		Not sure what to do about it though
-			var position = placeLabel( currentTarget, "original" );
 			// If the element is position: aboslute
 			if ( position === "absolute" ) {
 				// put labels on all the parents untill the positioning parent
 				var ancestors = getAncestorsUntil( currentTarget, currentTarget.offsetParent );
 				labelElems( ancestors );
 			}
+
+			// ORIGINATOR
+			placeOriginator( currentTarget, position );
 
 			// Prepare for next click on non-originator element
 			oldTarget = currentTarget;
@@ -98,6 +103,39 @@ Hides or shows elem
 
 		return elem;
 };  // End handleVisibility()
+
+
+var offsetFromOffsetParent = function ( elem ) {
+/*
+Get the difference between an element's ancestor and
+an element's offsetParent 
+*/
+	var offsetLeft 	= elem.offsetLeft,
+		offsetTop 	= elem.offsetTop;
+
+
+
+};  // End offsetFromOffsetParent()
+
+
+var offsetFromParent = function ( child ) {
+/*
+
+Gets the pixel distances between the origin of the parent
+and the origin of the child
+
+!!! WARNING !!! I think this only works if the child is not
+above or to the left of the parent
+*/
+	var childRect 	= child.getBoundingClientRect(),
+		parentRect 	= child.parentNode.getBoundingClientRect();
+
+	var leftDiff 	= childRect.left - parentRect.left,
+		topDiff 	= childRect.top - parentRect.top;
+		
+	return { x: leftDiff, y: topDiff };
+};  // End offsetFromParent()
+
 
 // -----------------------------
 // --- Mostly for labels ---
@@ -171,10 +209,10 @@ Removes all elements in elemList from the DOM
 };  // End removeElements()
 
 
-function getOffsetRect(elem) {
-//http://javascript.info/tutorial/coordinates
-/*
+function getOffsetRect( elem ) {
+/* ( DOM ) -> {}
 
+http://javascript.info/tutorial/coordinates
 Gets the top and left offsets of an element
 relative to the document (takes scrolling into account)
 */
@@ -295,7 +333,7 @@ relationshipToOriginal can either be "original" or "ancestor"
 	if ( relationshipToOriginal !== 'original' ) {
 		// If position is not absolute or relative, make box red.
 		// Add a note?
-		if ( position !== 'relative' && position !== 'absolute' ) {
+		if ( position === 'static' ) {
 			labelColor = 'tomato';
 		}
 	}
@@ -356,7 +394,7 @@ and its children
 };  // End createOriginator()
 
 
-var placeOriginator = function ( currentTarget ) {
+var placeOriginator = function ( currentTarget, position ) {
 /* ( DOM, DOM ) -> DOM
 
 Places the originator at the correct starting and ending points.
@@ -373,11 +411,40 @@ Returns the element that was passed in as the currentTarget
 		// ========================
 		// END POINT (of originator)
 		// ========================
-		var targetLeft = currentTarget.offsetLeft,
-			targetTop = currentTarget.offsetTop;
+		// var targetLeft 	= currentTarget.offsetLeft;
+		// 	targetTop 	= currentTarget.offsetTop;
 
-		originDiv.style.width = targetLeft;
-		originDiv.style.height = targetTop;
+		// Attempting to connect non-absolute positioned
+		// elements to their direct parents...
+		var originLeft, originTop,
+			targetLeft, targetTop;
+
+		if ( position === "absolute" ) {
+			originLeft 	= 0; originTop 	= 0;
+			targetLeft 	= currentTarget.offsetLeft;
+			targetTop 	= currentTarget.offsetTop;
+		} else {
+
+			var parent 	= currentTarget.parentNode;
+
+			originLeft 	= parent.offsetLeft;
+			originTop 	= parent.offsetTop;
+			console.log( parent.offsetParent );
+			console.log( originLeft, originTop );
+
+
+			var offsets = offsetFromParent( currentTarget );
+			targetLeft 	= offsets.x;
+			targetTop 	= offsets.y;
+			// console.log(offsets)
+		}
+
+		// Do it
+		originDiv.style.left 	= originLeft;
+		originDiv.style.top 	= originTop;
+
+		originDiv.style.width 	= targetLeft;
+		originDiv.style.height 	= targetTop;
 
 		return currentTarget;
 
