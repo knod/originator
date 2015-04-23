@@ -133,7 +133,7 @@ Removes all elements in elemList from the DOM
 		parent.removeChild( elem );
 
 	}
-	debugger;
+	// debugger;
 
 	return true;
 };  // End removeElements()
