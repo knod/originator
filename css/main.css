@@ -1,5 +1,7 @@
 /*index.css*/
 
+/* ----------------- */
+/* --- TEST DIVS --- */
 .regular {
 	position: relative;
 	padding: 100px;
@@ -12,12 +14,18 @@
 }
 
 .first {
-	border: solid black 2px;
-
 	width: 200px;
 	height: 300px;
 
 	background-color: gray;
+	border: solid black 2px;
+}
+
+.first-and-a-half {
+	width: 90%;
+	height: 80%;
+
+	background-color: yellowgreen;
 }
 
 .second {
@@ -31,6 +39,16 @@
 	background-color: teal;
 }
 
+.other-one {
+	width: 20px;
+	height: 60px;
+
+	background-color: darkgray;
+	border: solid black 2px;
+}
+
+/* ------------------ */
+/* --- ORIGINATOR --- */
 #origin-container {
 	visibility: hidden;
 
