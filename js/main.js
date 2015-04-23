@@ -118,25 +118,23 @@ Places position labels on all the elements in the list
 };  // end labelElems()
 
 
-var removeElements = function ( elemList ) {
+var removeElements = function ( elemNodeList ) {
 /*
 Removes all elements in elemList from the DOM
 */
-	// Number in list changes as they are removed
-	// Original number has to be stored separately
-	var numElements = elemList.length;
 
-	for ( var elemi = 0; elemi < numElements; elemi++ ) {
+	// Some browsers have dynamic node lists, others have static node lists
+	// Using nodeList[0] in each loop would therefore break sometimes
+	var elemArray = [].slice.call( elemNodeList );
 
-		// Can't use elemi because the list is being changed as its looped through
-		// Always get the first element as that keeps changing
-		var elem = elemList[ 0 ];
+	for ( var elemi = 0; elemi < elemArray.length; elemi++ ) {
+
+		var elem = elemArray[ elemi ];
 		var parent = elem.parentNode;
 
 		parent.removeChild( elem );
 
 	}
-	// debugger;
 
 	return true;
 };  // End removeElements()
