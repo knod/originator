@@ -19,10 +19,15 @@ document.addEventListener( "click", function (event) {
 	// Don't respond to a click on our helper (or on a label?)
 	// Don't make it disappear either. What if they want to inspect the element?
 	var isOrigin = currentTarget.classList.contains("origin")
-			|| currentTarget.classList.contains("label");
+		|| currentTarget.parentNode.classList.contains("origin") // Taking care of the svg lines
+		|| currentTarget.classList.contains("label"); // And the labels
+
+	// The body doesn't have a parent of a parent
+	if ( !(currentTarget == document.getElementsByTagName("body")[0]) ) {
+		isOrigin = isOrigin || currentTarget.parentNode.parentNode.classList.contains("origin")
+	}
 
 	if ( !isOrigin ) {
-
 		// ================
 		// LABELS
 		// ================
@@ -37,9 +42,8 @@ document.addEventListener( "click", function (event) {
 		if ( currentTarget === oldTarget ) {
 			originatorVisible = !originatorVisible;
 		// Make originator visible if a new element is clicked on
-		} else {
-			originatorVisible = true;
-		}
+		} else { originatorVisible = true; }
+
 		handleVisibility( originDiv, originatorVisible );
 
 		// ================
@@ -55,6 +59,8 @@ document.addEventListener( "click", function (event) {
 			// LABELS
 			// ================
 			// Always show the label of the current element
+			// TODO: imo, it's kind of awkward that placeLabel returns a position value
+			// 		Not sure what to do about it though
 			var position = placeLabel( currentTarget, "original" );
 			// If the element is position: aboslute
 			if ( position === "absolute" ) {
@@ -71,6 +77,48 @@ document.addEventListener( "click", function (event) {
 	}  // end if !isOrigin
 
 });  // end document on click
+
+
+// ==================
+// General
+// ==================
+// -----------------------------
+// --- Mostly for originator ---
+var handleVisibility = function ( elem, isVisible ) {
+/*
+
+Hides or shows elem
+*/
+		// ========================
+		// SHOW OR HIDE OUR HELPER
+		// ========================
+		if ( isVisible ) {
+			elem.style.visibility = "visible";
+		} else {
+			
+			elem.style.visibility = "hidden";
+		}
+
+		return elem;
+};  // End handleVisibility()
+
+// -----------------------------
+// --- Mostly for labels ---
+var getRootElementFontSize = function () {
+/* ( None ) -> int
+
+Returns the pixel value of one rem (for placement of labels)
+*/
+    // Returns a number
+    return parseFloat(
+        // of the computed font-size, so in px
+        getComputedStyle(
+            // for the root <html> element
+            document.documentElement
+        )
+        .fontSize
+    );
+};  // End getRootElementFontSize()
 
 
 var getAncestorsUntil = function ( childElem, ancestorElem ) {
@@ -103,23 +151,9 @@ Return all ancestor of childElem up to and including ancestorElem
 };  // End getAncestorsUntil()
 
 
-var labelElems = function ( elemList ) {
-/* ( [ DOM ] ) -> ?
-
-Places position labels on all the elements in the list
-*/
-
-	for ( var elemi = 0; elemi < elemList.length; elemi++ )	{
-
-		placeLabel( elemList[ elemi ], "ancestor" );
-	}
-
-	return elemList;
-};  // end labelElems()
-
-
 var removeElements = function ( elemNodeList ) {
-/*
+/* ( Node list ) -> same
+
 Removes all elements in elemList from the DOM
 */
 
@@ -136,72 +170,72 @@ Removes all elements in elemList from the DOM
 
 	}
 
-	return true;
+	return elemNodeList;
 };  // End removeElements()
 
 
-var handleVisibility = function ( elem, isVisible ) {
+function getOffsetRect(elem) {
+//http://javascript.info/tutorial/coordinates
 /*
 
-Figures out if helper should be visible or not
+Gets the top and left offsets of an element
+relative to the document (takes scrolling into account)
 */
-		// ========================
-		// SHOW OR HIDE OUR HELPER
-		// ========================
-		if ( isVisible ) {
-			elem.style.visibility = "visible";
-		} else {
-			
-			elem.style.visibility = "hidden";
-		}
+    // (1)
+    var box = elem.getBoundingClientRect()
+     
+    var body = document.body
+    var docElem = document.documentElement
+     
+    // (2)
+    var scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop
+    var scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft
+     
+    // (3)
+    var clientTop = docElem.clientTop || body.clientTop || 0
+    var clientLeft = docElem.clientLeft || body.clientLeft || 0
+     
+    // (4)
+    var top  = box.top +  scrollTop - clientTop
+    var left = box.left + scrollLeft - clientLeft
+     
+    return { top: Math.round(top), left: Math.round(left) }
+}  // End getOffsetRect()
 
-		return elem;
-};  // End handleVisibility()
+
+var isOutOfWindow = function ( elem ) {
+/* ( DOM ) -> bool
+
+Tests whether an element peeks above viewport.
+Not sure how to do just out of window...
+*/
+	// var elemRect 	= elem.getBoundingClientRect();
+	// var elemTop 	= elemRect.top;
+	var elemTop = getOffsetRect( elem ).top;
+	console.log( elemTop );
+	return elemTop < 0
+};  // End isOutOfWindow()
 
 
-var getRootElementFontSize = function () {
+// =====================
+// LABELS
+// =====================
+// --- Bring labels back into window --- \\
+// If I do this, I'm going to need something to indicate what
+// elements they actually belong to, aren't I?
+// Damnit. I don't want to do that. We'll see
+var fixOutOfWindow = function ( elem ) {
 /*
 
-Returns the pixel value of one rem
+Tests if an element is out of the window. If it is,
+it moves it into the window
 */
-    // Returns a number
-    return parseFloat(
-        // of the computed font-size, so in px
-        getComputedStyle(
-            // for the root <html> element
-            document.documentElement
-        )
-        .fontSize
-    );
-};  // End getRootElementFontSize()
-
-
-var placeOriginator = function ( currentTarget, oldTarget ) {
-/* ( DOM, DOM ) -> DOM
-
-Places the originator at the correct starting and ending points.
-Returns the element that was passed in as the currentTarget
-*/
-
-
-		// ========================
-		// INSERT INTO DOM
-		// ========================
-		var parent = currentTarget.parentNode;
-		parent.insertBefore( originDiv, currentTarget );
-
-		// ========================
-		// END POINT (of originator)
-		// ========================
-		var targetLeft = currentTarget.offsetLeft,
-			targetTop = currentTarget.offsetTop;
-
-		originDiv.style.width = targetLeft;
-		originDiv.style.height = targetTop;
-
-		return currentTarget;
-
-};  // End placeOriginator()
+	if ( isOutOfWindow(elem) ) {
+		elem.style.top = 0;
+	}
+	
+	return elem;
+};  // End fixOutOfWindow
 
 
 var placeLabel = function ( elem, relationshipToOriginal ) {
@@ -257,16 +291,67 @@ relationshipToOriginal can either be "original" or "ancestor"
 	var parent = elem.parentNode;
 	parent.insertBefore( label, elem );
 
-	// When we're done with them, rememeber to remove in other function
-	// parent.removeChild(child);
+	// If it's out of the window after placement, get it back in
+	fixOutOfWindow( label );
 
 	return position;
-
 };  // End placeLabel()
 
 
-// Testing
-// var anElem = document.getElementsByClassName('first')[0];
-// placeLabel( anElem );
+var labelElems = function ( elemList ) {
+/* ( [ DOM ] ) -> same
+
+Places position labels on all the elements in the list
+*/
+
+	for ( var elemi = 0; elemi < elemList.length; elemi++ )	{
+		placeLabel( elemList[ elemi ], "ancestor" );
+	}
+
+	return elemList;
+};  // end labelElems()
+
+
+// ====================
+// ORIGINATOR
+// ====================
+var createOriginator = function () {
+/*
+
+Creates the originator element with its properties
+and its children
+*/
+
+
+};  // End createOriginator()
+
+
+var placeOriginator = function ( currentTarget, oldTarget ) {
+/* ( DOM, DOM ) -> DOM
+
+Places the originator at the correct starting and ending points.
+Returns the element that was passed in as the currentTarget
+*/
+
+
+		// ========================
+		// INSERT INTO DOM
+		// ========================
+		var parent = currentTarget.parentNode;
+		parent.insertBefore( originDiv, currentTarget );
+
+		// ========================
+		// END POINT (of originator)
+		// ========================
+		var targetLeft = currentTarget.offsetLeft,
+			targetTop = currentTarget.offsetTop;
+
+		originDiv.style.width = targetLeft;
+		originDiv.style.height = targetTop;
+
+		return currentTarget;
+
+};  // End placeOriginator()
+
 
 
