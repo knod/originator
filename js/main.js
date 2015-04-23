@@ -16,35 +16,35 @@ document.addEventListener( "click", function (event) {
 	currentTarget = event.target;
 	// console.log(currentTarget)
 
-	// Don't respond to a click on our helper (or on a label?)
-	// Don't make it disappear either. What if they want to inspect the element?
-	var isOrigin = currentTarget.classList.contains("origin")
-		|| currentTarget.parentNode.classList.contains("origin") // Taking care of the svg lines
-		|| currentTarget.classList.contains("label"); // And the labels
+	// ================
+	// LABELS
+	// ================
+	// Get rid of all the old labels. If needed, new ones will be made
+	var labels = document.getElementsByClassName( "label" );
+	removeElements( labels );
 
-	// The body doesn't have a parent of a parent
-	if ( !(currentTarget == document.getElementsByTagName("body")[0]) ) {
-		isOrigin = isOrigin || currentTarget.parentNode.parentNode.classList.contains("origin")
-	}
+	// ================
+	// VISIBILITY
+	// ================
+	// Toggle visibility when the same element is clicked on
+	if ( currentTarget === oldTarget ) {
+		originatorVisible = !originatorVisible;
+	// Make originator visible if a new element is clicked on
+	} else { originatorVisible = true; }
 
-	if ( !isOrigin ) {
-		// ================
-		// LABELS
-		// ================
-		// Get rid of all the old labels. If needed, new ones will be made
-		var labels = document.getElementsByClassName( "label" );
-		removeElements( labels );
+	// Want to disappear on html click, but not if originator is clicked?
+	if ( currentTarget.tagName === "HTML" ) { originatorVisible = false; }
 
-		// ================
-		// VISIBILITY
-		// ================
-		// Toggle visibility when the same element is clicked on
-		if ( currentTarget === oldTarget ) {
-			originatorVisible = !originatorVisible;
-		// Make originator visible if a new element is clicked on
-		} else { originatorVisible = true; }
+	handleVisibility( originDiv, originatorVisible );
 
-		handleVisibility( originDiv, originatorVisible );
+	// =================
+	// EXCLUSIONS
+	// =================
+	// Don't try to track originator parts or labels
+	// Don't make originator unclickable either. What if they want to inspect the element?
+	var exclude = shouldExclude( currentTarget );
+
+	if ( !exclude ) {
 
 		// ================
 		// PLACE THINGS
@@ -89,9 +89,6 @@ var handleVisibility = function ( elem, isVisible ) {
 
 Hides or shows elem
 */
-		// ========================
-		// SHOW OR HIDE OUR HELPER
-		// ========================
 		if ( isVisible ) {
 			elem.style.visibility = "visible";
 		} else {
@@ -209,17 +206,49 @@ var isOutOfWindow = function ( elem ) {
 Tests whether an element peeks above viewport.
 Not sure how to do just out of window...
 */
-	// var elemRect 	= elem.getBoundingClientRect();
-	// var elemTop 	= elemRect.top;
 	var elemTop = getOffsetRect( elem ).top;
-	console.log( elemTop );
 	return elemTop < 0
 };  // End isOutOfWindow()
 
 
 // =====================
+// START OF APP
+// =====================
+var shouldExclude = function ( currentElem ) {
+/* ( DOM ) -> Bool
+
+Makes sure the current element doesn't belong to the list of
+excluded elements
+*/
+	var exclude = false;
+
+	// --- Is or belongs to originator ---
+	var isOrigin 	= currentElem.classList.contains("origin");
+	var isHTML 		= (currentElem.tagName === "HTML");
+	var isBody 		= (currentElem.tagName === "BODY");
+	if ( !isHTML ) {
+		// avoid html error, take care of the end-point dots
+		isOrigin = isOrigin || currentElem.parentNode.classList.contains("origin")
+	}
+	// tag name BODY is not excluded, we just can't check the parent of its parent
+	if ( !isHTML && !isBody ) {
+		// avoid body error, take care of the svg lines
+		isOrigin = isOrigin || currentElem.parentNode.parentNode.classList.contains("origin")
+	}
+
+	// --- labels ---
+	var isLabel = currentElem.classList.contains("label");
+
+	// --- result ---
+	if ( isOrigin || isLabel || isHTML ) { exclude = true; }
+	return exclude;
+};  // End shouldExclude()
+
+
+// =====================
 // LABELS
 // =====================
+
 // --- Bring labels back into window --- \\
 // If I do this, I'm going to need something to indicate what
 // elements they actually belong to, aren't I?
@@ -327,7 +356,7 @@ and its children
 };  // End createOriginator()
 
 
-var placeOriginator = function ( currentTarget, oldTarget ) {
+var placeOriginator = function ( currentTarget ) {
 /* ( DOM, DOM ) -> DOM
 
 Places the originator at the correct starting and ending points.

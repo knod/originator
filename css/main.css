@@ -1,8 +1,12 @@
 /*index.css*/
 
-/* ----------------- */
-/* --- TEST DIVS --- */
-/* ------------------ */
+/* ------------ */
+/* --- DEMO --- */
+/* ------------ */
+html { background-color: white; }
+
+body { background-color: tan; }
+
 .regular {
 	position: relative;
 	padding: 100px;
