@@ -1,0 +1,84 @@
+/*index.css*/
+
+.regular {
+	position: relative;
+	padding: 100px;
+
+	width: 30%;
+	height: 500px;
+
+	background-color: lightgray;
+	display: inline-block;
+}
+
+.first {
+	border: solid black 2px;
+
+	width: 200px;
+	height: 300px;
+
+	background-color: gray;
+}
+
+.second {
+	position: absolute;
+	left: 50px;
+	top: 150px;
+
+	width: 50px;
+	height: 50px;
+
+	background-color: teal;
+}
+
+#origin-container {
+	visibility: hidden;
+
+	position: absolute;
+	left: 0;
+	top: 0;
+
+	/*width: 50px;*/
+	/*height: 150px;*/
+
+	/*background-color: black;
+	border: solid white 1px;*/
+	/*background: linear-gradient(45deg, rgba(255,255,255,0) 0%,rgba(255,255,255,0) 45%,rgba(255,255,255,1) 46%,rgba(255,255,255,1) 47%,rgba(0,0,0,1) 48%,rgba(0,0,0,1) 52%,rgba(255,255,255,1) 53%,rgba(252,254,255,1) 54%,rgba(249,253,255,0) 55%,rgba(125,185,232,0) 100%); /* W3C */
+}
+
+.origin-dot {
+	position: absolute;
+
+	height: 0.5rem;
+	width: 0.5rem;
+
+	box-sizing: border-box;
+
+	background-color: black;
+	border: solid white 0.1rem;
+	border-radius: 50%;
+}
+
+.origin-top-left {
+	left: -0.25rem; top: -0.25rem;
+}
+
+.origin-bottom-right {
+	right: -0.25rem; bottom: -0.25rem;
+}
+
+/* Doesn't work for some reason? Did I havea typo at some point? */
+/*svg {
+	pointer-events: none;
+}*/
+
+.label {
+	position: absolute;
+	left: 0;
+	top: -1.2rem;
+
+	background-color: lightgrey;
+	border: solid black 1px;
+	padding: 0 0.2rem;
+}
+
