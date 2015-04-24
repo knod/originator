@@ -116,7 +116,7 @@ above or to the left of the parent
 */
 	var childRect 	= child.getBoundingClientRect(),
 		parentRect 	= child.parentNode.getBoundingClientRect();
-		console.log(childRect.top, parentRect.top)
+		// console.log(childRect.top, parentRect.top)
 	// var parent = child.parentNode;
 	// var leftDiff 	= child.clientLeft - parent.clientLeft,
 	// 	topDiff 	= child.clientTop - parent.clientTop;
