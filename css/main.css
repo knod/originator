@@ -57,18 +57,43 @@ body { background-color: tan; }
 /* --- ORIGINATOR --- */
 /* ------------------ */
 #origin-container {
-	visibility: hidden;
+	/*visibility: hidden;*/
 
 	position: absolute;
 	left: 0;
 	top: 0;
 	
+	z-index: 200;
+
 	/* Want only visible elements to have pointer events */
 	pointer-events: none;
+
+	/*testing*/
+	width: 100px; height: 100px;
 }
 
 #origin-container * {
 	pointer-events: all;
+}
+
+.originator {
+	/*visibility: hidden;*/
+
+	position: absolute;
+	left: 200;
+	top: 100;
+	
+	z-index: 200;
+
+	/* Want only visible elements to have pointer events */
+	pointer-events: none;
+
+	/*testing*/
+	width: 100px; height: 100px;
+}
+
+.originator * {
+	pointer-events: all;	
 }
 
 .origin-dot {
@@ -102,5 +127,7 @@ body { background-color: tan; }
 	background-color: lightgrey;
 	border: solid black 1px;
 	padding: 0 0.2rem;
+
+	box-shadow: -.25px -.25px .25px .25px rgba(0, 0, 0, .8);
 }
 

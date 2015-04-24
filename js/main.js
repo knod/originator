@@ -105,19 +105,6 @@ Hides or shows elem
 };  // End handleVisibility()
 
 
-var offsetFromOffsetParent = function ( elem ) {
-/*
-Get the difference between an element's ancestor and
-an element's offsetParent 
-*/
-	var offsetLeft 	= elem.offsetLeft,
-		offsetTop 	= elem.offsetTop;
-
-
-
-};  // End offsetFromOffsetParent()
-
-
 var offsetFromParent = function ( child ) {
 /*
 
@@ -129,7 +116,18 @@ above or to the left of the parent
 */
 	var childRect 	= child.getBoundingClientRect(),
 		parentRect 	= child.parentNode.getBoundingClientRect();
+		console.log(childRect.top, parentRect.top)
+	// var parent = child.parentNode;
+	// var leftDiff 	= child.clientLeft - parent.clientLeft,
+	// 	topDiff 	= child.clientTop - parent.clientTop;
 
+	// // This works for the element right before the body
+	// // But not others.
+	// var parent = child.parentNode;
+	// var leftDiff 	= childRect.left - parent.clientLeft,
+	// 	topDiff 	= childRect.top - parent.clientTop;
+
+	// Seems to work fine with margins other than BODY's margin
 	var leftDiff 	= childRect.left - parentRect.left,
 		topDiff 	= childRect.top - parentRect.top;
 		
@@ -317,12 +315,11 @@ relationshipToOriginal can either be "original" or "ancestor"
 */
 
 	// Get elem values
-	var elemStyle 	= window.getComputedStyle( elem )
-	var position 	= elemStyle.getPropertyValue( 'position' );
+	var positionStyle 	= getPositionStyle( elem );
 	var tagName 	= elem.tagName;
 
 	// Build text and style based on values
-	var labelString = "position: " + position + " <" + tagName + ">";
+	var labelString = "position: " + positionStyle + " <" + tagName + ">";
 
 	// ===============
 	// LABEL COLOR
@@ -331,9 +328,8 @@ relationshipToOriginal can either be "original" or "ancestor"
 	// If it's the original element, its label should be
 	// green no matter what
 	if ( relationshipToOriginal !== 'original' ) {
-		// If position is not absolute or relative, make box red.
 		// Add a note?
-		if ( position === 'static' ) {
+		if ( positionStyle === 'static' ) {
 			labelColor = 'tomato';
 		}
 	}
@@ -362,14 +358,14 @@ relationshipToOriginal can either be "original" or "ancestor"
 	// If it's out of the window after placement, get it back in
 	fixOutOfWindow( label );
 
-	return position;
+	return positionStyle;
 };  // End placeLabel()
 
 
 var labelElems = function ( elemList ) {
 /* ( [ DOM ] ) -> same
 
-Places position labels on all the elements in the list
+Places positionStyle labels on all the elements in the list
 */
 
 	for ( var elemi = 0; elemi < elemList.length; elemi++ )	{
@@ -394,7 +390,15 @@ and its children
 };  // End createOriginator()
 
 
-var placeOriginator = function ( currentTarget, position ) {
+var getPositionStyle = function ( elem ) {
+
+	var elemStyle 	= window.getComputedStyle( elem )
+	return elemStyle.getPropertyValue( 'position' );
+
+}  // End getPositionStyle()
+
+
+var placeOriginator = function ( currentTarget, positionStyle ) {
 /* ( DOM, DOM ) -> DOM
 
 Places the originator at the correct starting and ending points.
@@ -414,24 +418,27 @@ Returns the element that was passed in as the currentTarget
 		// var targetLeft 	= currentTarget.offsetLeft;
 		// 	targetTop 	= currentTarget.offsetTop;
 
-		// Attempting to connect non-absolute positioned
-		// elements to their direct parents...
+		
 		var originLeft, originTop,
 			targetLeft, targetTop;
 
-		if ( position === "absolute" ) {
+		if ( positionStyle === "absolute" ) {
 			originLeft 	= 0; originTop 	= 0;
 			targetLeft 	= currentTarget.offsetLeft;
 			targetTop 	= currentTarget.offsetTop;
+
 		} else {
+		// Attempting to connect non-absolute positioned
+		// elements to their direct parents...
 
-			var parent 	= currentTarget.parentNode;
+			var parentPosStyle = getPositionStyle( currentTarget.parentNode );
+			if ( parentPosStyle !== 'static' ) {
+				originLeft = 0; originTop = 0;
 
-			originLeft 	= parent.offsetLeft;
-			originTop 	= parent.offsetTop;
-			console.log( parent.offsetParent );
-			console.log( originLeft, originTop );
-
+			} else {
+				originLeft 	= parent.offsetLeft;
+				originTop 	= parent.offsetTop;
+			}
 
 			var offsets = offsetFromParent( currentTarget );
 			targetLeft 	= offsets.x;
@@ -440,8 +447,8 @@ Returns the element that was passed in as the currentTarget
 		}
 
 		// Do it
-		originDiv.style.left 	= originLeft;
-		originDiv.style.top 	= originTop;
+		originDiv.style.left 	= originLeft + "px";
+		originDiv.style.top 	= originTop + "px";
 
 		originDiv.style.width 	= targetLeft;
 		originDiv.style.height 	= targetTop;

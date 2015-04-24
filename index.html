@@ -15,23 +15,28 @@
 				<div class="second"></div>
 
 				<div id="origin-container" class="origin">
-					<div class="origin origin-dot origin-top-left"></div>
+					<!-- <div class="origin origin-dot origin-top-left"></div> -->
 
 					<!-- Our helper -->
-					<div class="origin origin-dot origin-bottom-right"></div>
+					<!-- <div class="origin origin-dot origin-bottom-right"></div> -->
 						<!-- Diagonal line -->
 						<!-- <svg width="100%" height="100%" style="pointer-events:none" > -->
-						<svg width="100%" height="100%" >
+						<svg width="100%" height="100%" version="1.1" xmlns="http://www.w3.org/2000/svg"
+						style="overflow: visible">
+							<circle cx='0' cy='0' r='4' fill='black' stroke='white' stroke-width='1' />
+							<circle cx='100%' cy='100%' r='4' fill='black' stroke='white' stroke-width='1' />
+
 							<line x1="0" y1="0" 
-					          x2="100%" y2="100%" 
-					          stroke="white" 
-					          stroke-width="4"/>
+								x2="100%" y2="100%" 
+								stroke="white" 
+								stroke-width="4"/>
 
+							<line x1="0" y1="0" 
+								x2="100%" y2="100%" 
+								stroke="black" 
+								stroke-width="2"/>
 
-					          <line x1="0" y1="0" 
-					          x2="100%" y2="100%" 
-					          stroke="black" 
-					          stroke-width="2"/>
+							
 						</svg>
 				</div>
 
@@ -53,5 +58,6 @@
 		</div>
 
 		<script language='javascript' type='text/javascript' src='js/main.js'></script>
+		<script language='javascript' type='text/javascript' src='js/main2.js'></script>
 	</body>
 </html>
