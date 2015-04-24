@@ -12,6 +12,7 @@ var Originator = function () {
 
 	origr.node 				= null;
 	origr.oldTarget 		= null;
+	origr.cssFirstPart 		= null;
 
 
 	// ===============================================================
@@ -97,13 +98,6 @@ var Originator = function () {
 			
 	// 	return { x: leftDiff, y: topDiff };
 	// };  // End util.offsetFromParent()
-
-	utils.getPositionStyle = function ( elem ) {
-
-		var elemStyle 	= window.getComputedStyle( elem )
-		return elemStyle.getPropertyValue( 'position' );
-
-	}  // End utils.getPositionStyle()
 
 
 	// --- MOSTLY FOR LABELS ---
@@ -191,7 +185,6 @@ var Originator = function () {
 
 
 	// --- FOR BOTH ---
-
 	utils.getOffsetRect = function ( elem ) {
 	/* ( DOM ) -> {}
 
@@ -219,6 +212,14 @@ var Originator = function () {
 	     
 	    return { top: Math.round(top), left: Math.round(left) }
 	}  // End utils.getOffsetRect()
+
+
+	utils.getPositionStyle = function ( elem ) {
+
+		var elemStyle 	= window.getComputedStyle( elem )
+		return elemStyle.getPropertyValue( 'position' );
+
+	}  // End utils.getPositionStyle()
 
 
 
@@ -279,59 +280,89 @@ var Originator = function () {
 	origr.placeOriginator = function ( currentTarget, positionStyle ) {
 	/* ( DOM, DOM ) -> DOM
 
+	!!! WARNING !!! ??: only works if child is down and to the right of parent?
+
 	Places the originator at the correct starting and ending points.
 	Returns the element that was passed in as the currentTarget
 	*/
+		var origrNode_ = origr.node;
 
+		// --- CORRECT PARENT ---
+		var rightParent;
+		if ( positionStyle === "absolute" ) {
+			rightParent = currentTarget.offsetParent;
+		} else {
+			rightParent = currentTarget.parentNode;
+		}
 
-			// ========================
-			// INSERT INTO DOM
-			// ========================
-			var parent = currentTarget.parentNode;
-			parent.insertBefore( originDiv, currentTarget );
+		var parentPos 	= utils.getOffsetRect( rightParent );
+		var targetPos 	= utils.getOffsetRect( currentTarget );
 
-			// ========================
-			// END POINT (of originator)
-			// ========================
-			// var targetLeft 	= currentTarget.offsetLeft;
-			// 	targetTop 	= currentTarget.offsetTop;
+		// ==================
+		// HORIZONTAL
+		// ==================
+		// Get left to calc right
+		var parentLeft 	= parentPos.left;
+		var targetLeft 	= targetPos.left;
 
-			
-			var originLeft, originTop,
-				targetLeft, targetTop;
+		// Calc and do right
+		var origrWidth 		= targetLeft - parentLeft,
+			flipHorizontal 	= false;
 
-			if ( positionStyle === "absolute" ) {
-				originLeft 	= 0; originTop 	= 0;
-				targetLeft 	= currentTarget.offsetLeft;
-				targetTop 	= currentTarget.offsetTop;
+		if ( origrWidth < 0) {
+			origrWidth 		= parentLeft - targetLeft;
+			// Flip later
+			flipHorizontal 	= true;
+		}
 
-			} else {
-			// Attempting to connect non-absolute positioned
-			// elements to their direct parents...
+		origrNode_.style.width 	= origrWidth;
 
-				var parentPosStyle = getPositionStyle( currentTarget.parentNode );
-				if ( parentPosStyle !== 'static' ) {
-					originLeft = 0; originTop = 0;
+		// Calc and do left
+		origrNode_.style.transform = "";
+		origrNode_.style.left 	= parentLeft;
 
-				} else {
-					originLeft 	= parent.offsetLeft;
-					originTop 	= parent.offsetTop;
-				}
+		// ==================
+		// VERTICAL
+		// ==================
+		// Get top to calc bottom
+		var parentTop 	= parentPos.top;
+		var targetTop 	= targetPos.top;
 
-				var offsets = offsetFromParent( currentTarget );
-				targetLeft 	= offsets.x;
-				targetTop 	= offsets.y;
-				// console.log(offsets)
-			}
+		// Calc and do bottom
+		var origrHeight 	= targetTop - parentTop,
+			flipVertical 	= false;
 
-			// Do it
-			originDiv.style.left 	= originLeft + "px";
-			originDiv.style.top 	= originTop + "px";
+		if ( origrHeight < 0 ) {
+			origrHeight 	= parentTop - targetTop;
+			// Flip later
+			flipVertical 	= true;
+		}
 
-			originDiv.style.width 	= targetLeft;
-			originDiv.style.height 	= targetTop;
+		origrNode_.style.height = origrHeight;
 
-			return currentTarget;
+		// Calc and do top
+		origrNode_.style.transform = "";
+		origrNode_.style.top 	= parentTop;
+
+		// ==============================
+		// FLIPPING (for negtive left or top values)
+		// ==============================
+		var transformX = "";
+		if ( flipHorizontal ) {
+			transformX = "scaleX(-1)";
+			origrNode_.style.left 	= parentLeft - origrWidth;
+		}
+
+		var transformY = "";
+		if ( flipVertical ) {
+			transformY = "scaleY(-1)"
+			origrNode_.style.top 	= parentTop - origrHeight;
+		}
+
+		// --- TRANSFORMS --- \\
+		origrNode_.style.transform = transformX + " " + transformY;
+
+		return currentTarget;
 
 	};  // End placeOriginator()
 
@@ -347,16 +378,22 @@ var Originator = function () {
 		var container 		= document.createElement('div');
 		container.className = 'originator';
 
+		// origr.cssFirstPart 	= 'position: absolute;' +
+		// 	'z-index: 200; pointer-events: none;';
+		var attributesStr 	= 'position: absolute;' +
+			'z-index: 200; pointer-events: none;' +
+			'min-width: 0.5px; min-height: 0.5px;';
+
+		// origr.cssFirstPart
+		// 	+ 'width: 100px; height: 100px'
+		// 	+ 'left: 200px; top: 100px;'
+
 		var attributes 		= {
 			// 'visbility': 'hidden',
-			'style': 'position: absolute; left: 200px; top: 100px;' +
-			'z-index: 200; pointer-events: none;' +
-			'width: 100px; height: 100px'
+			'style': attributesStr
 		}; // end attributes{}
 
 		utils.setAttributes( container, attributes );
-
-		// container.style.position = 'absolute';
 
 		return container;
 	};  // End buildContainerDiv()
@@ -508,15 +545,13 @@ var Originator = function () {
 		// } else 
 
 		if ( !exclude ) {
-			console.log( "not excluded!" )
 			// ================
 			// PLACE THINGS
 			// ================
 			// If stuff is visible, make it look good
 			if ( visibility === "visible" ) {
-			console.log( "visible!" )
 
-
+				var position = utils.getPositionStyle( currentTarget );
 		// 		// TODO: imo, it's kind of awkward that placeLabel returns a position value
 		// 		// 		Not sure what to do about it though
 		// 		var position = placeLabel( currentTarget, "original" );
@@ -533,13 +568,11 @@ var Originator = function () {
 		// 		}
 
 		// 		// ORIGINATOR
-		// 		placeOriginator( currentTarget, position );
+				origr.placeOriginator( currentTarget, position );
 
-		// 		// Prepare for next click on non-originator element
-				// origr.oldTarget = currentTarget;
 			}  // end if visible
 
-			// If new non-excluded target has been clicked, prepre oldTarget for new iteration
+			// Prepare for next click on non-originator element
 			origr.oldTarget = currentTarget;
 
 		}  // end if !excluded

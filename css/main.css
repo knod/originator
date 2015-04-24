@@ -32,6 +32,8 @@ body { background-color: tan; }
 	height: 80%;
 
 	background-color: yellowgreen;
+
+	position: relative;
 }
 
 .second {
@@ -56,58 +58,4 @@ body { background-color: tan; }
 /* ------------------ */
 /* --- ORIGINATOR --- */
 /* ------------------ */
-#origin-container {
-	/*visibility: hidden;*/
-
-	position: absolute;
-	left: 0;
-	top: 0;
-	
-	z-index: 200;
-
-	/* Want only visible elements to have pointer events */
-	pointer-events: none;
-
-	/*testing*/
-	width: 100px; height: 100px;
-}
-
-#origin-container * {
-	pointer-events: all;
-}
-
-.origin-dot {
-	position: absolute;
-
-	height: 0.5rem;
-	width: 0.5rem;
-
-	box-sizing: border-box;
-
-	background-color: black;
-	border: solid white 0.1rem;
-	border-radius: 50%;
-}
-
-.origin-top-left {
-	left: -0.25rem; top: -0.25rem;
-}
-
-.origin-bottom-right {
-	right: -0.25rem; bottom: -0.25rem;
-}
-
-.label {
-	position: absolute;
-	left: 0;
-	top: -1.2rem;
-
-	z-index: 100;
-
-	background-color: lightgrey;
-	border: solid black 1px;
-	padding: 0 0.2rem;
-
-	box-shadow: -.25px -.25px .25px .25px rgba(0, 0, 0, .8);
-}
 
