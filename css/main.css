@@ -76,26 +76,6 @@ body { background-color: tan; }
 	pointer-events: all;
 }
 
-.originator {
-	/*visibility: hidden;*/
-
-	position: absolute;
-	left: 200;
-	top: 100;
-	
-	z-index: 200;
-
-	/* Want only visible elements to have pointer events */
-	pointer-events: none;
-
-	/*testing*/
-	width: 100px; height: 100px;
-}
-
-.originator * {
-	pointer-events: all;	
-}
-
 .origin-dot {
 	position: absolute;
 

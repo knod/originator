@@ -14,20 +14,74 @@ var Originator = function () {
 	originator.node = null;
 
 	// =================
+	// GENERAL
+	// =================
+	var utils = {};
+
+	utils.setAttributes = function ( elem, attrs ) {
+	/*
+
+	Sets a bunch of attributes all at once because that's annoying
+	and messy
+	Use Example: setAttributes(elem, {"width": "50%, "height": "100%", ...});
+	*/
+		for( var key in attrs ) {
+			elem.setAttribute( key, attrs[key] );
+		}
+
+		return elem;
+	};  // End utils.setAttributes()
+
+	// =================
 	// INITIALIZATION
 	// =================
+	var buildContainerDiv = function () {
+
+		var container 		= document.createElement('div');
+		container.className = 'originator';
+
+		var attributes 		= {
+			// 'visbility': 'hidden',
+			'style': 'position: absolute; left: 200px; top: 100px;' +
+			'z-index: 200; pointer-events: none;' +
+			'width: 100px; height: 100px'
+		}; // end attributes{}
+
+		utils.setAttributes( container, attributes );
+
+		// container.style.position = 'absolute';
+
+		return container;
+	};  // End buildContainerDiv()
+
+
+	var buildSVG 	= function ( NS ) {
+
+		var svg 		= document.createElementNS( NS,'svg' );
+		var attributes 	= {
+			'version': '1.1', 'width': '100%', 'height': '100%',
+			'style': 'overflow: visible; pointer-events: all;'
+		};
+
+		utils.setAttributes( svg, attributes );
+
+		return svg;
+	};  // End buildSVG()
+
+
 	var buildLine 	= function ( NS, strokeColor, strokeWidth, strokeLength ) {
 	/*
 
 	Build one originator line. Goes from top left to bottom right.
 	*/
-		var line = document.createElementNS( NS,'line' );
+		var line 		= document.createElementNS( NS,'line' );
+		var attributes 	= {
+			'x1': '0', 'y1': '0', 'x2': '100%', 'y2': '100%',
+			'stroke': strokeColor, 'stroke-width': strokeWidth
+		};
 
-		line.setAttribute( 'x1', '0' ); line.setAttribute( 'y1', '0' );
-		line.setAttribute( 'x2', '100%' ); line.setAttribute( 'y2', '100%' );
-		line.setAttribute( 'stroke', strokeColor );
-		line.setAttribute( 'stroke-width', strokeWidth );
-		line.setAttribute( 'stroke-linecap', 'butt' );
+		utils.setAttributes( line, attributes);
+		// line.setAttribute( 'stroke-linecap', 'butt' );
 
 		return line;
 	}  // End buildLine()
@@ -41,12 +95,13 @@ var Originator = function () {
 		// Sizes
 		var radius = 4, strokeWidth = 1.5;
 
-		var circle = document.createElementNS( NS, 'circle' );
+		var circle 		= document.createElementNS( NS, 'circle' );
+		var attributes 	= {
+			'cx': placement, 'cy': placement, 'r': radius,
+			'fill': 'black', 'stroke': 'white', 'stroke-width': strokeWidth
+		};
 
-		circle.setAttribute( 'cx', placement ); circle.setAttribute( 'cy', placement );
-		circle.setAttribute( 'r', radius );
-		circle.setAttribute( 'fill', 'red' );
-		circle.setAttribute( 'stroke', 'white' ); circle.setAttribute( 'stroke-width', strokeWidth );
+		utils.setAttributes( circle, attributes );
 
 		return circle;
 	};  // End buildCircle()
@@ -64,17 +119,18 @@ var Originator = function () {
 		// ==============
 		// CONTAINERS
 		// ==============
-		var container 		= document.createElement('div');
-		container.className = 'originator';
-
+		var container 	= buildContainerDiv();
 		document.body.appendChild( container );
 
-		var NS 				= 'http://www.w3.org/2000/svg';
-		var svg 			= document.createElementNS( NS,'svg' );
-		svg.setAttribute( 'version', '1.1' );
-		svg.setAttribute( 'width', '100%' );
-		svg.setAttribute( 'height', '100%' );
-		svg.setAttribute( 'style', 'overflow: visible' );
+		var NS 			= 'http://www.w3.org/2000/svg';
+		var svg 		= buildSVG( NS );
+		// document.createElementNS( NS,'svg' );
+		// var attributes 	= {
+		// 	'version': '1.1', 'width': '100%', 'height': '100%',
+		// 	'style': 'overflow: visible; pointer-events: all;'
+		// };
+
+		// utils.setAttributes( svg, attributes );
 
 		container.appendChild( svg );
 
@@ -84,8 +140,8 @@ var Originator = function () {
 		// Line widths
 		var inner = 2, outer = 4;
 
-		var outline 		= buildLine( NS, 'white', outer );
-		var line 			= buildLine( NS, 'black', inner );
+		var outline 	= buildLine( NS, 'white', outer );
+		var line 		= buildLine( NS, 'black', inner );
 
 		svg.appendChild( outline );
 		svg.appendChild( line );
@@ -96,21 +152,15 @@ var Originator = function () {
 		// Sizes
 		var radius = 4, strokeWidth = 1.5;
 
-		var leftTop 		= buildCircle( NS, '0' );
+		var leftTop 	= buildCircle( NS, '0' );
+		var rightBottom = buildCircle( NS, '100%' );
+
 		svg.appendChild( leftTop );
-
-		// circle is in DOM, but can't see or find where it is, not even a marker
-		var rightBottom 	= buildCircle( 'NS', '100%' );
-
-		// circle looks fine
-		// var rightBottom 	= document.createElementNS( NS, 'circle' );
-		// rightBottom.setAttribute( 'cx', '100%' ); rightBottom.setAttribute( 'cy', '100%' );
-		// rightBottom.setAttribute( 'r', radius );
-		// rightBottom.setAttribute( 'fill', 'black' );
-		// rightBottom.setAttribute( 'stroke', 'white' ); rightBottom.setAttribute( 'stroke-width', strokeWidth );
-
 		svg.appendChild( rightBottom );
 		
+		// ======================
+		// SET OBJECT PROPERTIES
+		// ======================
 		originator.node = container;
 
 		return container;
@@ -120,6 +170,11 @@ var Originator = function () {
 
 	return originator;
 };
+
+
+var OrgUtils = {};
+
+
 
 
 // ============
