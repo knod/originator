@@ -45,7 +45,7 @@ var Originator = function () {
 
 		circle.setAttribute( 'cx', placement ); circle.setAttribute( 'cy', placement );
 		circle.setAttribute( 'r', radius );
-		circle.setAttribute( 'fill', 'black' );
+		circle.setAttribute( 'fill', 'red' );
 		circle.setAttribute( 'stroke', 'white' ); circle.setAttribute( 'stroke-width', strokeWidth );
 
 		return circle;
