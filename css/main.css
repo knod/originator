@@ -58,4 +58,16 @@ body { background-color: tan; }
 /* ------------------ */
 /* --- ORIGINATOR --- */
 /* ------------------ */
+/*.label {
+	position: absolute;
+	left: 0;
+	top: -1.2rem;
 
+	z-index: 100;
+
+	background-color: lightgrey;
+	border: solid black 1px;
+	padding: 0 0.2rem;
+
+	box-shadow: -.25px -.25px .25px .25px rgba(0, 0, 0, .8);
+}*/

@@ -14,6 +14,11 @@ var Originator = function () {
 	origr.oldTarget 		= null;
 	origr.cssFirstPart 		= null;
 
+	var baseColor 			= 'rgb(50, 50, 50)',
+		outlineColor		= 'white',
+		wrongColor 			= 'tomato',
+		rightColor 			= 'lightgreen';
+
 
 	// ===============================================================
 	// =================
@@ -103,21 +108,21 @@ var Originator = function () {
 	// --- MOSTLY FOR LABELS ---
 
 	// !!! ??: USE BOTTOM AND RIGHT PROPERTIES INSTEAD? !!!
-	// var getRootElementFontSize = function () {
-	// /* ( None ) -> int
+	var getRootElementFontSize = function () {
+	/* ( None ) -> int
 
-	// Returns the pixel value of one rem (for placement of labels)
-	// */
-	//     // Returns a number
-	//     return parseFloat(
-	//         // of the computed font-size, so in px
-	//         getComputedStyle(
-	//             // for the root <html> element
-	//             document.documentElement
-	//         )
-	//         .fontSize
-	//     );
-	// };  // End getRootElementFontSize()
+	Returns the pixel value of one rem (for placement of labels)
+	*/
+	    // Returns a number
+	    return parseFloat(
+	        // of the computed font-size, so in px
+	        getComputedStyle(
+	            // for the root <html> element
+	            document.documentElement
+	        )
+	        .fontSize
+	    );
+	};  // End getRootElementFontSize()
 
 
 	utils.getElemsFromUntil = function ( childElem, ancestorElem ) {
@@ -277,25 +282,23 @@ var Originator = function () {
 	};  // End getNewVisibility()
 
 
-	origr.placeOriginator = function ( currentTarget, positionStyle ) {
+	// ====================
+	// ORIGINATOR
+	// ====================
+	origr.placeOriginator = function ( currentTarget, positionStyle, targetParent ) {
 	/* ( DOM, DOM ) -> DOM
 
-	!!! WARNING !!! ??: only works if child is down and to the right of parent?
+	!!! WARNING !!! ??: only works if child is down and to the right of targetParent?
 
 	Places the originator at the correct starting and ending points.
 	Returns the element that was passed in as the currentTarget
+
+	Break this up into multiple functions
 	*/
 		var origrNode_ = origr.node;
 
 		// --- CORRECT PARENT ---
-		var rightParent;
-		if ( positionStyle === "absolute" ) {
-			rightParent = currentTarget.offsetParent;
-		} else {
-			rightParent = currentTarget.parentNode;
-		}
-
-		var parentPos 	= utils.getOffsetRect( rightParent );
+		var parentPos 	= utils.getOffsetRect( targetParent );
 		var targetPos 	= utils.getOffsetRect( currentTarget );
 
 		// ==================
@@ -366,7 +369,128 @@ var Originator = function () {
 
 	};  // End placeOriginator()
 
+	// ====================
+	// LABELS
+	// ====================
+	var createLabel = function ( elem, labelColor ) {
+	/*
 
+	Create one label for an element
+	*/
+		var label 		= document.createElement('div');
+		label.className = 'label';
+
+		var style = 'position: absolute; z-index: 100; '
+			+ 'border: solid ' + baseColor + ' 1px; padding: 0 0.2rem; '
+			+ 'box-shadow:  -0.25px -0.25px 0.25px 0px rgba(0, 0, 0, .5); '
+			+ 'border-radius: 3px 3px 0px 0px; '
+			+ 'background-color: ' + labelColor;
+		
+		label.setAttribute('style', style);
+
+		var elemRect 	= utils.getOffsetRect( elem );
+		var elemLeft 	= elemRect.left,
+			elemTop 	= elemRect.top;
+
+		// Calculate 1.2 rem above elem
+		var topDiff 		= 1.2 * getRootElementFontSize();
+		label.style.top 	= elemTop - topDiff;
+		label.style.left 	= elemLeft;
+
+		return label
+	};  // End createLabel()
+
+
+	var isOutOfWindow = function ( elem ) {
+	/* ( DOM ) -> bool
+
+	Tests whether an element peeks above viewport.
+	Not sure how to do just out of window...
+	*/
+		var elemTop = utils.getOffsetRect( elem ).top;
+		return elemTop < 0
+	};  // End isOutOfWindow()
+
+
+	var fixOutOfWindow = function ( elem ) {
+	/*
+
+	Tests if an element is out of the window. If it is,
+	it moves it into the window
+	*/
+		if ( isOutOfWindow(elem) ) {
+			elem.style.top = 0;
+		}
+		
+		return elem;
+	};  // End fixOutOfWindow
+
+
+	var placeLabel = function ( elem, placeInChain, childPosition ) {
+	/* ( DOM, str ) -> str
+
+	Places a label at the top of an element that says its position
+	attribute value.
+
+	placeInChain can either be "child" or "ancestor #"
+
+	// http://stackoverflow.com/questions/6338217/get-a-css-value-with-javascript
+	*/
+
+		// Get elem values
+		var positionStyle 	= utils.getPositionStyle( elem );
+		var tagName 		= elem.tagName;
+
+		// Build text and style based on values
+		var labelString = "position: " + positionStyle + " (" + placeInChain + ")";
+
+		var labelColor 	= rightColor;
+		// If it's the original element, its label should be
+		// green no matter what
+		if ( placeInChain !== 'child' ) {
+			// if it isn't and it's static, then its out of sync
+			if ( (childPosition === 'absolute') && (positionStyle === 'static') ) {
+				labelColor = wrongColor;
+			}
+		}
+
+		// Build label
+		var label 		= createLabel( elem, labelColor );
+
+		var labelText 	= document.createTextNode( labelString );
+		label.appendChild( labelText );
+
+		// Place in DOM
+		// var parent = elem.parentNode;
+		// parent.insertBefore( label, elem );
+		document.body.appendChild( label );
+
+		// If it's out of the window after placement, get it back in
+		fixOutOfWindow( label );
+
+		return elem;
+	};  // End placeLabel()
+
+
+	var labelElems = function ( elemList, childPosition ) {
+	/* ( [ DOM ] ) -> same
+
+	Places positionStyle labels on all the elements in the list
+	*/
+
+		// Backwards through the list so ancestors don't cover children
+		for ( var elemi = (elemList.length - 1); elemi >= 0; elemi-- )	{
+			var placeInChain = 'ancestor ' + (elemi - 1) ;
+
+			if ( elemi === 0 ) {
+				placeInChain = 'child';
+			}
+
+			placeLabel( elemList[ elemi ], placeInChain, childPosition );
+		}  // end for elemList
+
+		return elemList;
+	};  // end labelElems()
 
 
 	// ===============================================================
@@ -378,22 +502,11 @@ var Originator = function () {
 		var container 		= document.createElement('div');
 		container.className = 'originator';
 
-		// origr.cssFirstPart 	= 'position: absolute;' +
-		// 	'z-index: 200; pointer-events: none;';
-		var attributesStr 	= 'position: absolute;' +
-			'z-index: 200; pointer-events: none;' +
+		var attributesStr 	= 'position: absolute; left: 0; top: 0; ' +
+			'visibility: hidden; z-index: 200; pointer-events: none;' +
 			'min-width: 0.5px; min-height: 0.5px;';
 
-		// origr.cssFirstPart
-		// 	+ 'width: 100px; height: 100px'
-		// 	+ 'left: 200px; top: 100px;'
-
-		var attributes 		= {
-			// 'visbility': 'hidden',
-			'style': attributesStr
-		}; // end attributes{}
-
-		utils.setAttributes( container, attributes );
+		container.setAttribute( 'style', attributesStr );
 
 		return container;
 	};  // End buildContainerDiv()
@@ -413,8 +526,8 @@ var Originator = function () {
 	};  // End buildSVG()
 
 
-	var buildLine 	= function ( NS, strokeColor, strokeWidth, strokeLength ) {
-	/*
+	var buildLine 	= function ( NS, strokeColor, strokeWidth ) {
+	/* ( str, str, num ) -> DOM
 
 	Build one originator line. Goes from top left to bottom right.
 	*/
@@ -431,8 +544,8 @@ var Originator = function () {
 	}  // End buildLine()
 
 
-	var buildCircle = function ( NS, placement ) {
-	/*
+	var buildCircle = function ( NS, position ) {
+	/* ( str, str ) -> DOM
 
 	Build originator circles
 	*/
@@ -441,8 +554,8 @@ var Originator = function () {
 
 		var circle 		= document.createElementNS( NS, 'circle' );
 		var attributes 	= {
-			'cx': placement, 'cy': placement, 'r': radius,
-			'fill': 'black', 'stroke': 'white', 'stroke-width': strokeWidth
+			'cx': position, 'cy': position, 'r': radius,
+			'fill': baseColor, 'stroke': outlineColor, 'stroke-width': strokeWidth
 		};
 
 		utils.setAttributes( circle, attributes );
@@ -460,9 +573,7 @@ var Originator = function () {
 		That would involve animation, I think
 	*/
 
-		// ==============
-		// CONTAINERS
-		// ==============
+		// --- CONTAINERS --- \\
 		var container 	= buildContainerDiv();
 		document.body.appendChild( container );
 
@@ -472,22 +583,18 @@ var Originator = function () {
 		var svg 		= buildSVG( NS );
 		container.appendChild( svg );
 
-		// ==============
-		// LINES
-		// ==============
+		// --- LINES --- \\
 		// Line widths
 		var inner = 2, outer = 4;
 
-		var outline 	= buildLine( NS, 'white', outer );
-		var line 		= buildLine( NS, 'black', inner );
+		var outline 	= buildLine( NS, outlineColor, outer );
+		var line 		= buildLine( NS, baseColor, inner );
 
 		svg.appendChild( outline );
 		svg.appendChild( line );
 
-		// ===============
-		// CIRCLES
-		// ===============
-		// Sizes
+		// --- CIRCLES --- \\
+		// Circle thicknesses
 		var radius = 4, strokeWidth = 1.5;
 
 		var leftTop 	= buildCircle( NS, '0' );
@@ -496,13 +603,11 @@ var Originator = function () {
 		svg.appendChild( leftTop );
 		svg.appendChild( rightBottom );
 		
-		// ======================
-		// SET OBJECT PROPERTIES
-		// ======================
+		//  --- SET OBJECT PROPERTIES --- \\
 		origr.node = container;
 
 		return container;
-	}  // End createNew()
+	};  // End createNew()
 
 	createNew();
 
@@ -512,82 +617,57 @@ var Originator = function () {
 	// =================
 	document.addEventListener( "click", function (event) {
 
-		// =========
-		// SETUP
 		var currentTarget = event.target;
 		// console.log(currentTarget)
 
-		// ================
-		// LABELS
-		// ================
-		// // Get rid of all the old labels. If needed, new ones will be made
-		// var labels = document.getElementsByClassName( "label" );
-		// removeElements( labels );
+		// Get rid of all the old labels. If needed, new ones will be made
+		var labels = document.getElementsByClassName( "label" );
+		utils.removeElements( labels );
 
-		// ================
-		// VISIBILITY
-		// ================
+		// "hidden" will prevent movement as well
 		var visibility = origr.getNewVisibility( currentTarget, origr.oldTarget );
 		origr.node.style.visibility = visibility;
 
-		// =================
-		// EXCLUSIONS
-		// =================
 		// Don't try to track originator parts or labels
 		// Don't make originator unclickable either. What if they want to inspect the element?
 		var exclude = origr.shouldExclude( currentTarget );
 
-		// // Always exceptions for HTML!!! ARGH!!!
-		// if ( currentElem.tagName === "HTML" ) {
-		// 	// removeElements( labels );
-		// 	origr.node.style.visibility = "hidden";
-
-		// } else 
-
+		// At least change the oldTarget (down at the bottom)
 		if ( !exclude ) {
-			// ================
-			// PLACE THINGS
-			// ================
+
 			// If stuff is visible, make it look good
 			if ( visibility === "visible" ) {
+				// ================
+				// PLACE THINGS
+				// ================
+				var positionStyle = utils.getPositionStyle( currentTarget );
 
-				var position = utils.getPositionStyle( currentTarget );
-		// 		// TODO: imo, it's kind of awkward that placeLabel returns a position value
-		// 		// 		Not sure what to do about it though
-		// 		var position = placeLabel( currentTarget, "original" );
+				// --- CORRECT PARENT ---
+				var targetParent = currentTarget.parentNode;
+				if ( positionStyle === "absolute" ) {
+					targetParent = currentTarget.offsetParent;
+				}
 
-		// 		// ================
-		// 		// LABELS
-		// 		// ================
-		// 		// Always show the label of the current element
-		// 		// If the element is position: aboslute
-		// 		if ( position === "absolute" ) {
-		// 			// put labels on all the parents untill the positioning parent
-		// 			var ancestors = getElemsFromUntil( currentTarget, currentTarget.offsetParent );
-		// 			labelElems( ancestors );
-		// 		}
+				// --- LABELS --- \\
+				var elems = utils.getElemsFromUntil( currentTarget, targetParent );
+				labelElems( elems, positionStyle );
 
-		// 		// ORIGINATOR
-				origr.placeOriginator( currentTarget, position );
-
+				// --- ORIGINATOR --- \\
+				origr.placeOriginator( currentTarget, positionStyle, targetParent );
 			}  // end if visible
 
 			// Prepare for next click on non-originator element
 			origr.oldTarget = currentTarget;
-
 		}  // end if !excluded
 
 	});  // end document on click
-
 
 	return origr;
 };
 
 
-
-
 // ============
 // START
 // ============
-var org = new Originator();
+var originator3000 = new Originator();
 
