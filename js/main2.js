@@ -245,6 +245,30 @@ var Originator = function () {
 	}  // End utils.getPositionStyle()
 
 
+	utils.positionRelativeToParent = function ( elem ) {
+	/* ( DOM ) -> {}
+
+	Gets position relative to parent instead of offset parent
+	*/
+		var elemPos 	= utils.getOffsetRect( elem );
+		var elemLeft 	= elemPos.left,
+			elemTop 	= elemPos.top;
+
+		var parentPos 	= utils.getOffsetRect( elem.parentNode );
+		var parentLeft 	= parentPos.left,
+			parentTop 	= parentPos.top;
+
+		var xDiff 		= elemLeft - parentLeft;
+		var xDiffSign 	= Math.sqrt( xDiff * xDiff );
+
+		var yDiff 		= elemTop - parentTop;
+		var yDiffSign 	= Math.sqrt( yDiff * yDiff );
+
+
+		return {x: xDiffSign, y: yDiffSign}
+	};  // End utils.positionRelativeToParent
+
+
 
 	// ===============================================================
 	// =================
@@ -341,13 +365,16 @@ var Originator = function () {
 	// ====================
 	// LABELS
 	// ====================
-	var shadowContainerPadding = 2;
+	var shadowContainerPadding 	= 2;
+	var containerHeight 		= ( 1.2 * getRootElementFontSize() ) + shadowContainerPadding;
 
 	var createShadowCutoff = function () {
 	/* ( None ) -> DOM
 
 	Creates labele element that will surround the shadowed
 	element and cut off the bottom shadow.
+	http://stackoverflow.com/questions/1429605/creating-a-css3-box-shadow-on-all-sides-but-one
+		second answer "cut it off with overflow"
 	*/
 
 		var cutoff 	= document.createElement('div');
@@ -398,9 +425,10 @@ var Originator = function () {
 			elemTop 	= elemRect.top;
 
 		// Calculate 1.2 rem above elem
-		var topDiff 		= ( 1.2 * getRootElementFontSize() ) + shadowContainerPadding;
-		cutoff.style.top 	= elemTop - topDiff;
 		cutoff.style.left 	= elemLeft - shadowContainerPadding;
+		// TODO: cutoff.getBoundingClientRect().top; after added to DOM to change top
+		containerHeight 	= ( 1.2 * getRootElementFontSize() ) + shadowContainerPadding;
+		cutoff.style.top 	= elemTop - containerHeight;
 
 		return cutoff
 	};  // End createLabel()
@@ -430,13 +458,11 @@ var Originator = function () {
 	var placeLabel = function ( elem, placeInChain, childPosition ) {
 	/* ( DOM, str ) -> str
 
-	Places a label at the top of an element that says its position
-	attribute value.
+	Places a label at the top of an element. All show position style. Parents
+	show ancestry and child shows computed left and top values.
 
 	placeInChain can either be "child" or "ancestor #"
-	// TODO?: 
 	// http://stackoverflow.com/questions/6338217/get-a-css-value-with-javascript
-	// TODO: Instead of "child", show left and top
 	*/
 
 		// Get elem values
@@ -444,21 +470,30 @@ var Originator = function () {
 		var tagName 		= elem.tagName;
 
 		// Build text and style based on values
-		var labelString = "position: " + positionStyle + " (" + placeInChain + ")";
+		var labelString = 'position: ' + positionStyle + ' (' + placeInChain + ')';
 
 		var labelColor 	= rightColor;
-		// If it's the original element, its label should be
-		// green no matter what
+		// If it's the original element, its label should be green
 		if ( placeInChain !== 'child' ) {
-			// if it isn't and it's static, then its out of sync
+			// A static ancestor is out of sync and should be red
 			if ( (childPosition === 'absolute') && (positionStyle === 'static') ) {
 				labelColor = wrongColor;
 			}
 		}
 
 		// Build label
+		var elemStyle 	= window.getComputedStyle( elem );
+
+		var leftPx 		= elemStyle.getPropertyValue( 'left' ),
+			leftStr 	= 'left: ' + leftPx;
+
+		var topPx 		= elemStyle.getPropertyValue( 'top' ),
+			topStr		= ', top: ' + topPx;
+
+		labelString = 'position: ' + positionStyle + ' (' + leftStr + topStr + ')';
+
+		// cutoff's inner element is what gets the text
 		var cutoff 		= createLabel( elem, labelColor );
-		// It's inner element is what gets the text
 		var inner 		= cutoff.getElementsByClassName( 'label-shadowed-elem' )[0];
 		var labelText 	= document.createTextNode( labelString );
 		inner.appendChild( labelText );
@@ -510,7 +545,7 @@ var Originator = function () {
 		container.className = 'originator';
 
 		var attributesStr 	= 'position: absolute; left: 0; top: 0; ' +
-			'visibility: hidden; z-index: 200; pointer-events: none; ' +
+			'visibility: hidden; z-index: 200; ' + //pointer-events: none; ' +
 			'height: 0.5px; min-width: 0.5px; ' +
 			// Always rotate from top left corner
 			'-webkit-transform-origin: top left; -moz-transform-origin: top left;' +
@@ -527,7 +562,7 @@ var Originator = function () {
 		var svg 		= document.createElementNS( NS,'svg' );
 		var attributes 	= {
 			'version': '1.1', 'width': '100%', 'height': '100%',
-			'style': 'overflow: visible; pointer-events: all;'
+			'style': 'overflow: visible;'//' pointer-events: all;'
 		};
 
 		utils.setAttributes( svg, attributes );
@@ -660,12 +695,15 @@ var Originator = function () {
 				var positionStyle = utils.getPositionStyle( currentTarget );
 
 				// --- CORRECT PARENT ---
-				var targetParent = currentTarget.parentNode;
-				if ( positionStyle === 'absolute' ) {
-					targetParent = currentTarget.offsetParent;
+				// Absolutely positioned elements have this final ancestor
+				var targetParent = currentTarget.offsetParent;
+				if ( positionStyle !== 'absolute' ) {
+					// Other position styles have their direct parent as their final ancestor
+					targetParent = currentTarget.parentNode;
 				}
 
 				// --- LABELS --- \\
+				// Get the current element and all ancestors up to and including the determined parent
 				var elems = utils.getElemsFromUntil( currentTarget, targetParent );
 				labelElems( elems, positionStyle );
 
