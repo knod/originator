@@ -299,102 +299,45 @@ var Originator = function () {
 		return visibility;
 	};  // End getNewVisibility()
 
+
 	// ====================
 	// ORIGINATOR
 	// ====================
 	origr.placeOriginator = function ( currentTarget, positionStyle, targetParent ) {
 	/* ( DOM, DOM ) -> DOM
 
-	!!! WARNING !!! ??: only works if child is down and to the right of targetParent?
-
 	Places the originator at the correct starting and ending points.
 	Returns the element that was passed in as the currentTarget
-
-	Break this up into multiple functions
 	*/
 		var origrNode_ = origr.node;
+		// Rotation is accumulative. Always reset first.
 		utils.resetRotation( origrNode_ );
 
-		// --- CORRECT PARENT ---
+		// Positions left and top to x and y
 		var parentPos 	= utils.getOffsetRect( targetParent ),
 			pCoords		= { 'x': parentPos.left, 'y': parentPos.top };
 		var targetPos 	= utils.getOffsetRect( currentTarget ),
 			tCoords		= { 'x': targetPos.left, 'y': targetPos.top };
 
+		// Line Length
 		var distance 	= utils.distanceBetween( pCoords, tCoords );
 		origrNode_.style.width = distance + "px";
 
+		// Line rotation (from top left because of css)
 		var degrees 	= utils.degreesFromHorizontal( pCoords, tCoords );
-
 		utils.rotateByDegrees( origrNode_, degrees );
 
-		// // ==================
-		// // HORIZONTAL
-		// // ==================
-		// // Get left to calc right
+		// Position
 		var parentLeft 	= parentPos.left;
-		// var targetLeft 	= targetPos.left;
-
-		// // Calc and do right
-		// var origrWidth 		= targetLeft - parentLeft,
-		// 	flipHorizontal 	= false;
-
-		// if ( origrWidth < 0) {
-		// 	origrWidth 		= parentLeft - targetLeft;
-		// 	// Flip later
-		// 	flipHorizontal 	= true;
-		// }
-
-		// origrNode_.style.width 	= origrWidth;
-
-		// // Calc and do left
-		// origrNode_.style.transform = "";
 		origrNode_.style.left 	= parentLeft;
 
-		// // ==================
-		// // VERTICAL
-		// // ==================
-		// // Get top to calc bottom
 		var parentTop 	= parentPos.top;
-		// var targetTop 	= targetPos.top;
-
-		// // Calc and do bottom
-		// var origrHeight 	= targetTop - parentTop,
-		// 	flipVertical 	= false;
-
-		// if ( origrHeight < 0 ) {
-		// 	origrHeight 	= parentTop - targetTop;
-		// 	// Flip later
-		// 	flipVertical 	= true;
-		// }
-
-		// origrNode_.style.height = origrHeight;
-
-		// // Calc and do top
-		// origrNode_.style.transform = "";
 		origrNode_.style.top 	= parentTop;
-
-		// // ==============================
-		// // FLIPPING (for negtive left or top values)
-		// // ==============================
-		// var transformX = "";
-		// if ( flipHorizontal ) {
-		// 	transformX = "scaleX(-1)";
-		// 	origrNode_.style.left 	= parentLeft - origrWidth;
-		// }
-
-		// var transformY = "";
-		// if ( flipVertical ) {
-		// 	transformY = "scaleY(-1)"
-		// 	origrNode_.style.top 	= parentTop - origrHeight;
-		// }
-
-		// // --- TRANSFORMS --- \\
-		// origrNode_.style.transform = transformX + " " + transformY;
 
 		return currentTarget;
 
 	};  // End placeOriginator()
+
 
 	// ====================
 	// LABELS
@@ -535,7 +478,6 @@ var Originator = function () {
 			// Always rotate from top left corner
 			'-webkit-transform-origin: top left; -moz-transform-origin: top left;' +
             '-o-transform-origin: top left; transform-origin: top left;';
-			// 'min-width: 0.5px; min-height: 0.5px;';
 
 		container.setAttribute( 'style', attributesStr );
 
