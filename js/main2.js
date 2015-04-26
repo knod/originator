@@ -260,11 +260,10 @@ var Originator = function () {
 
 		// --- Is or belongs to originator ---
 		var allElems 	= utils.getElemsFromUntil( currentElem, document.body.parentNode );
-		// allElems.push( currentElem );
-		var isOrigin 	= utils.oneHasClass( allElems, "originator" );
+		var isOrigin 	= utils.oneHasClass( allElems, 'originator' );
 
-		var isHTML 		= currentElem.tagName === "HTML";
-		var isLabel = currentElem.classList.contains("label");
+		var isLabel 	= utils.oneHasClass( allElems, 'label-shadow-cutoff' );
+		var isHTML 		= currentElem.tagName === 'HTML';
 
 		// --- result ---
 		if ( isOrigin || isLabel || isHTML ) { exclude = true; }
@@ -342,32 +341,68 @@ var Originator = function () {
 	// ====================
 	// LABELS
 	// ====================
-	var createLabel = function ( elem, labelColor ) {
+	var shadowContainerPadding = 2;
+
+	var createShadowCutoff = function () {
+	/* ( None ) -> DOM
+
+	Creates labele element that will surround the shadowed
+	element and cut off the bottom shadow.
+	*/
+
+		var cutoff 	= document.createElement('div');
+		cutoff.className = 'label-shadow-cutoff';
+
+		var pd 		= shadowContainerPadding + 'px ';
+		var style 	= 'position: absolute; z-index: 100; '
+			+ 'padding: ' + pd + pd + '0 ' + pd + '; overflow: hidden;'
+
+		cutoff.setAttribute( 'style', style );
+
+		return cutoff;
+	};  // End createShadowCutoff()
+
+
+	var createShadowed 	= function ( labelColor ) {
+	/* ( None ) -> DOM
+
+	Create label element that will contain the text, the color,
+	and have a shadow.
+	*/
+		var label 		= document.createElement('div');
+		label.className = 'label-shadowed-elem';
+
+		var style 		= 'border: solid ' + baseColor + ' 1px; padding: 0 0.2rem; '
+			+ 'border-radius: 5px 5px 0px 0px; '
+			+ 'box-shadow: 0 0 3px .1px rgba(0, 0, 0, .5); '
+			+ 'background-color: ' + labelColor;
+		
+		label.setAttribute('style', style);
+
+		return label;
+	};  // End createShadow()
+
+
+	var createLabel 	= function ( elem, labelColor ) {
 	/*
 
 	Create one label for an element
 	*/
-		var label 		= document.createElement('div');
-		label.className = 'label';
 
-		var style = 'position: absolute; z-index: 100; '
-			+ 'border: solid ' + baseColor + ' 1px; padding: 0 0.2rem; '
-			+ 'box-shadow:  -0.25px -0.25px 0.25px 0px rgba(0, 0, 0, .5); '
-			+ 'border-radius: 3px 3px 0px 0px; '
-			+ 'background-color: ' + labelColor;
-		
-		label.setAttribute('style', style);
+		var cutoff 		= createShadowCutoff();
+		var shadowed 	= createShadowed( labelColor );
+		cutoff.appendChild( shadowed );
 
 		var elemRect 	= utils.getOffsetRect( elem );
 		var elemLeft 	= elemRect.left,
 			elemTop 	= elemRect.top;
 
 		// Calculate 1.2 rem above elem
-		var topDiff 		= 1.2 * getRootElementFontSize();
-		label.style.top 	= elemTop - topDiff;
-		label.style.left 	= elemLeft;
+		var topDiff 		= ( 1.2 * getRootElementFontSize() ) + shadowContainerPadding;
+		cutoff.style.top 	= elemTop - topDiff;
+		cutoff.style.left 	= elemLeft - shadowContainerPadding;
 
-		return label
+		return cutoff
 	};  // End createLabel()
 
 
@@ -387,7 +422,7 @@ var Originator = function () {
 	Tests if an element is out of the window. If it is,
 	it moves it into the window
 	*/
-		if ( isOutOfWindow(elem) ) { elem.style.top = 0; }
+		if ( isOutOfWindow(elem) ) { elem.style.top = -1 * shadowContainerPadding; }
 		return elem;
 	};  // End fixOutOfWindow
 
@@ -401,6 +436,7 @@ var Originator = function () {
 	placeInChain can either be "child" or "ancestor #"
 	// TODO?: 
 	// http://stackoverflow.com/questions/6338217/get-a-css-value-with-javascript
+	// TODO: Instead of "child", show left and top
 	*/
 
 		// Get elem values
@@ -421,18 +457,19 @@ var Originator = function () {
 		}
 
 		// Build label
-		var label 		= createLabel( elem, labelColor );
-
+		var cutoff 		= createLabel( elem, labelColor );
+		// It's inner element is what gets the text
+		var inner 		= cutoff.getElementsByClassName( 'label-shadowed-elem' )[0];
 		var labelText 	= document.createTextNode( labelString );
-		label.appendChild( labelText );
+		inner.appendChild( labelText );
 
 		// Place in DOM
 		// var parent = elem.parentNode;
 		// parent.insertBefore( label, elem );
-		document.body.appendChild( label );
+		document.body.appendChild( cutoff );
 
 		// If it's out of the window after placement, get it back in
-		fixOutOfWindow( label );
+		fixOutOfWindow( cutoff );
 
 		return elem;
 	};  // End placeLabel()
@@ -595,7 +632,7 @@ var Originator = function () {
 	// =================
 	// EVENTS
 	// =================
-	document.addEventListener( "click", function (event) {
+	document.addEventListener( 'click', function (event) {
 
 		var currentTarget = event.target;
 		// console.log(currentTarget)
@@ -605,7 +642,7 @@ var Originator = function () {
 		var exclude = origr.shouldExclude( currentTarget );
 
 		// Get rid of all the old labels. If needed, new ones will be made
-		var labels = document.getElementsByClassName( "label" );
+		var labels = document.getElementsByClassName( 'label-shadow-cutoff' );
 		utils.removeElements( labels );
 
 		// "hidden" will prevent movement as well
@@ -616,7 +653,7 @@ var Originator = function () {
 		if ( !exclude ) {
 
 			// If stuff is visible, make it look good
-			if ( visibility === "visible" ) {
+			if ( visibility === 'visible' ) {
 				// ================
 				// PLACE THINGS
 				// ================
@@ -624,7 +661,7 @@ var Originator = function () {
 
 				// --- CORRECT PARENT ---
 				var targetParent = currentTarget.parentNode;
-				if ( positionStyle === "absolute" ) {
+				if ( positionStyle === 'absolute' ) {
 					targetParent = currentTarget.offsetParent;
 				}
 
