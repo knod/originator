@@ -5,6 +5,11 @@ TODO:
  or just make them a color other than black?
 - Maybe put abs pos element's left and top values
  in label?
+- Move stuff when 
+
+Resources no longer used:
+	- http://tzi.fr/js/snippet/convert-em-in-px (1 rem to pixels)
+		getRootElementFontSize()
 */
 
 'use strict'
@@ -126,23 +131,6 @@ var Originator = function () {
 
 
 	// --- MOSTLY FOR LABELS ---
-	var getRootElementFontSize = function () {
-	/* ( None ) -> int
-
-	Returns the pixel value of one rem (for placement of labels)
-	*/
-	    // Returns a number
-	    return parseFloat(
-	        // of the computed font-size, so in px
-	        getComputedStyle(
-	            // for the root <html> element
-	            document.documentElement
-	        )
-	        .fontSize
-	    );
-	};  // End getRootElementFontSize()
-
-
 	utils.getElemsFromUntil = function ( childElem, ancestorElem ) {
 	/* ( HTML, HTML ) -> [ DOM ]
 
@@ -202,9 +190,21 @@ var Originator = function () {
 	Tests whether an element peeks above viewport.
 	Not sure how to do just out of window...
 	*/
-		var elemTop = getOffsetRect( elem ).top;
+		var elemTop = utils.getOffsetRect( elem ).top;
 		return elemTop < 0
 	};  // End utils.isOutOfWindow()
+
+
+	utils.fixOutOfWindow = function ( elem ) {
+	/*
+
+	Tests if an element is out of the window. If it is,
+	it moves it into the window
+	*/
+		// Doesn't include the shadow, just the colored bit of the label
+		if ( utils.isOutOfWindow(elem) ) { elem.style.top = -1 * shadowContainerPadding; }
+		return elem;
+	};  // End fixOutOfWindow
 
 
 	// --- FOR BOTH ---
@@ -263,7 +263,6 @@ var Originator = function () {
 
 		var yDiff 		= elemTop - parentTop;
 		var yDiffSign 	= Math.sqrt( yDiff * yDiff );
-
 
 		return {x: xDiffSign, y: yDiffSign}
 	};  // End utils.positionRelativeToParent
@@ -365,7 +364,6 @@ var Originator = function () {
 	// LABELS
 	// ====================
 	var shadowContainerPadding 	= 2;
-	var containerHeight 		= ( 1.2 * getRootElementFontSize() ) + shadowContainerPadding;
 
 	var createShadowCutoff = function () {
 	/* ( None ) -> DOM
@@ -389,69 +387,65 @@ var Originator = function () {
 	};  // End createShadowCutoff()
 
 
-	var createShadowed 	= function ( labelColor ) {
+	var createShadowed 	= function ( labelColor, labelString ) {
 	/* ( None ) -> DOM
 
 	Create label element that will contain the text, the color,
 	and have a shadow.
 	*/
-		var label 		= document.createElement('div');
-		label.className = 'label-shadowed-elem';
+		var inner 		= document.createElement('div');
+		inner.className = 'label-shadowed-elem';
 
 		var style 		= 'border: solid ' + baseColor + ' 1px; padding: 0 0.2rem; '
-			+ 'border-radius: 5px 5px 0px 0px; '
+			+ 'border-radius: 4px 4px 0px 0px; '
 			+ 'box-shadow: 0 0 3px .1px rgba(0, 0, 0, .5); '
 			+ 'background-color: ' + labelColor;
 		
-		label.setAttribute('style', style);
+		inner.setAttribute('style', style);
 
-		return label;
+		var labelText 	= document.createTextNode( labelString );
+		inner.appendChild( labelText );
+
+		return inner;
 	};  // End createShadow()
 
 
-	var createLabel 	= function ( elem, labelColor ) {
+	var createLabel 	= function ( elem, labelColor, labelString ) {
 	/*
 
 	Create one label for an element
 	*/
 
 		var cutoff 		= createShadowCutoff();
-		var shadowed 	= createShadowed( labelColor );
+		var shadowed 	= createShadowed( labelColor, labelString );
 		cutoff.appendChild( shadowed );
-
-		var elemRect 	= utils.getOffsetRect( elem );
-		var elemLeft 	= elemRect.left,
-			elemTop 	= elemRect.top;
-
-		// Calculate 1.2 rem + padding above elem
-		cutoff.style.left 	= elemLeft - shadowContainerPadding;
-		// TODO: cutoff.getBoundingClientRect().top; after added to DOM to change top
-		containerHeight 	= ( 1.2 * getRootElementFontSize() ) + shadowContainerPadding;
-		cutoff.style.top 	= elemTop - containerHeight;
 
 		return cutoff
 	};  // End createLabel()
 
 
-	var isOutOfWindow = function ( elem ) {
-	/* ( DOM ) -> bool
+	var positionLabel = function ( label, elem ) {
+	/* ( DOM, DOM ) -> label DOM
 
-	Tests whether an element peeks above document
+	Lines up the visible part of the label with the element that
+	it labels (the outer container makes things tricky)
 	*/
-		var elemTop = utils.getOffsetRect( elem ).top;
-		return elemTop < 0
-	};  // End isOutOfWindow()
+		var elemRect 	= utils.getOffsetRect( elem );
+		var elemLeft 	= elemRect.left,
+			elemTop 	= elemRect.top;
 
+		// Account for container's padding (which there for the shadow)
+		label.style.left 	= elemLeft - shadowContainerPadding;
+		// Get the bottom completely lined up
+		var labelHeight 	= label.offsetHeight;
+		// For some reason it seems to always end up a little higher. Math.
+		label.style.top 	= (elemTop - labelHeight) + 1;
 
-	var fixOutOfWindow = function ( elem ) {
-	/*
+		// If it's now sticking out of the top of the DOM, bring it back in
+		utils.fixOutOfWindow( label );
 
-	Tests if an element is out of the window. If it is,
-	it moves it into the window
-	*/
-		if ( isOutOfWindow(elem) ) { elem.style.top = -1 * shadowContainerPadding; }
-		return elem;
-	};  // End fixOutOfWindow
+		return label;
+	};  // End positionLabel
 
 
 	var placeLabel = function ( elem, placeInChain, childPosition ) {
@@ -464,15 +458,12 @@ var Originator = function () {
 	// http://stackoverflow.com/questions/6338217/get-a-css-value-with-javascript
 	*/
 
-		// Get elem values
+		// Get this element's position
 		var positionStyle 	= utils.getPositionStyle( elem );
-		var tagName 		= elem.tagName;
 
-		// Build text and style based on values
-		var labelString = 'position: ' + positionStyle + ' (' + placeInChain + ')';
-
+		// --- COLOR --- \\
 		var labelColor 	= rightColor;
-		// If it's the original element, its label should be green
+		// If it's the original element, its label should be green. If not...
 		if ( placeInChain !== 'child' ) {
 			// A static ancestor is out of sync and should be red
 			if ( (childPosition === 'absolute') && (positionStyle === 'static') ) {
@@ -480,30 +471,26 @@ var Originator = function () {
 			}
 		}
 
-		// Build label
-		var elemStyle 	= window.getComputedStyle( elem );
+		// --- TEXT --- \\
+		var labelString = 'position: ' + positionStyle + ' (' + placeInChain + ')';
 
-		var leftPx 		= elemStyle.getPropertyValue( 'left' ),
-			leftStr 	= 'left: ' + leftPx;
+		// Child shows its computed left and top values
+		if ( placeInChain === 'child' ) {
+			var elemStyle 	= window.getComputedStyle( elem );
+			var leftPx 		= elemStyle.getPropertyValue( 'left' ),
+				leftStr 	= 'left: ' + leftPx;
+			var topPx 		= elemStyle.getPropertyValue( 'top' ),
+				topStr		= ', top: ' + topPx;
 
-		var topPx 		= elemStyle.getPropertyValue( 'top' ),
-			topStr		= ', top: ' + topPx;
+			labelString 	= 'position: ' + positionStyle + ' (' + leftStr + topStr + ')';
+		}
 
-		labelString = 'position: ' + positionStyle + ' (' + leftStr + topStr + ')';
+		// --- NODE --- \\
+		var label 		= createLabel( elem, labelColor, labelString );
+		document.body.appendChild( label );
 
-		// cutoff's inner element is what gets the text
-		var cutoff 		= createLabel( elem, labelColor );
-		var inner 		= cutoff.getElementsByClassName( 'label-shadowed-elem' )[0];
-		var labelText 	= document.createTextNode( labelString );
-		inner.appendChild( labelText );
-
-		// Place in DOM
-		// var parent = elem.parentNode;
-		// parent.insertBefore( label, elem );
-		document.body.appendChild( cutoff );
-
-		// If it's out of the window after placement, get it back in
-		fixOutOfWindow( cutoff );
+		// --- FINAL POSITION --- \\
+		positionLabel( label, elem );
 
 		return elem;
 	};  // End placeLabel()
@@ -545,7 +532,7 @@ var Originator = function () {
 
 		var attributesStr 	= 'position: absolute; left: 0; top: 0; ' +
 			'visibility: hidden; z-index: 200; ' +
-			'height: 0.5px; min-width: 0.5px; ' +
+			'height: 1.5px; min-width: 0.5px; ' +
 			// Always rotate from top left corner
 			'-webkit-transform-origin: top left; -moz-transform-origin: top left;' +
             '-o-transform-origin: top left; transform-origin: top left;';
@@ -557,6 +544,7 @@ var Originator = function () {
 
 
 	var buildSVG 	= function ( NS ) {
+	/* ( str ) -> DOM */
 
 		var svg 		= document.createElementNS( NS,'svg' );
 		var attributes 	= {
@@ -573,7 +561,8 @@ var Originator = function () {
 	var buildLine 	= function ( NS, strokeColor, strokeWidth ) {
 	/* ( str, str, num ) -> DOM
 
-	Build one originator line. Goes from top left to bottom right.
+	Build one originator line. Goes straigh across horizontally.
+	Will be rotated
 	*/
 		var line 		= document.createElementNS( NS,'line' );
 		var attributes 	= {
@@ -602,7 +591,8 @@ var Originator = function () {
 
 		var circle 		= document.createElementNS( NS, 'circle' );
 		var attributes 	= {
-			'cx': position, 'cy': position, 'r': radius,
+			// They should be at the same height? Everything starts out horizontal
+			'cx': position, 'cy': 0, 'r': radius,
 			'fill': baseColor, 'stroke': outlineColor, 'stroke-width': strokeWidth
 		};
 		// To pulse a color first
@@ -649,6 +639,7 @@ var Originator = function () {
 		var radius = 4, strokeWidth = 1.5;
 
 		var leftTop 	= buildCircle( NS, '0' );
+		// Does this mean it's not completely on center? Should it be (100%, 0)?
 		var rightBottom = buildCircle( NS, '100%' );
 
 		svg.appendChild( leftTop );
