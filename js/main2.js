@@ -1,6 +1,11 @@
-// main2.js
+/* main2.js
 
-//
+TODO:
+- Pulse color of line and circles when they first appear?
+ or just make them a color other than black?
+- Maybe put abs pos element's left and top values
+ in label?
+*/
 
 'use strict'
 
@@ -14,7 +19,7 @@ var Originator = function () {
 	origr.oldTarget 		= null;
 	origr.cssFirstPart 		= null;
 
-	var baseColor 			= 'rgb(50, 50, 50)',
+	var baseColor 			= 'rgb(75, 75, 75)',
 		outlineColor		= 'white',
 		wrongColor 			= 'tomato',
 		rightColor 			= 'lightgreen';
@@ -42,22 +47,7 @@ var Originator = function () {
 	};  // End utils.setAttributes()
 
 
-	// --- MOSTLY FOR ORIGINATOR ---
-	// utils.handleVisibility = function ( elem, isVisible ) {
-	// /*
-
-	// Hides or shows elem
-	// */
-	// 		if ( isVisible ) {
-	// 			elem.style.visibility = "visible";
-	// 		} else {
-				
-	// 			elem.style.visibility = "hidden";
-	// 		}
-
-	// 		return elem;
-	// };  // End utils.handleVisibility()
-
+	// --- MOSTLY FOR ORIGINALTOR ---
 	utils.oneHasClass = function ( elems, testClass ) {
 	/* ( [ DOM ], str ) -> bool
 
@@ -75,39 +65,67 @@ var Originator = function () {
 		return oneHasClass;
 	};  // End oneHasClass()
 
-	// util.offsetFromParent = function ( child ) {
-	// /*
+	utils.distanceBetween = function ( point1, point2 ) {
+	/* ( {}, {} ) -> num
+	
+	Returns the pixel distance between point1 and point2
+	*/
+		var xDistance = 0;
+		var yDistance = 0;
 
-	// Gets the pixel distances between the origin of the parent
-	// and the origin of the child
+		xDistance = point2.x - point1.x;
+		xDistance = xDistance * xDistance;
 
-	// !!! WARNING !!! I think this only works if the child is not
-	// above or to the left of the parent
-	// */
-	// 	var childRect 	= child.getBoundingClientRect(),
-	// 		parentRect 	= child.parentNode.getBoundingClientRect();
-	// 		console.log(childRect.top, parentRect.top)
-	// 	// var parent = child.parentNode;
-	// 	// var leftDiff 	= child.clientLeft - parent.clientLeft,
-	// 	// 	topDiff 	= child.clientTop - parent.clientTop;
+		yDistance = point2.y - point1.y;
+		yDistance = yDistance * yDistance;
 
-	// 	// // This works for the element right before the body
-	// 	// // But not others.
-	// 	// var parent = child.parentNode;
-	// 	// var leftDiff 	= childRect.left - parent.clientLeft,
-	// 	// 	topDiff 	= childRect.top - parent.clientTop;
+		return Math.sqrt( xDistance + yDistance );
 
-	// 	// Seems to work fine with margins other than BODY's margin
-	// 	var leftDiff 	= childRect.left - parentRect.left,
-	// 		topDiff 	= childRect.top - parentRect.top;
-			
-	// 	return { x: leftDiff, y: topDiff };
-	// };  // End util.offsetFromParent()
+	};  // End distanceBetween()
+
+
+	utils.degreesFromHorizontal = function ( point1, point2 ) {
+	/* ( {}, {} ) -> num
+
+	Returns number of degrees between a horizontal line to the right
+	and the line made by the two given points.
+	*/
+		var deltaY = point2.y - point1.y,
+			deltaX = point2.x - point1.x;
+
+		var angleInDegrees = Math.atan2( deltaY, deltaX ) * 180 / Math.PI;
+
+		return angleInDegrees;
+	};  // End degreesFromHorizontal()
+
+
+	utils.rotateByDegrees = function ( elem, degrees ) {
+	/* ( DOM, num ) -> same DOM */
+
+		elem.style.webkitTransform = 'rotate(' + degrees + 'deg)'; 
+		elem.style.mozTransform    = 'rotate(' + degrees + 'deg)'; 
+		elem.style.msTransform     = 'rotate(' + degrees + 'deg)'; 
+		elem.style.oTransform      = 'rotate(' + degrees + 'deg)'; 
+		elem.style.transform       = 'rotate(' + degrees + 'deg)';
+
+		return elem;
+	};  // End rotateByDegrees()
+
+
+	utils.resetRotation = function ( elem ) {
+	/* ( DOM ) -> same */
+
+		elem.style.webkitTransform = 'rotate( 0deg )'; 
+		elem.style.mozTransform    = 'rotate( 0deg )';
+		elem.style.msTransform     = 'rotate( 0deg )';
+		elem.style.oTransform      = 'rotate( 0deg )';
+		elem.style.transform       = 'rotate( 0deg )';
+
+		return elem;
+	};  // End resetRotation()
 
 
 	// --- MOSTLY FOR LABELS ---
-
-	// !!! ??: USE BOTTOM AND RIGHT PROPERTIES INSTEAD? !!!
 	var getRootElementFontSize = function () {
 	/* ( None ) -> int
 
@@ -281,7 +299,6 @@ var Originator = function () {
 		return visibility;
 	};  // End getNewVisibility()
 
-
 	// ====================
 	// ORIGINATOR
 	// ====================
@@ -296,74 +313,84 @@ var Originator = function () {
 	Break this up into multiple functions
 	*/
 		var origrNode_ = origr.node;
+		utils.resetRotation( origrNode_ );
 
 		// --- CORRECT PARENT ---
-		var parentPos 	= utils.getOffsetRect( targetParent );
-		var targetPos 	= utils.getOffsetRect( currentTarget );
+		var parentPos 	= utils.getOffsetRect( targetParent ),
+			pCoords		= { 'x': parentPos.left, 'y': parentPos.top };
+		var targetPos 	= utils.getOffsetRect( currentTarget ),
+			tCoords		= { 'x': targetPos.left, 'y': targetPos.top };
 
-		// ==================
-		// HORIZONTAL
-		// ==================
-		// Get left to calc right
+		var distance 	= utils.distanceBetween( pCoords, tCoords );
+		origrNode_.style.width = distance + "px";
+
+		var degrees 	= utils.degreesFromHorizontal( pCoords, tCoords );
+
+		utils.rotateByDegrees( origrNode_, degrees );
+
+		// // ==================
+		// // HORIZONTAL
+		// // ==================
+		// // Get left to calc right
 		var parentLeft 	= parentPos.left;
-		var targetLeft 	= targetPos.left;
+		// var targetLeft 	= targetPos.left;
 
-		// Calc and do right
-		var origrWidth 		= targetLeft - parentLeft,
-			flipHorizontal 	= false;
+		// // Calc and do right
+		// var origrWidth 		= targetLeft - parentLeft,
+		// 	flipHorizontal 	= false;
 
-		if ( origrWidth < 0) {
-			origrWidth 		= parentLeft - targetLeft;
-			// Flip later
-			flipHorizontal 	= true;
-		}
+		// if ( origrWidth < 0) {
+		// 	origrWidth 		= parentLeft - targetLeft;
+		// 	// Flip later
+		// 	flipHorizontal 	= true;
+		// }
 
-		origrNode_.style.width 	= origrWidth;
+		// origrNode_.style.width 	= origrWidth;
 
-		// Calc and do left
-		origrNode_.style.transform = "";
+		// // Calc and do left
+		// origrNode_.style.transform = "";
 		origrNode_.style.left 	= parentLeft;
 
-		// ==================
-		// VERTICAL
-		// ==================
-		// Get top to calc bottom
+		// // ==================
+		// // VERTICAL
+		// // ==================
+		// // Get top to calc bottom
 		var parentTop 	= parentPos.top;
-		var targetTop 	= targetPos.top;
+		// var targetTop 	= targetPos.top;
 
-		// Calc and do bottom
-		var origrHeight 	= targetTop - parentTop,
-			flipVertical 	= false;
+		// // Calc and do bottom
+		// var origrHeight 	= targetTop - parentTop,
+		// 	flipVertical 	= false;
 
-		if ( origrHeight < 0 ) {
-			origrHeight 	= parentTop - targetTop;
-			// Flip later
-			flipVertical 	= true;
-		}
+		// if ( origrHeight < 0 ) {
+		// 	origrHeight 	= parentTop - targetTop;
+		// 	// Flip later
+		// 	flipVertical 	= true;
+		// }
 
-		origrNode_.style.height = origrHeight;
+		// origrNode_.style.height = origrHeight;
 
-		// Calc and do top
-		origrNode_.style.transform = "";
+		// // Calc and do top
+		// origrNode_.style.transform = "";
 		origrNode_.style.top 	= parentTop;
 
-		// ==============================
-		// FLIPPING (for negtive left or top values)
-		// ==============================
-		var transformX = "";
-		if ( flipHorizontal ) {
-			transformX = "scaleX(-1)";
-			origrNode_.style.left 	= parentLeft - origrWidth;
-		}
+		// // ==============================
+		// // FLIPPING (for negtive left or top values)
+		// // ==============================
+		// var transformX = "";
+		// if ( flipHorizontal ) {
+		// 	transformX = "scaleX(-1)";
+		// 	origrNode_.style.left 	= parentLeft - origrWidth;
+		// }
 
-		var transformY = "";
-		if ( flipVertical ) {
-			transformY = "scaleY(-1)"
-			origrNode_.style.top 	= parentTop - origrHeight;
-		}
+		// var transformY = "";
+		// if ( flipVertical ) {
+		// 	transformY = "scaleY(-1)"
+		// 	origrNode_.style.top 	= parentTop - origrHeight;
+		// }
 
-		// --- TRANSFORMS --- \\
-		origrNode_.style.transform = transformX + " " + transformY;
+		// // --- TRANSFORMS --- \\
+		// origrNode_.style.transform = transformX + " " + transformY;
 
 		return currentTarget;
 
@@ -404,8 +431,7 @@ var Originator = function () {
 	var isOutOfWindow = function ( elem ) {
 	/* ( DOM ) -> bool
 
-	Tests whether an element peeks above viewport.
-	Not sure how to do just out of window...
+	Tests whether an element peeks above document
 	*/
 		var elemTop = utils.getOffsetRect( elem ).top;
 		return elemTop < 0
@@ -418,10 +444,7 @@ var Originator = function () {
 	Tests if an element is out of the window. If it is,
 	it moves it into the window
 	*/
-		if ( isOutOfWindow(elem) ) {
-			elem.style.top = 0;
-		}
-		
+		if ( isOutOfWindow(elem) ) { elem.style.top = 0; }
 		return elem;
 	};  // End fixOutOfWindow
 
@@ -433,7 +456,7 @@ var Originator = function () {
 	attribute value.
 
 	placeInChain can either be "child" or "ancestor #"
-
+	// TODO?: 
 	// http://stackoverflow.com/questions/6338217/get-a-css-value-with-javascript
 	*/
 
@@ -498,13 +521,21 @@ var Originator = function () {
 	// INITIALIZATION
 	// =================
 	var buildContainerDiv = function () {
+	/*
+
+	Container is always 0.5px high, will be rotated for placement
+	*/
 
 		var container 		= document.createElement('div');
 		container.className = 'originator';
 
 		var attributesStr 	= 'position: absolute; left: 0; top: 0; ' +
-			'visibility: hidden; z-index: 200; pointer-events: none;' +
-			'min-width: 0.5px; min-height: 0.5px;';
+			'visibility: hidden; z-index: 200; pointer-events: none; ' +
+			'height: 0.5px; min-width: 0.5px; ' +
+			// Always rotate from top left corner
+			'-webkit-transform-origin: top left; -moz-transform-origin: top left;' +
+            '-o-transform-origin: top left; transform-origin: top left;';
+			// 'min-width: 0.5px; min-height: 0.5px;';
 
 		container.setAttribute( 'style', attributesStr );
 
@@ -533,9 +564,13 @@ var Originator = function () {
 	*/
 		var line 		= document.createElementNS( NS,'line' );
 		var attributes 	= {
-			'x1': '0', 'y1': '0', 'x2': '100%', 'y2': '100%',
+			// 'x1': '0', 'y1': '0', 'x2': '100%', 'y2': '100%',
+			'x1': '0', 'y1': '0', 'x2': '100%', 'y2': '0',
 			'stroke': strokeColor, 'stroke-width': strokeWidth
 		};
+
+		// To pulse a color first
+		line.style.transition = 'stroke .4s ease;';
 
 		utils.setAttributes( line, attributes);
 		// line.setAttribute( 'stroke-linecap', 'butt' );
@@ -557,6 +592,8 @@ var Originator = function () {
 			'cx': position, 'cy': position, 'r': radius,
 			'fill': baseColor, 'stroke': outlineColor, 'stroke-width': strokeWidth
 		};
+		// To pulse a color first
+		circle.style.transition = 'fill .4s ease;';
 
 		utils.setAttributes( circle, attributes );
 
@@ -587,11 +624,12 @@ var Originator = function () {
 		// Line widths
 		var inner = 2, outer = 4;
 
-		var outline 	= buildLine( NS, outlineColor, outer );
-		var line 		= buildLine( NS, baseColor, inner );
+		var outline 		= buildLine( NS, outlineColor, outer );
+		var innerLine 		= buildLine( NS, baseColor, inner );
+		innerLine.className = 'inner-line';
 
 		svg.appendChild( outline );
-		svg.appendChild( line );
+		svg.appendChild( innerLine );
 
 		// --- CIRCLES --- \\
 		// Circle thicknesses
@@ -620,6 +658,10 @@ var Originator = function () {
 		var currentTarget = event.target;
 		// console.log(currentTarget)
 
+		// Don't try to track originator parts or labels
+		// Don't make originator unclickable either. What if they want to inspect the element?
+		var exclude = origr.shouldExclude( currentTarget );
+
 		// Get rid of all the old labels. If needed, new ones will be made
 		var labels = document.getElementsByClassName( "label" );
 		utils.removeElements( labels );
@@ -627,10 +669,6 @@ var Originator = function () {
 		// "hidden" will prevent movement as well
 		var visibility = origr.getNewVisibility( currentTarget, origr.oldTarget );
 		origr.node.style.visibility = visibility;
-
-		// Don't try to track originator parts or labels
-		// Don't make originator unclickable either. What if they want to inspect the element?
-		var exclude = origr.shouldExclude( currentTarget );
 
 		// At least change the oldTarget (down at the bottom)
 		if ( !exclude ) {
