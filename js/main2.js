@@ -287,10 +287,9 @@ var Originator = function () {
 		var isOrigin 	= utils.oneHasClass( allElems, 'originator' );
 
 		var isLabel 	= utils.oneHasClass( allElems, 'label-shadow-cutoff' );
-		var isHTML 		= currentElem.tagName === 'HTML';
 
 		// --- result ---
-		if ( isOrigin || isLabel || isHTML ) { exclude = true; }
+		if ( isOrigin || isLabel ) { exclude = true; }
 		return exclude;
 	};  // End origr.shouldExclude()
 
@@ -424,7 +423,7 @@ var Originator = function () {
 		var elemLeft 	= elemRect.left,
 			elemTop 	= elemRect.top;
 
-		// Calculate 1.2 rem above elem
+		// Calculate 1.2 rem + padding above elem
 		cutoff.style.left 	= elemLeft - shadowContainerPadding;
 		// TODO: cutoff.getBoundingClientRect().top; after added to DOM to change top
 		containerHeight 	= ( 1.2 * getRootElementFontSize() ) + shadowContainerPadding;
@@ -545,7 +544,7 @@ var Originator = function () {
 		container.className = 'originator';
 
 		var attributesStr 	= 'position: absolute; left: 0; top: 0; ' +
-			'visibility: hidden; z-index: 200; ' + //pointer-events: none; ' +
+			'visibility: hidden; z-index: 200; ' +
 			'height: 0.5px; min-width: 0.5px; ' +
 			// Always rotate from top left corner
 			'-webkit-transform-origin: top left; -moz-transform-origin: top left;' +
@@ -562,7 +561,7 @@ var Originator = function () {
 		var svg 		= document.createElementNS( NS,'svg' );
 		var attributes 	= {
 			'version': '1.1', 'width': '100%', 'height': '100%',
-			'style': 'overflow: visible;'//' pointer-events: all;'
+			'style': 'overflow: visible;'
 		};
 
 		utils.setAttributes( svg, attributes );
@@ -663,35 +662,33 @@ var Originator = function () {
 
 	createNew();
 
-	// ========================================
+	// ============================================
 	// =================
 	// EVENTS
 	// =================
 	document.addEventListener( 'click', function (event) {
 
 		var currentTarget = event.target;
-		// console.log(currentTarget)
 
-		// Don't try to track originator parts or labels
-		// Don't make originator unclickable either. What if they want to inspect the element?
+		// Don't try to track originator parts or labels, but do allow
+		// clicking so elements can be inspected
 		var exclude = origr.shouldExclude( currentTarget );
-
-		// Get rid of all the old labels. If needed, new ones will be made
-		var labels = document.getElementsByClassName( 'label-shadow-cutoff' );
-		utils.removeElements( labels );
-
-		// "hidden" will prevent movement as well
-		var visibility = origr.getNewVisibility( currentTarget, origr.oldTarget );
-		origr.node.style.visibility = visibility;
 
 		// At least change the oldTarget (down at the bottom)
 		if ( !exclude ) {
 
+			// Clicking anything unexcluded involves getting rid of old labels
+			// i.e. making everything disappear or marking a new element
+			var labels = document.getElementsByClassName( 'label-shadow-cutoff' );
+			utils.removeElements( labels );
+
+			// "hidden" will prevent movement as well
+			var visibility = origr.getNewVisibility( currentTarget, origr.oldTarget );
+			origr.node.style.visibility = visibility;
+
 			// If stuff is visible, make it look good
 			if ( visibility === 'visible' ) {
-				// ================
-				// PLACE THINGS
-				// ================
+
 				var positionStyle = utils.getPositionStyle( currentTarget );
 
 				// --- CORRECT PARENT ---
