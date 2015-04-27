@@ -5,7 +5,7 @@ TODO:
  or just make them a color other than black?
 - Maybe put abs pos element's left and top values
  in label?
-- Move stuff when 
+- Move stuff when page resizes or styles are changed
 
 Resources no longer used:
 	- http://tzi.fr/js/snippet/convert-em-in-px (1 rem to pixels)
@@ -13,6 +13,9 @@ Resources no longer used:
 */
 
 'use strict'
+
+var rgbToHsl;
+var determineColor;
 
 var Originator = function () {
 /*
@@ -324,6 +327,123 @@ var Originator = function () {
 	// ====================
 	// ORIGINATOR
 	// ====================
+
+	rgbToHsl = function ( rgb ) {
+	/* ( str ) -> Str
+
+	
+	// http://stackoverflow.com/questions/13070054/convert-rgb-strings-to-hex-in-javascript
+	*/
+		var colorNumStr = rgb.split("(")[1].split(")")[0],
+			colorNums 	= colorNumStr.split(","),
+			red 		= parseFloat( colorNums[0] ),
+			green 		= parseFloat( colorNums[1] ),
+			blue 		= parseFloat( colorNums[2] );
+
+	// http://stackoverflow.com/questions/2348597/why-doesnt-this-javascript-rgb-to-hsl-code-work
+	// Marco Demaio
+		// var minVal = Math.min(red, green, blue),
+		// 	maxVal = Math.max(red, green, blue),
+		// 	delta = maxVal - minVal,
+		// 	HSB = {hue:0, sat:0, bri: maxVal},
+		// 	del_Red, del_Green, del_Blue;
+
+		// if( delta !== 0 )
+		// {
+		// 	HSB.sat = delta / maxVal;
+		// 	del_Red = (((maxVal - red) / 6) + (delta / 2)) / delta;
+		// 	del_Green = (((maxVal - green) / 6) + (delta / 2)) / delta;
+		// 	del_Blue = (((maxVal - blue) / 6) + (delta / 2)) / delta;
+
+		// 	if (red === maxVal) {HSB.hue = del_Blue - del_Green;}
+		// 	else if (green === maxVal) {HSB.hue = (1 / 3) + del_Red - del_Blue;}
+		// 	else if (blue === maxVal) {HSB.hue = (2 / 3) + del_Green - del_Red;}
+
+		// 	if (HSB.hue < 0) {HSB.hue += 1;}
+		// 	if (HSB.hue > 1) {HSB.hue -= 1;}
+		// }
+
+		// HSB.hue *= 360;
+		// HSB.sat *= 100;
+		// HSB.bri *= 100;
+
+		// return HSB;
+
+		// http://stackoverflow.com/questions/4793729/rgb-to-hsl-and-back-calculation-problems
+        var red 	= (red / 255);
+        var green 	= (green / 255);
+        var blue 	= (blue / 255);
+
+        var _Min 	= Math.min(Math.min(red, green), blue),
+        	_Max 	= Math.max(Math.max(red, green), blue),
+        	_Delta 	= _Max - _Min;
+
+        var light 	= ( (_Max + _Min) / 2 ),
+        	light 	= 100 * light;
+
+        var satur 	= 0;
+        var hue 	= 0;
+
+		if (_Delta != 0)
+		{
+			// Saturation
+			if (light < 0.5) {
+				satur = ( _Delta / (_Max + _Min) );
+			} else {
+				satur = ( _Delta / (2 - _Max - _Min) );
+			}
+
+			// Hue?
+			if (red === _Max) {
+				hue = (green - blue) / _Delta;
+
+			} else if (green === _Max) {
+				hue = 2 + (blue - red) / _Delta;
+
+			} else if (blue == _Max) {
+				hue = 4 + (red - green) / _Delta;
+			
+			}
+		}
+
+		satur 	= 100 * satur;
+		hue 	= hue * 60;
+        if (hue < 0) hue += 360;
+
+		var hslStr = 'hsl(' + hue + ', ' + satur + '%, ' + light + '%);';
+
+        return  hslStr;
+
+	};  // end rgbToHsl()
+
+
+	// SEEMS TO WORK!!! :D :D :D
+	determineColor = function ( elem ) {		
+
+		// if border > 3 px, get color of border
+		// else get color of element
+		// Make that color darker or lighter with a max and a min
+
+		var styles = getComputedStyle( elem )
+
+		var borderWidth = styles.getPropertyValue( 'border-width' );
+		borderWidth = parseFloat( borderWidth );
+
+		// if ( borderWidth > 3 ) {
+
+			var borderColor = styles.getPropertyValue( 'border-color' );
+			console.log(borderColor);
+			// debugger;
+			var hsl 		= rgbToHsl( borderColor );
+			// console.log( hsl );
+
+		// }
+		elem.style.borderColor = hsl;
+
+	};
+
+
+
 	origr.placeOriginator = function ( currentTarget, positionStyle, targetParent ) {
 	/* ( DOM, DOM ) -> DOM
 
@@ -438,8 +558,13 @@ var Originator = function () {
 		label.style.left 	= elemLeft - shadowContainerPadding;
 		// Get the bottom completely lined up
 		var labelHeight 	= label.offsetHeight;
+		console.log("elemTop: ", elemTop, "labelHeight: ", labelHeight)
+		console.log( "labelTop: ", ((elemTop - labelHeight) + 1) )
 		// For some reason it seems to always end up a little higher. Math.
 		label.style.top 	= (elemTop - labelHeight) + 1;
+		var elemStyle 	= elem.getBoundingClientRect();
+		console.log( "rect bottom: ", elemStyle.bottom )
+		console.log( "rect top: ", elemStyle.top );
 
 		// If it's now sticking out of the top of the DOM, bring it back in
 		utils.fixOutOfWindow( label );
@@ -653,6 +778,41 @@ var Originator = function () {
 
 	createNew();
 
+
+	origr.makeMagic = function ( currentTarget ) {
+	/*
+
+	In its own function so we can call it again on resize
+	*/
+
+		// // If stuff is visible, make it look good
+		// if ( visibility === 'visible' ) {
+
+			var positionStyle = utils.getPositionStyle( currentTarget );
+
+			// --- CORRECT PARENT ---
+			// Absolutely positioned elements have this final ancestor
+			var targetParent = currentTarget.offsetParent;
+			if ( positionStyle !== 'absolute' ) {
+				// Other position styles have their direct parent as their final ancestor
+				targetParent = currentTarget.parentNode;
+			}
+
+			// --- LABELS --- \\
+			// Get the current element and all ancestors up to and including the determined parent
+			var elems = utils.getElemsFromUntil( currentTarget, targetParent );
+			labelElems( elems, positionStyle );
+
+			// --- ORIGINATOR --- \\
+			origr.placeOriginator( currentTarget, positionStyle, targetParent );
+		// }  // end if visible
+
+	// 	// Prepare for next click on non-originator element
+	// 	origr.oldTarget = currentTarget;
+
+	};  // End origr.makeMagic()
+
+
 	// ============================================
 	// =================
 	// EVENTS
@@ -680,23 +840,25 @@ var Originator = function () {
 			// If stuff is visible, make it look good
 			if ( visibility === 'visible' ) {
 
-				var positionStyle = utils.getPositionStyle( currentTarget );
+				origr.makeMagic( currentTarget );
 
-				// --- CORRECT PARENT ---
-				// Absolutely positioned elements have this final ancestor
-				var targetParent = currentTarget.offsetParent;
-				if ( positionStyle !== 'absolute' ) {
-					// Other position styles have their direct parent as their final ancestor
-					targetParent = currentTarget.parentNode;
-				}
+			// 	var positionStyle = utils.getPositionStyle( currentTarget );
 
-				// --- LABELS --- \\
-				// Get the current element and all ancestors up to and including the determined parent
-				var elems = utils.getElemsFromUntil( currentTarget, targetParent );
-				labelElems( elems, positionStyle );
+			// 	// --- CORRECT PARENT ---
+			// 	// Absolutely positioned elements have this final ancestor
+			// 	var targetParent = currentTarget.offsetParent;
+			// 	if ( positionStyle !== 'absolute' ) {
+			// 		// Other position styles have their direct parent as their final ancestor
+			// 		targetParent = currentTarget.parentNode;
+			// 	}
 
-				// --- ORIGINATOR --- \\
-				origr.placeOriginator( currentTarget, positionStyle, targetParent );
+			// 	// --- LABELS --- \\
+			// 	// Get the current element and all ancestors up to and including the determined parent
+			// 	var elems = utils.getElemsFromUntil( currentTarget, targetParent );
+			// 	labelElems( elems, positionStyle );
+
+			// 	// --- ORIGINATOR --- \\
+			// 	origr.placeOriginator( currentTarget, positionStyle, targetParent );
 			}  // end if visible
 
 			// Prepare for next click on non-originator element
