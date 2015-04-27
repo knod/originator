@@ -14,8 +14,6 @@ Resources no longer used:
 
 'use strict'
 
-var rgbToHsl;
-var determineColor;
 
 var Originator = function () {
 /*
@@ -23,14 +21,16 @@ var Originator = function () {
 */
 	var origr = {};
 
-	origr.node 				= null;
-	origr.oldTarget 		= null;
-	origr.cssFirstPart 		= null;
+	origr.node 			= null;
+	origr.oldTarget 	= null;
+	origr.cssFirstPart 	= null;
+	origr.circleLT 		= null;
+	origr.circleRB 		= null;
 
-	var baseColor 			= 'rgb(75, 75, 75)',
-		outlineColor		= 'white',
-		wrongColor 			= 'tomato',
-		rightColor 			= 'lightgreen';
+	var baseColor 		= 'rgb(75, 75, 75)',
+		outlineColor	= 'white',
+		wrongColor 		= 'tomato',
+		rightColor 		= 'lightgreen';
 
 
 	// ===============================================================
@@ -324,161 +324,6 @@ var Originator = function () {
 	};  // End getNewVisibility()
 
 
-	// ====================
-	// ORIGINATOR
-	// ====================
-
-	rgbToHsl = function ( rgb ) {
-	/* ( str ) -> Str
-
-	
-	// http://stackoverflow.com/questions/13070054/convert-rgb-strings-to-hex-in-javascript
-	*/
-		var colorNumStr = rgb.split("(")[1].split(")")[0],
-			colorNums 	= colorNumStr.split(","),
-			red 		= parseFloat( colorNums[0] ),
-			green 		= parseFloat( colorNums[1] ),
-			blue 		= parseFloat( colorNums[2] );
-
-	// http://stackoverflow.com/questions/2348597/why-doesnt-this-javascript-rgb-to-hsl-code-work
-	// Marco Demaio
-		// var minVal = Math.min(red, green, blue),
-		// 	maxVal = Math.max(red, green, blue),
-		// 	delta = maxVal - minVal,
-		// 	HSB = {hue:0, sat:0, bri: maxVal},
-		// 	del_Red, del_Green, del_Blue;
-
-		// if( delta !== 0 )
-		// {
-		// 	HSB.sat = delta / maxVal;
-		// 	del_Red = (((maxVal - red) / 6) + (delta / 2)) / delta;
-		// 	del_Green = (((maxVal - green) / 6) + (delta / 2)) / delta;
-		// 	del_Blue = (((maxVal - blue) / 6) + (delta / 2)) / delta;
-
-		// 	if (red === maxVal) {HSB.hue = del_Blue - del_Green;}
-		// 	else if (green === maxVal) {HSB.hue = (1 / 3) + del_Red - del_Blue;}
-		// 	else if (blue === maxVal) {HSB.hue = (2 / 3) + del_Green - del_Red;}
-
-		// 	if (HSB.hue < 0) {HSB.hue += 1;}
-		// 	if (HSB.hue > 1) {HSB.hue -= 1;}
-		// }
-
-		// HSB.hue *= 360;
-		// HSB.sat *= 100;
-		// HSB.bri *= 100;
-
-		// return HSB;
-
-		// http://stackoverflow.com/questions/4793729/rgb-to-hsl-and-back-calculation-problems
-        var red 	= (red / 255);
-        var green 	= (green / 255);
-        var blue 	= (blue / 255);
-
-        var _Min 	= Math.min(Math.min(red, green), blue),
-        	_Max 	= Math.max(Math.max(red, green), blue),
-        	_Delta 	= _Max - _Min;
-
-        var light 	= ( (_Max + _Min) / 2 ),
-        	light 	= 100 * light;
-
-        var satur 	= 0;
-        var hue 	= 0;
-
-		if (_Delta != 0)
-		{
-			// Saturation
-			if (light < 0.5) {
-				satur = ( _Delta / (_Max + _Min) );
-			} else {
-				satur = ( _Delta / (2 - _Max - _Min) );
-			}
-
-			// Hue?
-			if (red === _Max) {
-				hue = (green - blue) / _Delta;
-
-			} else if (green === _Max) {
-				hue = 2 + (blue - red) / _Delta;
-
-			} else if (blue == _Max) {
-				hue = 4 + (red - green) / _Delta;
-			
-			}
-		}
-
-		satur 	= 100 * satur;
-		hue 	= hue * 60;
-        if (hue < 0) hue += 360;
-
-		var hslStr = 'hsl(' + hue + ', ' + satur + '%, ' + light + '%);';
-
-        return  hslStr;
-
-	};  // end rgbToHsl()
-
-
-	// SEEMS TO WORK!!! :D :D :D
-	determineColor = function ( elem ) {		
-
-		// if border > 3 px, get color of border
-		// else get color of element
-		// Make that color darker or lighter with a max and a min
-
-		var styles = getComputedStyle( elem )
-
-		var borderWidth = styles.getPropertyValue( 'border-width' );
-		borderWidth = parseFloat( borderWidth );
-
-		// if ( borderWidth > 3 ) {
-
-			var borderColor = styles.getPropertyValue( 'border-color' );
-			console.log(borderColor);
-			// debugger;
-			var hsl 		= rgbToHsl( borderColor );
-			// console.log( hsl );
-
-		// }
-		elem.style.borderColor = hsl;
-
-	};
-
-
-
-	origr.placeOriginator = function ( currentTarget, positionStyle, targetParent ) {
-	/* ( DOM, DOM ) -> DOM
-
-	Places the originator at the correct starting and ending points.
-	Returns the element that was passed in as the currentTarget
-	*/
-		var origrNode_ = origr.node;
-		// Rotation is accumulative. Always reset first.
-		utils.resetRotation( origrNode_ );
-
-		// Positions left and top to x and y
-		var parentPos 	= utils.getOffsetRect( targetParent ),
-			pCoords		= { 'x': parentPos.left, 'y': parentPos.top };
-		var targetPos 	= utils.getOffsetRect( currentTarget ),
-			tCoords		= { 'x': targetPos.left, 'y': targetPos.top };
-
-		// Line Length
-		var distance 	= utils.distanceBetween( pCoords, tCoords );
-		origrNode_.style.width = distance + "px";
-
-		// Line rotation (from top left because of css)
-		var degrees 	= utils.degreesFromHorizontal( pCoords, tCoords );
-		utils.rotateByDegrees( origrNode_, degrees );
-
-		// Position
-		var parentLeft 	= parentPos.left;
-		origrNode_.style.left 	= parentLeft;
-
-		var parentTop 	= parentPos.top;
-		origrNode_.style.top 	= parentTop;
-
-		return currentTarget;
-
-	};  // End placeOriginator()
-
 
 	// ====================
 	// LABELS
@@ -535,7 +380,6 @@ var Originator = function () {
 
 	Create one label for an element
 	*/
-
 		var cutoff 		= createShadowCutoff();
 		var shadowed 	= createShadowed( labelColor, labelString );
 		cutoff.appendChild( shadowed );
@@ -558,13 +402,9 @@ var Originator = function () {
 		label.style.left 	= elemLeft - shadowContainerPadding;
 		// Get the bottom completely lined up
 		var labelHeight 	= label.offsetHeight;
-		console.log("elemTop: ", elemTop, "labelHeight: ", labelHeight)
-		console.log( "labelTop: ", ((elemTop - labelHeight) + 1) )
 		// For some reason it seems to always end up a little higher. Math.
 		label.style.top 	= (elemTop - labelHeight) + 1;
 		var elemStyle 	= elem.getBoundingClientRect();
-		console.log( "rect bottom: ", elemStyle.bottom )
-		console.log( "rect top: ", elemStyle.top );
 
 		// If it's now sticking out of the top of the DOM, bring it back in
 		utils.fixOutOfWindow( label );
@@ -642,6 +482,195 @@ var Originator = function () {
 	};  // end labelElems()
 
 
+
+	// ====================
+	// ORIGINATOR
+	// ====================
+	// --- COLORS ---
+	var rgbStrToNums = function ( rgb ) {
+	/* ( str ) -> {}
+
+	// http://stackoverflow.com/questions/13070054/convert-rgb-strings-to-hex-in-javascript
+	*/
+		var colorNumStr = rgb.split("(")[1].split(")")[0],
+			colorNums 	= colorNumStr.split(","),
+			red 		= parseFloat( colorNums[0] ),
+			green 		= parseFloat( colorNums[1] ),
+			blue 		= parseFloat( colorNums[2] );
+
+		return {r: red, g: green, b: blue};
+	};  // End rgbStrToNums
+
+
+	var hslNumsToStr = function ( hsls ) {
+	/* { num } -> Str
+	Converts strings to "hsl(num, num%, num%)"
+	*/
+		return 'hsl(' + hsls.h + ', ' + hsls.s + '%, ' + hsls.l + '%)';
+	};  //  End hslNumsToStr()
+
+	var rgbNumsToHslNums = function ( rgbs ) {
+	/* ( num, num, num ) -> Str
+
+	*/
+		// http://stackoverflow.com/questions/4793729/rgb-to-hsl-and-back-calculation-problems
+        var red = rgbs.r / 255, green = rgbs.g / 255, blue = rgbs.b / 255;
+
+        var _Min 	= Math.min(Math.min(red, green), blue),
+        	_Max 	= Math.max(Math.max(red, green), blue),
+        	_Delta 	= _Max - _Min;
+
+        var light 	= ( (_Max + _Min) / 2 ),
+        	light 	= 100 * light;
+
+        var satur 	= 0,
+        	hue 	= 0;
+
+		if (_Delta != 0)
+		{
+			// Saturation
+			if (light < 0.5) 	{  satur = ( _Delta / (_Max + _Min) );  }
+			else 				{  satur = ( _Delta / (2 - _Max - _Min) );  }
+
+			// Hue?
+			if (red === _Max) 			{ hue = (green - blue) / _Delta; }
+			else if (green === _Max) 	{ hue = 2 + (blue - red) / _Delta; }
+			else if (blue == _Max) 		{ hue = 4 + (red - green) / _Delta; }
+		}
+
+		satur 				= 100 * satur;
+		hue 				= hue * 60;
+        if (hue < 0) hue 	+= 360;
+
+        var hsls = { h: hue, s: satur, l: light };
+
+        return  hsls;
+	};  // end rgbNumsToHslNums()
+
+
+	// SEEMS TO WORK!!! :D :D :D
+	var determineColor = function ( elem ) {
+	/* ( DOM ) -> Str
+
+	Returns an rgb string
+	*/
+		var styles = getComputedStyle( elem )
+
+		var color 	= styles.getPropertyValue( 'background-color' );
+
+		var borderWidth = styles.getPropertyValue( 'border-width' );
+		borderWidth = parseFloat( borderWidth );
+
+		// If the border will completely contain the circle, get its color instead
+		if ( borderWidth > 3 ) {
+			color = styles.getPropertyValue( 'border-color' );
+		}
+
+		return color;
+	};  // End determineColor()
+
+
+	var toChildColor = function ( rgbs ) {
+	/* ( {nums} ) -> Str
+	
+	Returns an hsl str ready to be used in a style value
+	*/
+		var min = 80, modifier = 30;
+
+		// lightness to 80%
+		var rgbNums 	= rgbStrToNums( rgbs ),
+			hsls 		= rgbNumsToHslNums( rgbNums );
+
+		// Prepare to send the new value to be converted
+		hsls.l 			= min;
+		hsls.l 	= Math.min( ( hsls.l + modifier ), min );
+
+		// console.log('Child:', hsls);
+
+		return hslNumsToStr( hsls );
+	};  // End toChildColor()
+
+	var toParentColor = function ( rgbs ) {
+	/* ( {nums} ) -> Str
+	
+	Returns an hsl str ready to be used in a style value
+	*/
+		var max = 30, modifier = 30;
+
+		// lightness to 30%
+		var rgbNums 	= rgbStrToNums( rgbs ),
+			hsls 		= rgbNumsToHslNums( rgbNums );
+
+		// Prepare to send the new value to be converted
+		hsls.l 			= max;
+		hsls.l 	= Math.max( ( hsls.l - modifier ), max );
+
+		// console.log('Parent:', hsls);
+
+		return hslNumsToStr( hsls );
+	};  // End toParentColor()
+
+
+	var changeCirclesColor = function ( childElem, parentElem ) {
+	/*
+
+	Changes circle's colors to match the 
+	*/
+
+		var childColor 			= determineColor( childElem ),
+			childCircleColor 	= toChildColor( childColor );
+		origr.circleChild.setAttribute( 'fill', childCircleColor );
+		console.log();
+
+		var parentColor 		= determineColor( parentElem ),
+			parentCircleColor 	= toParentColor( parentColor );
+		origr.circleParent.setAttribute( 'fill', parentCircleColor );
+
+		return [ origr.circleChild.getAttribute('fill'), origr.circleParent.getAttribute('fill') ]
+	};  // End changeCirclesColor()
+
+	// --- EVERYTHING ELSE ---
+	origr.placeOriginator = function ( currentTarget, positionStyle, targetParent ) {
+	/* ( DOM, DOM ) -> DOM
+
+	Places the originator at the correct starting and ending points.
+	Returns the element that was passed in as the currentTarget
+	*/
+		var origrNode_ = origr.node;
+		// Rotation is accumulative. Always reset first.
+		utils.resetRotation( origrNode_ );
+
+		// Positions left and top to x and y
+		var parentPos 	= utils.getOffsetRect( targetParent ),
+			pCoords		= { 'x': parentPos.left, 'y': parentPos.top };
+		var targetPos 	= utils.getOffsetRect( currentTarget ),
+			tCoords		= { 'x': targetPos.left, 'y': targetPos.top };
+
+		// Line Length
+		var distance 	= utils.distanceBetween( pCoords, tCoords );
+		origrNode_.style.width = distance + "px";
+
+		// Line rotation (from top left because of css)
+		var degrees 	= utils.degreesFromHorizontal( pCoords, tCoords );
+		utils.rotateByDegrees( origrNode_, degrees );
+
+		// Position
+		var parentLeft 	= parentPos.left;
+		origrNode_.style.left 	= parentLeft;
+
+		var parentTop 	= parentPos.top;
+		origrNode_.style.top 	= parentTop;
+
+		// Color
+		changeCirclesColor( currentTarget, targetParent );
+
+		return currentTarget;
+
+	};  // End placeOriginator()
+
+
+
+
 	// ===============================================================
 	// =================
 	// INITIALIZATION
@@ -706,7 +735,7 @@ var Originator = function () {
 	}  // End buildLine()
 
 
-	var buildCircle = function ( NS, position ) {
+	var buildCircle = function ( NS, position, outline ) {
 	/* ( str, str ) -> DOM
 
 	Build originator circles
@@ -714,14 +743,13 @@ var Originator = function () {
 		// Sizes
 		var radius = 4, strokeWidth = 1.5;
 
-		var circle 		= document.createElementNS( NS, 'circle' );
-		var attributes 	= {
+		var circle 			= document.createElementNS( NS, 'circle' );
+
+		var attributes 		= {
 			// They should be at the same height? Everything starts out horizontal
 			'cx': position, 'cy': 0, 'r': radius,
-			'fill': baseColor, 'stroke': outlineColor, 'stroke-width': strokeWidth
+			'fill': baseColor, 'stroke': outline, 'stroke-width': strokeWidth
 		};
-		// To pulse a color first
-		circle.style.transition = 'fill .4s ease;';
 
 		utils.setAttributes( circle, attributes );
 
@@ -763,15 +791,16 @@ var Originator = function () {
 		// Circle thicknesses
 		var radius = 4, strokeWidth = 1.5;
 
-		var leftTop 	= buildCircle( NS, '0' );
-		// Does this mean it's not completely on center? Should it be (100%, 0)?
-		var rightBottom = buildCircle( NS, '100%' );
+		var parentCircle 	= buildCircle( NS, '0', outlineColor );
+		var childCircle 	= buildCircle( NS, '100%', baseColor );
 
-		svg.appendChild( leftTop );
-		svg.appendChild( rightBottom );
+		svg.appendChild( parentCircle );
+		svg.appendChild( childCircle );
 		
 		//  --- SET OBJECT PROPERTIES --- \\
-		origr.node = container;
+		origr.node 			= container;
+		origr.circleChild 	= childCircle;
+		origr.circleParent 	= parentCircle;
 
 		return container;
 	};  // End createNew()
@@ -784,31 +813,23 @@ var Originator = function () {
 
 	In its own function so we can call it again on resize
 	*/
+		var positionStyle = utils.getPositionStyle( currentTarget );
 
-		// // If stuff is visible, make it look good
-		// if ( visibility === 'visible' ) {
+		// --- CORRECT PARENT ---
+		// Absolutely positioned elements have this final ancestor
+		var targetParent = currentTarget.offsetParent;
+		if ( positionStyle !== 'absolute' ) {
+			// Other position styles have their direct parent as their final ancestor
+			targetParent = currentTarget.parentNode;
+		}
 
-			var positionStyle = utils.getPositionStyle( currentTarget );
+		// --- LABELS --- \\
+		// Get the current element and all ancestors up to and including the determined parent
+		var elems = utils.getElemsFromUntil( currentTarget, targetParent );
+		labelElems( elems, positionStyle );
 
-			// --- CORRECT PARENT ---
-			// Absolutely positioned elements have this final ancestor
-			var targetParent = currentTarget.offsetParent;
-			if ( positionStyle !== 'absolute' ) {
-				// Other position styles have their direct parent as their final ancestor
-				targetParent = currentTarget.parentNode;
-			}
-
-			// --- LABELS --- \\
-			// Get the current element and all ancestors up to and including the determined parent
-			var elems = utils.getElemsFromUntil( currentTarget, targetParent );
-			labelElems( elems, positionStyle );
-
-			// --- ORIGINATOR --- \\
-			origr.placeOriginator( currentTarget, positionStyle, targetParent );
-		// }  // end if visible
-
-	// 	// Prepare for next click on non-originator element
-	// 	origr.oldTarget = currentTarget;
+		// --- ORIGINATOR --- \\
+		origr.placeOriginator( currentTarget, positionStyle, targetParent );
 
 	};  // End origr.makeMagic()
 

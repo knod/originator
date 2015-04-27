@@ -27,6 +27,12 @@ body { background-color: tan; }
 	border: solid black 20px;
 }
 
+.second-first {
+
+	background-color: coral;
+	border: solid black 2px;
+}
+
 .first-and-a-half {
 	width: 90%;
 	height: 80%;
