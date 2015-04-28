@@ -21,16 +21,20 @@ var Originator = function () {
 */
 	var origr = {};
 
-	origr.node 			= null;
-	origr.oldTarget 	= null;
-	origr.cssFirstPart 	= null;
-	origr.circleLT 		= null;
-	origr.circleRB 		= null;
+	origr.node 				= null;
+	origr.oldTarget 		= null;
+	origr.currentTarget 	= null;
+	origr.cssFirstPart 		= null;
+	origr.circleLT 			= null;
+	origr.circleRB 			= null;
 
-	var baseColor 		= 'rgb(75, 75, 75)',
-		outlineColor	= 'white',
-		wrongColor 		= 'tomato',
-		rightColor 		= 'lightgreen';
+	origr.deactivated 		= false;
+	origr.loopPaused 		= false;
+
+	var baseColor 			= 'rgb(55, 55, 55)',
+		outlineColor		= 'white',
+		wrongColor 			= 'tomato',
+		rightColor 			= 'lightgreen';
 
 
 	// ===============================================================
@@ -504,6 +508,7 @@ var Originator = function () {
 
 	var hslNumsToStr = function ( hsls ) {
 	/* { num } -> Str
+
 	Converts strings to "hsl(num, num%, num%)"
 	*/
 		return 'hsl(' + hsls.h + ', ' + hsls.s + '%, ' + hsls.l + '%)';
@@ -595,7 +600,7 @@ var Originator = function () {
 	
 	Returns an hsl str ready to be used in a style value
 	*/
-		var max = 30, modifier = 30;
+		var max = 35, modifier = 30;
 
 		// lightness to 30%
 		var rgbNums 	= rgbStrToNums( rgbs ),
@@ -616,7 +621,6 @@ var Originator = function () {
 
 	Changes circle's colors to match the 
 	*/
-
 		var childColor 			= determineColor( childElem ),
 			childCircleColor 	= toChildColor( childColor );
 		origr.circleChild.setAttribute( 'fill', childCircleColor );
@@ -669,11 +673,77 @@ var Originator = function () {
 	};  // End placeOriginator()
 
 
+	origr.hide = function () {
+	/* ( None ) -> None
+
+	Makes everything except the disable/enable button disappear
+	*/
+		var labels = document.getElementsByClassName( 'label-shadow-cutoff' );
+		utils.removeElements( labels );
+
+		origr.node.style.visibility = 'hidden';
+
+		return 'hidden';
+	};  // End origr.hide()
+
+
+	origr.makeMagic = function ( currentTarget, deactivated ) {
+	/*
+
+	In its own function so we can call it again on resize
+	*/
+
+		// Just always get rid of them. They'll be replaced further down if needed
+		var labels 		= document.getElementsByClassName( 'label-shadow-cutoff' );
+			utils.removeElements( labels );
+
+		// If the target is removed, it still exists in our js as origr.currentTarget
+		// Check if it's actually in the DOM. Using 'body' for IE:
+		// https://connect.microsoft.com/IE/feedback/details/780874/node-contains-is-incorrect
+		// and http://stackoverflow.com/questions/5629684/how-to-check-if-element-exists-in-the-visible-dom csuwldcat
+		var elemInDOM 	= document.body.contains( currentTarget );
+		// If stuff is visible, make it look good
+		var visibility 	= origr.node.style.visibility;
+
+		// If the DOM has mutated getting rid of the element, we don't
+		// want to do this.
+		if ( elemInDOM && visibility !== "hidden" && !deactivated ) {
+			var positionStyle = utils.getPositionStyle( currentTarget );
+
+			// --- CORRECT PARENT ---
+			// Absolutely positioned elements have this final ancestor
+			var targetParent = currentTarget.offsetParent;
+			if ( positionStyle !== 'absolute' ) {
+				// Other position styles have their direct parent as their final ancestor
+				targetParent = currentTarget.parentNode;
+			}
+
+			// --- LABELS --- \\
+			// Get the current element and all ancestors up to and including the determined parent
+			var elems = utils.getElemsFromUntil( currentTarget, targetParent );
+			labelElems( elems, positionStyle );
+
+			// --- ORIGINATOR --- \\
+			origr.placeOriginator( currentTarget, positionStyle, targetParent );
+		} else {
+
+			// Get rid of everything other than the disable button
+			origr.hide();
+
+		}  // end if should show and/or place elements
+
+	};  // End origr.makeMagic()
+
+
 
 
 	// ===============================================================
 	// =================
 	// INITIALIZATION
+	// =================
+
+	// =================
+	// ORIGINATOR
 	// =================
 	var buildContainerDiv = function () {
 	/*
@@ -808,88 +878,63 @@ var Originator = function () {
 	createNew();
 
 
-	origr.makeMagic = function ( currentTarget ) {
-	/*
-
-	In its own function so we can call it again on resize
-	*/
-		var positionStyle = utils.getPositionStyle( currentTarget );
-
-		// --- CORRECT PARENT ---
-		// Absolutely positioned elements have this final ancestor
-		var targetParent = currentTarget.offsetParent;
-		if ( positionStyle !== 'absolute' ) {
-			// Other position styles have their direct parent as their final ancestor
-			targetParent = currentTarget.parentNode;
-		}
-
-		// --- LABELS --- \\
-		// Get the current element and all ancestors up to and including the determined parent
-		var elems = utils.getElemsFromUntil( currentTarget, targetParent );
-		labelElems( elems, positionStyle );
-
-		// --- ORIGINATOR --- \\
-		origr.placeOriginator( currentTarget, positionStyle, targetParent );
-
-	};  // End origr.makeMagic()
-
-
 	// ============================================
 	// =================
 	// EVENTS
 	// =================
 	document.addEventListener( 'click', function (event) {
+		// Basically just gets and sets targets and sets visibility
+		// Everything else is called in update()
 
-		var currentTarget = event.target;
+		origr.currentTarget = event.target;
 
 		// Don't try to track originator parts or labels, but do allow
 		// clicking so elements can be inspected
-		var exclude = origr.shouldExclude( currentTarget );
+		var exclude = origr.shouldExclude( origr.currentTarget );
 
 		// At least change the oldTarget (down at the bottom)
 		if ( !exclude ) {
 
-			// Clicking anything unexcluded involves getting rid of old labels
-			// i.e. making everything disappear or marking a new element
-			var labels = document.getElementsByClassName( 'label-shadow-cutoff' );
-			utils.removeElements( labels );
-
 			// "hidden" will prevent movement as well
-			var visibility = origr.getNewVisibility( currentTarget, origr.oldTarget );
+			// Note: This MUST not happen in update()
+			var visibility = origr.getNewVisibility( origr.currentTarget, origr.oldTarget );
 			origr.node.style.visibility = visibility;
 
-			// If stuff is visible, make it look good
-			if ( visibility === 'visible' ) {
-
-				origr.makeMagic( currentTarget );
-
-			// 	var positionStyle = utils.getPositionStyle( currentTarget );
-
-			// 	// --- CORRECT PARENT ---
-			// 	// Absolutely positioned elements have this final ancestor
-			// 	var targetParent = currentTarget.offsetParent;
-			// 	if ( positionStyle !== 'absolute' ) {
-			// 		// Other position styles have their direct parent as their final ancestor
-			// 		targetParent = currentTarget.parentNode;
-			// 	}
-
-			// 	// --- LABELS --- \\
-			// 	// Get the current element and all ancestors up to and including the determined parent
-			// 	var elems = utils.getElemsFromUntil( currentTarget, targetParent );
-			// 	labelElems( elems, positionStyle );
-
-			// 	// --- ORIGINATOR --- \\
-			// 	origr.placeOriginator( currentTarget, positionStyle, targetParent );
-			}  // end if visible
-
 			// Prepare for next click on non-originator element
-			origr.oldTarget = currentTarget;
+			origr.oldTarget = origr.currentTarget;
 		}  // end if !excluded
 
 	});  // end document on click
 
+
+	// ========================================================
+	// ===================
+	// TRIGGER ORIGINATOR ACTIONS
+	// ===================
+	// --- IN CASE OF CHANGES TO DOM OR VIEW --- \\
+	origr.update = function () {
+		// Loop forever and ever?
+		if ( !origr.loopPaused ) {
+		// Deactivated state is taken care of in makeMagic
+			origr.makeMagic( origr.currentTarget, origr.deactivated );
+			window.requestAnimationFrame( origr.update );
+		}
+	};  // End update()
+
+	origr.update();
+
+
+	// --- MOVE WHEN CHANGE DETECTED? ---
+	// // This would be instead of update()
+	// var observer = new MutationObserver(function () {
+	// 	console.log('mutation');
+	// 	origr.makeMagic( origr.oldTarget );
+	// });  // end observer
+	// observer.observe(document, { childList: true, attributes: true });
+
+
 	return origr;
-};
+};  // End Originator {}
 
 
 // ============
