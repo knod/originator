@@ -290,12 +290,13 @@ var Originator = function () {
 
 		// --- Is or belongs to originator ---
 		var allElems 	= utils.getElemsFromUntil( currentElem, document.body.parentNode );
+		var isManager 	= false;//document.getElementById('bookmarklet_collection_manager');
 		var isOrigin 	= utils.oneHasClass( allElems, 'originator' );
 
 		var isLabel 	= utils.oneHasClass( allElems, 'label-shadow-cutoff' );
 
 		// --- result ---
-		if ( isOrigin || isLabel ) { exclude = true; }
+		if ( isOrigin || isLabel || isManager ) { exclude = true; }
 		return exclude;
 	};  // End origr.shouldExclude()
 
@@ -743,6 +744,32 @@ var Originator = function () {
 	// =================
 
 	// =================
+	// DISABLER
+	// =================
+	var buildDisabler = function () {
+	/*
+
+	Create the disabling button that makes everything disappear
+	and reappear
+	*/
+		var container 		= document.createElement('div');
+		container.className = 'bookmarklet-manager';
+		container.setAttribute('style', 
+			'position: absolute; right: 0; top: 0'
+		);
+
+		var header 		= document.createElement('h1');
+		var menu		= document.createElement('menu');
+		var origrname 	= document.createElement('li');
+
+
+    //<span class="fa fa-check-square-o checkbox-visual"></span>
+    //<span class="fa fa-square-o checkbox-visual"></span>
+		// 'Originator' with a checkbox next to it?
+
+	}  // End buildDisabler()
+
+	// =================
 	// ORIGINATOR
 	// =================
 	var buildContainerDiv = function () {
@@ -941,4 +968,38 @@ var Originator = function () {
 // START
 // ============
 var originator3000 = new Originator();
+
+
+/*
+Selector Gadget's way of handling the code:
+(function(){
+  importCSS('https://dv0akt2986vzh.cloudfront.net/stable/lib/selectorgadget.css');
+  importJS('https://ajax.googleapis.com/ajax/libs/jquery/1.3.1/jquery.min.js', 'jQuery', function() { // Load everything else when it is done.
+    jQuery.noConflict();
+    importJS('https://dv0akt2986vzh.cloudfront.net/stable/vendor/diff/diff_match_patch.js', 'diff_match_patch', function() {
+      importJS('https://dv0akt2986vzh.cloudfront.net/stable/lib/dom.js', 'DomPredictionHelper', function() {
+        importJS('https://dv0akt2986vzh.cloudfront.net/stable/lib/interface.js');
+      });
+    });
+  });
+})();
+*/
+
+function importCSS(href, look_for, onload) {
+  var s = document.createElement('link');
+  s.setAttribute('rel', 'stylesheet');
+  s.setAttribute('type', 'text/css');
+  s.setAttribute('media', 'screen');
+  s.setAttribute('href', href);
+  if (onload) wait_for_script_load(look_for, onload);
+  var head = document.getElementsByTagName('head')[0];
+  if (head) {
+    head.appendChild(s);
+  } else {
+    document.body.appendChild(s);
+  }
+}
+
+// FontAwesome
+importCSS('https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css');
 
