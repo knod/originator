@@ -64,9 +64,9 @@ input[type="checkbox"] + label span {
 }*/
 
 /*http://cssdeck.com/labs/css-checkbox-styles*/
-input[type=checkbox] {
+/*input[type=checkbox] {
 	visibility: hidden;
-}
+}*/
 /*
 .squaredTwo {
 	width: 10px;
@@ -145,7 +145,8 @@ input[type=checkbox] {
 
 /* http://www.css3.com/implementing-custom-checkboxes-and-radio-buttons-with-css3/ (almost) */
 input[type=checkbox] {
-	visibility: hidden;
+	/*visibility: hidden;*/
+	opacity: 0;
 	/*display: none;*/
 }
 
@@ -163,6 +164,7 @@ input[type=checkbox]:checked {
 }*/
 
 li {
+	/* To position checkbox correctly */
 	position:relative;
 	/*display: flex;
 	justify-content: flex-start;
@@ -174,13 +176,6 @@ li {
 	position: absolute;
 	left: 0;
 	top: 2px;
-	/*width: 13px;
-	height: 13px;
-
-	background-color: black;
-
-	border: solid rgb(180, 180, 180) 2px;
-	box-sizing: border-box;*/
 }
 
 
@@ -195,3 +190,6 @@ input {
 	margin: 0;
 }
 
+.checkbox-visual {
+	pointer-events: none;
+}

@@ -77,6 +77,25 @@ var Originator = function () {
 		return oneHasClass;
 	};  // End oneHasClass()
 
+
+	utils.oneHasId = function ( elems, testId ) {
+	/* ( [ DOM ], str ) -> bool
+
+	Returns whether one element in the list of elements has an id of testId
+	*/
+		var oneHasId = false;
+
+		for ( var elemi = 0; elemi < elems.length; elemi++ ) {
+
+			if ( elems[ elemi ].id === testId ) {
+				oneHasId = true;
+			}
+		}
+
+		return oneHasId;
+	};  // End oneHasId()
+
+
 	utils.distanceBetween = function ( point1, point2 ) {
 	/* ( {}, {} ) -> num
 	
@@ -290,7 +309,7 @@ var Originator = function () {
 
 		// --- Is or belongs to originator ---
 		var allElems 	= utils.getElemsFromUntil( currentElem, document.body.parentNode );
-		var isManager 	= false;//document.getElementById('bookmarklet_collection_manager');
+		var isManager 	= utils.oneHasId( allElems, 'bookmarklet_collection_manager' );
 		var isOrigin 	= utils.oneHasClass( allElems, 'originator' );
 
 		var isLabel 	= utils.oneHasClass( allElems, 'label-shadow-cutoff' );
@@ -696,7 +715,7 @@ var Originator = function () {
 
 		// Just always get rid of them. They'll be replaced further down if needed
 		var labels 		= document.getElementsByClassName( 'label-shadow-cutoff' );
-			utils.removeElements( labels );
+		utils.removeElements( labels );
 
 		// If the target is removed, it still exists in our js as origr.currentTarget
 		// Check if it's actually in the DOM. Using 'body' for IE:
@@ -761,11 +780,6 @@ var Originator = function () {
 		var header 		= document.createElement('h1');
 		var menu		= document.createElement('menu');
 		var origrname 	= document.createElement('li');
-
-
-    //<span class="fa fa-check-square-o checkbox-visual"></span>
-    //<span class="fa fa-square-o checkbox-visual"></span>
-		// 'Originator' with a checkbox next to it?
 
 	}  // End buildDisabler()
 
@@ -909,7 +923,56 @@ var Originator = function () {
 	// =================
 	// EVENTS
 	// =================
-	document.addEventListener( 'click', function (event) {
+
+	// ---------------- \\
+	// --- DISABLER --- \\
+	origr.toggle = function ( evnt ) {
+	/*
+
+	Based on checkbox, disable or enable the originator tool
+	*/
+		var target 		= evnt.target;
+		var iconElem 	= target.parentNode.getElementsByClassName( 'checkbox-visual' )[0];
+
+		var checked 	= target.checked;
+		if ( checked ) {
+			// Show checkmark
+			iconElem.className = 'fa fa-check-square-o checkbox-visual';
+			origr.deactivated = false;
+
+		} else {
+			iconElem.className = 'fa fa-square-o checkbox-visual';
+			origr.deactivated = true;
+
+		}
+
+		return evnt.target;
+	};  // End origr.toggle()
+
+
+	// This could be really useful in future
+	// var addEventListenerByClass = function (className, evnt, eventFunc) {
+	// /*
+
+	// http://stackoverflow.com/questions/12362256/addeventlistener-on-nodelist
+	// Maybe worth getting jQuery at this point?
+	// */
+	// 	var elemList = document.getElementsByClassName( className );
+	// 	for (var i = 0, len = elemList.length; i < len; i++) {
+	// 		elemList[ i ].addEventListener( evnt, eventFunc, false);
+	// 	}
+
+	// 	return elemList;
+	// }; // End addEventListenerByClass()
+
+
+	origr.disabler = document.getElementById( 'originator_disabler' );
+	origr.disabler.addEventListener( 'click', function ( evnt ) { origr.toggle( evnt); });
+
+
+	// ------------------- \\
+	// --- ORIGINATOR ---- \\
+	document.addEventListener( 'click', function ( event ) {
 		// Basically just gets and sets targets and sets visibility
 		// Everything else is called in update()
 
@@ -921,7 +984,6 @@ var Originator = function () {
 
 		// At least change the oldTarget (down at the bottom)
 		if ( !exclude ) {
-
 			// "hidden" will prevent movement as well
 			// Note: This MUST not happen in update()
 			var visibility = origr.getNewVisibility( origr.currentTarget, origr.oldTarget );
