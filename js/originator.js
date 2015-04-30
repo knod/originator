@@ -4,13 +4,6 @@ TODO:
 - Add green color and special text for body label
 - Fix originator showing on Tool Manager
 
-DONE:
-- Pulse color of line and circles when they first appear?
- or just make them a color other than black?
-- Maybe put abs pos element's left and top values
- in label?
-- Move stuff when page resizes or styles are changed
-
 Resources no longer used:
 	- http://tzi.fr/js/snippet/convert-em-in-px (1 rem to pixels)
 		getRootElementFontSize()
