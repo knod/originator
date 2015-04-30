@@ -937,7 +937,8 @@ var Originator = function () {
 		var iconElem 	= target.parentNode.getElementsByClassName( 'checkbox-visual' )[0];
 
 		var checked 	= target.checked;
-		if ( checked ) {
+
+		if ( checked === true ) {
 			// Show checkmark
 			iconElem.className = 'fa fa-check-square-o checkbox-visual';
 			origr.deactivated = false;
@@ -968,8 +969,12 @@ var Originator = function () {
 	// }; // End addEventListenerByClass()
 
 
-	origr.disabler = document.getElementById( origr.name + '_toggle' );
-	// origr.disabler.addEventListener( 'click', function ( evnt ) { origr.toggle( evnt); });
+	origr.managerName 	= 'originator';
+	origr.disabler = document.getElementById( origr.managerName + '_toggle' );
+	// To account for new and old scripts
+	if ( origr.disabler !== null ) {
+		origr.disabler.addEventListener( 'click', function ( evnt ) { origr.toggle( evnt); });
+	}
 
 
 	// ------------------- \\
@@ -1026,9 +1031,9 @@ var Originator = function () {
 	origr.labelText 	= 'Position Guidance';
 	origr.managerName 	= 'originator';
 
-	if (typeof bookmarkletToolManager !== 'undefined') {
-		bookmarkletToolManager.newItem( origr );
-	}
+	// if (typeof bookmarkletToolManager !== 'undefined') {
+	// 	bookmarkletToolManager.newItem( origr );
+	// }
 
 	return origr;
 };  // End Originator {}

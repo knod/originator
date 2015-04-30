@@ -56,9 +56,13 @@ var BookmarkletToolManager = function ( variableName ) {
 		item.appendChild( visual );
 
 		// --- LABEL --- \\
-		var label 		= document.createElement( 'label' );
-		label.className = 'manager-label';
-		label.for 		= inputID;
+		var label 			= document.createElement( 'label' );
+		utils.setAttributes( label, {
+			'className': 'manager-label', 'for': inputID
+		} );
+
+		// label.className 	= 'manager-label';
+		// label['for'] 		= inputID;
 
 		var text 		= document.createTextNode( obj.labelText );
 		label.appendChild( text );
