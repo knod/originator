@@ -30,7 +30,7 @@ Attempts at Resources:
 
 #bookmarklet_collection_manager li {
 	list-style: none;
-	margin-top: 2px 0;
+	margin: 2px 0;
 	position:relative;
 }
 
@@ -45,8 +45,9 @@ Attempts at Resources:
 #bookmarklet_collection_manager .checkbox-visual {
 	position: absolute;
 	left: 0;
-	/* Has to be adjusted if sizes of things change */
-	top: 2px;
+	/* Only looks good in 100% zoom :/ */
+	top: 50%;
+	transform: translate( 0, -50%);
 }
 
 #bookmarklet_collection_manager label {
@@ -54,6 +55,8 @@ Attempts at Resources:
 	display: inline-block;
 
 	vertical-align: middle;
+	/* Because there are no linebreaks or space when using js */
+	margin-left: 6px;
 }
 
 

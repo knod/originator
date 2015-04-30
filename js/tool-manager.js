@@ -8,6 +8,7 @@ var BookmarkletToolManager = function ( variableName ) {
 	var utils 	= toolManagerUtils;  // shorter name inside here
 
 	manager.container 	= null;
+	manager.menu 		= null;
 	manager.items 		= [];
 
 	// =====================
@@ -65,7 +66,7 @@ var BookmarkletToolManager = function ( variableName ) {
 		item.appendChild( label );
 
 		// --- DOM --- \\
-		manager.container.appendChild( item );
+		manager.menu.appendChild( item );
 		// I think it has to be done after being added to the DOM
 		item.addEventListener( 'click', function (evnt) { obj.toggle( evnt ) } );
 
@@ -99,6 +100,9 @@ var BookmarkletToolManager = function ( variableName ) {
 
 		// --- Into action --- \\
 		document.body.appendChild( container );
+		manager.container 	= container;
+		manager.menu 		= menu;
+
 		return container
 	};  // manager.createNew()
 
@@ -106,7 +110,7 @@ var BookmarkletToolManager = function ( variableName ) {
 	// =====================
 	// START EVERYTHING
 	// =====================
-	manager.container = manager.createNew( variableName );
+	manager.createNew( variableName );
 
 	return manager;
 };  // BookmarkletToolManager()
