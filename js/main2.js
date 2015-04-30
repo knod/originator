@@ -934,9 +934,9 @@ var Originator = function () {
 	Based on checkbox, disable or enable the originator tool
 	*/
 		var target 		= evnt.target;
-		var iconElem 	= target.parentNode.getElementsByClassName( 'checkbox-visual' )[0];
-
 		var checked 	= target.checked;
+
+		var iconElem 	= target.parentNode.getElementsByClassName( 'checkbox-visual' )[0];
 
 		if ( checked === true ) {
 			// Show checkmark
