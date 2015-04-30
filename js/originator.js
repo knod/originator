@@ -1,0 +1,4 @@
+// originator.js
+
+'use strict';
+
