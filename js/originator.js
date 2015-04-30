@@ -19,9 +19,11 @@ Resources no longer used:
 'use strict';
 
 
-window.Originator = function ( manager ) {
-/* ( none ) -> Originator
+window.Originator = function ( manager, utilsDict, labelsFunct ) {
+/* ( BookmarkletToolManager, {}, HandHeldLabels() ) -> Originator
 
+What do we really need to pass in? Do we need to pass in its checkbox
+element too?
 */
 	var origr = {};
 
@@ -38,18 +40,21 @@ window.Originator = function ( manager ) {
 	origr.name 				= 'originator';
 
 	// baseColor needs to be for labels too. Needs to be in main?
-	var baseColor 			= 'rgb(55, 55, 55)',
-		outlineColor		= 'white';
+	origr.baseColor 		= 'rgb(55, 55, 55)';
+	origr.labelsObj 		= labelsFunct( origr.baseColor, utilsDict );
+
+	var outlineColor		= 'white';
 
 
 	// ===============================================================
 	// =================
 	// UTILITY OBJECTS
 	// =================
-	var Utils 		= BookmarkletUtils,
+	var Utils_DOM 	= utilsDict.Utils_DOM,
 		// OrigrUtils 	= OriginatorUtils,
-		Utils_Color = BookmarkletsUtilsColor,
-		Utils_Math 	= BookmarkletsUtilsMath;
+		Utils_Color = utilsDict.Utils_Color,
+		Utils_Math 	= utilsDict.Utils_Math;
+
 
 	// ===============================================================
 	// =================
@@ -88,13 +93,6 @@ window.Originator = function ( manager ) {
 	// =================
 	// LOGIC
 	// =================
-
-	// ---------------- \\
-	// ---  --- \\
-	
-
-	// ---------------- \\
-	// --- ORIGINATOR --- \\
 	origr.shouldExclude = function ( currentElem ) {
 	/* ( DOM ) -> Bool
 
@@ -104,11 +102,11 @@ window.Originator = function ( manager ) {
 		var exclude = false;
 
 		// --- Is or belongs to originator ---
-		var allElems 	= Utils.getElemsFromUntil( currentElem, document.body.parentNode );
-		var isManager 	= Utils.oneHasId( allElems, 'bookmarklet_collection_manager' );
-		var isOrigin 	= Utils.oneHasClass( allElems, origr.className );
+		var allElems 	= Utils_DOM.getElemsFromUntil( currentElem, document.body.parentNode );
+		var isManager 	= Utils_DOM.oneHasId( allElems, 'bookmarklet_collection_manager' );
+		var isOrigin 	= Utils_DOM.oneHasClass( allElems, origr.className );
 
-		var isLabel 	= Utils.oneHasClass( allElems, 'label-shadow-cutoff' );
+		var isLabel 	= Utils_DOM.oneHasClass( allElems, 'label-shadow-cutoff' );
 
 		// --- result ---
 		if ( isOrigin || isLabel || isManager ) { exclude = true; }
@@ -237,12 +235,12 @@ window.Originator = function ( manager ) {
 	*/
 		var origrNode_ = origr.node;
 		// Rotation is accumulative. Always reset first.
-		Utils.resetRotation( origrNode_ );
+		Utils_DOM.resetRotation( origrNode_ );
 
 		// Positions left and top to x and y
-		var parentPos 	= Utils.getOffsetRect( targetParent ),
+		var parentPos 	= Utils_DOM.getOffsetRect( targetParent ),
 			pCoords		= { 'x': parentPos.left, 'y': parentPos.top };
-		var targetPos 	= Utils.getOffsetRect( currentTarget ),
+		var targetPos 	= Utils_DOM.getOffsetRect( currentTarget ),
 			tCoords		= { 'x': targetPos.left, 'y': targetPos.top };
 
 		// Line Length
@@ -251,7 +249,7 @@ window.Originator = function ( manager ) {
 
 		// Line rotation (from top left because of css)
 		var degrees 	= Utils_Math.degreesFromHorizontal( pCoords, tCoords );
-		Utils.rotateByDegrees( origrNode_, degrees );
+		Utils_DOM.rotateByDegrees( origrNode_, degrees );
 
 		// Position
 		var parentLeft 	= parentPos.left;
@@ -268,29 +266,16 @@ window.Originator = function ( manager ) {
 	};  // End placeOriginator()
 
 
-	origr.hide = function () {
-	/* ( None ) -> None
-
-	Makes everything except the disable/enable button disappear
-	*/
-		var labels = document.getElementsByClassName( 'label-shadow-cutoff' );
-		Utils.removeElements( labels );
-
-		origr.node.style.visibility = 'hidden';
-
-		return 'hidden';
-	};  // End origr.hide()
-
-
 	origr.makeMagic = function ( currentTarget, active ) {
 	/*
 
-	In its own function so we can call it again on resize
+	In its own function so we can call it in update
 	*/
 
 		// Just always get rid of them. They'll be replaced further down if needed
-		var labels 		= document.getElementsByClassName( 'label-shadow-cutoff' );
-		Utils.removeElements( labels );
+		// For times when new element is clicked on and originator isn't hidden,
+		// but new labels have to be placed.
+		origr.labelsObj.removeLabels();
 
 		// If the target is removed, it still exists in our js as origr.currentTarget
 		// Check if it's actually in the DOM. Using 'body' for IE:
@@ -303,7 +288,7 @@ window.Originator = function ( manager ) {
 		// want to do this.
 		if ( elemInDOM && (visibility !== 'hidden') && active ) {
 
-			var positionStyle = Utils.getPositionStyle( currentTarget );
+			var positionStyle = Utils_DOM.getPositionStyle( currentTarget );
 
 			// --- CORRECT PARENT ---
 			// Absolutely positioned elements have this final ancestor
@@ -315,15 +300,16 @@ window.Originator = function ( manager ) {
 
 			// --- LABELS --- \\
 			// Get the current element and all ancestors up to and including the determined parent
-			var elems = Utils.getElemsFromUntil( currentTarget, targetParent );
-			// labelElems( elems, positionStyle );
+			var elems = Utils_DOM.getElemsFromUntil( currentTarget, targetParent );
+			origr.labelsObj.labelTheseElems( elems, positionStyle );
 
 			// --- ORIGINATOR --- \\
 			origr.placeOriginator( currentTarget, positionStyle, targetParent );
-		} else {
 
+		// If not in DOM, hidden, or inactive...
+		} else {
 			// Get rid of everything other than the disable button
-			origr.hide();
+			origr.node.style.visibility = 'hidden';
 
 		}  // end if should show and/or place elements
 
@@ -342,7 +328,7 @@ window.Originator = function ( manager ) {
 	Container is always 0.5px high, will be rotated for placement
 	*/
 		var container 		= document.createElement('div');
-		container.className = origr.className;
+		container.className = origr.className + ' originator-exclude';
 		return container;
 	};  // End buildContainerDiv()
 
@@ -356,7 +342,7 @@ window.Originator = function ( manager ) {
 			'style': 'overflow: visible;'
 		};
 
-		Utils.setAttributes( svg, attributes );
+		Utils_DOM.setAttributes( svg, attributes );
 
 		return svg;
 	};  // End buildSVG()
@@ -378,7 +364,7 @@ window.Originator = function ( manager ) {
 		// To pulse a color first
 		line.style.transition = 'stroke .4s ease;';
 
-		Utils.setAttributes( line, attributes);
+		Utils_DOM.setAttributes( line, attributes);
 		// line.setAttribute( 'stroke-linecap', 'butt' );
 
 		return line;
@@ -397,10 +383,10 @@ window.Originator = function ( manager ) {
 		var attributes 	= {
 			// They should be at the same height? Everything starts out horizontal
 			'cx': position, 'cy': 0, 'r': radius,
-			'fill': baseColor, 'stroke': outline, 'stroke-width': strokeWidth
+			'fill': origr.baseColor, 'stroke': outline, 'stroke-width': strokeWidth
 		};
 
-		Utils.setAttributes( circle, attributes );
+		Utils_DOM.setAttributes( circle, attributes );
 
 		return circle;
 	};  // End buildCircle()
@@ -430,7 +416,7 @@ window.Originator = function ( manager ) {
 		var inner = 2, outer = 4;
 
 		var outline 		= buildLine( NS, outlineColor, outer );
-		var innerLine 		= buildLine( NS, baseColor, inner );
+		var innerLine 		= buildLine( NS, origr.baseColor, inner );
 		innerLine.className = 'inner-line';
 
 		svg.appendChild( outline );
@@ -441,7 +427,7 @@ window.Originator = function ( manager ) {
 		var radius = 4, strokeWidth = 1.5;
 
 		var parentCircle 	= buildCircle( NS, '0', outlineColor );
-		var childCircle 	= buildCircle( NS, '100%', baseColor );
+		var childCircle 	= buildCircle( NS, '100%', origr.baseColor );
 
 		svg.appendChild( parentCircle );
 		svg.appendChild( childCircle );

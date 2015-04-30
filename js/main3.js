@@ -1066,15 +1066,27 @@
 // DON'T WANT THIS IN TOOL MANAGER because then
 // Tool Manager will be calling Tool, but also visa versa
 // Wait for some signal
-var HandHeldBookmarkletsTM = function () {
-/* ( none ) -> HandHeldBookmarkletsTM
+
+// ??: HOW DO I TAKE STUFF OUT OF THE GLOBAL NAMESPACE?!
+var HandHeldBookmarkletManagerTM = function () {
+/* ( none ) -> HandHeldBookmarkletManagerTM
 
 Handles the setting up of all Hand Held Bookmarklest TM tools
 and tool managers
 */
 	var main = {}
 
-	main.manager = BookmarkletToolManager( 'bookmarkletToolManager' );
+	main.utils = {
+		Utils_Math: BookmarkletsUtilsMath,
+		// This one is a function
+		Utils_Labels: BookmarkletUtilsLabels(),
+		Utils_Color:  BookmarkletsUtilsColor,
+		Utils_DOM: BookmarkletUtils
+	}
+
+	main.labels = HandHeldLabels;  // It's actually a function
+
+	main.manager = BookmarkletToolManager( 'bookmarkletToolManager', main.utils );
 
 	// http://www.sitepoint.com/call-javascript-function-string-without-using-eval/
 	// http://stackoverflow.com/questions/359788/how-to-execute-a-javascript-function-when-i-have-its-name-as-a-string
@@ -1089,7 +1101,11 @@ and tool managers
 		// Add any functions to our list of existing functions.
 		// Maybe tools should add themselves to the list?
 		if (typeof toolFunc === "function") {
-			var newTool = toolFunc( main.manager );
+
+			// Only originator needs labels atm...
+			var newTool = toolFunc( main.manager, main.utils, main.labels );
+
+			// --- Disabling Event --- \\
 			newTool.managerItem.addEventListener(
 				'click', function (evnt) { newTool.toggle( evnt, main.manager ) }
 			);
@@ -1106,9 +1122,9 @@ and tool managers
 	// contamination. Maybe each tool will give off a custom event?
 
 	return main;
-};  // End HandHeldBookmarklets
+};  // End HandHeldBookmarkletManagerTM {}
 
-var handHeldBookmarkletsTM = HandHeldBookmarkletsTM();
+var handHeldBookmarkletsTM = HandHeldBookmarkletManagerTM();
 
 
 

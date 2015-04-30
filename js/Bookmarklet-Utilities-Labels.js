@@ -2,24 +2,28 @@
 
 'use strict';
 
-window.BookmarkletUtilsLabels = function () {
+window.BookmarkletUtilsLabels = function ( Utils_DOM ) {
 
 	var labelUtils 	= {},
-		utils 		= BookmarkletUtils;
+		Utils 		= BookmarkletUtils;
 
-	labelUtils.fixOutOfWindow = function ( elem, shadowContainerPadding ) {
-	/* ( DOM ) -> same DOM
+	labelUtils.fixOutOfWindow = function ( elem, nudging ) {
+	/* ( Node, num ) -> same Node
 
 	Tests if an element is out of the window. If it is,
-	it moves it into the window
+	it moves it into the window. Nudging nudges it up or
+	down - caller determines negative or positive
 	*/
-		// Doesn't include the shadow, just the colored bit of the label
-		if ( BookmarkletUtils.isOutOfWindow(elem) ) { elem.style.top = -1 * shadowContainerPadding; }
+		// Take away any extra space at the top
+		if ( Utils.isOutOfWindow(elem) ) {
+			// Except whatever vertical shift you want
+			elem.style.top = nudging;
+		}
+
 		return elem;
 	};  // End BookmarkletUtilsLabels.fixOutOfWindow()
-
 
 	return labelUtils;
 };
 
-var bookmarkletUtilsLabels = BookmarkletUtilsLabels(;)
+// var bookmarkletUtilsLabels = BookmarkletUtilsLabels();

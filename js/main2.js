@@ -430,7 +430,7 @@ var Originator = function () {
 		var labelHeight 	= label.offsetHeight;
 		// For some reason it seems to always end up a little higher. Math.
 		label.style.top 	= (elemTop - labelHeight) + 1;
-		var elemStyle 	= elem.getBoundingClientRect();
+		// var elemStyle 	= elem.getBoundingClientRect();
 
 		// If it's now sticking out of the top of the DOM, bring it back in
 		utils.fixOutOfWindow( label );

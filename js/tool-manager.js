@@ -18,7 +18,7 @@ for each tool to use that name to access the manager...
 	var manager = {};
 	var utils 	= BookmarkletUtils;  // shorter name inside here
 
-	// manager.container 	= null;  // Needed?
+	manager.container 	= null;  // Needed?
 	manager.menu 		= null;
 	manager.items 		= [];
 
@@ -96,8 +96,9 @@ for each tool to use that name to access the manager...
 
 		// --- DOM --- \\
 		manager.menu.appendChild( item );
-		// I think listener has to be done after node is added to the DOM
-		// item.addEventListener( 'click', function (evnt) { obj.toggle( evnt, manager ) } );
+		// Exclude the container from the attention of this tool
+		manager.container.className = 
+			manager.container.className + ' ' + obj.className + '-exclude';
 
 		// --- INTERNAL --- \\
 		manager.items.push( item );
@@ -170,7 +171,7 @@ for each tool to use that name to access the manager...
 
 		// --- DOM --- \\
 		document.body.appendChild( container );
-		// manager.container 	= container;
+		manager.container 	= container;
 
 		return container
 	};  // manager.createNew()

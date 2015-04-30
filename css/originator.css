@@ -1,9 +1,13 @@
 /* originator.css
 For cdn?
+
+NOT SURE THIS IS WORTH IT JUST FOR ONE ELEMENT
 */
+
 
 /* ------------------ */
 /* FUNCTIONALITY */
+/* ------------------ */
 .originator{
 	position: absolute;
 	left: 0; top: 0;

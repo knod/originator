@@ -179,7 +179,7 @@ Usecase: setAttributes(elem, {"width": "50%, "height": "100%", ...});
 
 
 BookmarkletUtils.removeElements = function ( elemNodeList ) {
-/* ( Node list ) -> same
+/* ( Node list ) or ( [Node] ) -> same
 
 Removes all elements in elemList from the DOM
 */
