@@ -1026,7 +1026,7 @@ var Originator = function () {
 	origr.labelText 	= 'Position Guidance';
 	origr.managerName 	= 'originator';
 
-	if (bookmarkletToolManager) {
+	if (typeof bookmarkletToolManager !== 'undefined') {
 		bookmarkletToolManager.newItem( origr );
 	}
 
