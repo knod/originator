@@ -31,6 +31,8 @@ var Originator = function () {
 	origr.deactivated 		= false;
 	origr.loopPaused 		= false;
 
+	origr.name 				= 'originator';
+
 	var baseColor 			= 'rgb(55, 55, 55)',
 		outlineColor		= 'white',
 		wrongColor 			= 'tomato',
@@ -722,12 +724,12 @@ var Originator = function () {
 		// https://connect.microsoft.com/IE/feedback/details/780874/node-contains-is-incorrect
 		// and http://stackoverflow.com/questions/5629684/how-to-check-if-element-exists-in-the-visible-dom csuwldcat
 		var elemInDOM 	= document.body.contains( currentTarget );
-		// If stuff is visible, make it look good
 		var visibility 	= origr.node.style.visibility;
 
 		// If the DOM has mutated getting rid of the element, we don't
 		// want to do this.
 		if ( elemInDOM && visibility !== "hidden" && !deactivated ) {
+
 			var positionStyle = utils.getPositionStyle( currentTarget );
 
 			// --- CORRECT PARENT ---
@@ -966,8 +968,8 @@ var Originator = function () {
 	// }; // End addEventListenerByClass()
 
 
-	origr.disabler = document.getElementById( 'originator_disabler' );
-	origr.disabler.addEventListener( 'click', function ( evnt ) { origr.toggle( evnt); });
+	origr.disabler = document.getElementById( origr.name + '_toggle' );
+	// origr.disabler.addEventListener( 'click', function ( evnt ) { origr.toggle( evnt); });
 
 
 	// ------------------- \\
@@ -1021,6 +1023,12 @@ var Originator = function () {
 	// });  // end observer
 	// observer.observe(document, { childList: true, attributes: true });
 
+	origr.labelText 	= 'Position Guidance';
+	origr.managerName 	= 'originator';
+
+	if (bookmarkletToolManager) {
+		bookmarkletToolManager.newItem( origr );
+	}
 
 	return origr;
 };  // End Originator {}
