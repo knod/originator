@@ -1,195 +1,26 @@
 /* originator.css
 For cdn?
+
+NOT SURE THIS IS WORTH IT JUST FOR ONE ELEMENT
 */
 
 
-/* =================== */
-/* MANAGER */
-/* =================== */
-/*
-	http://stackoverflow.com/questions/9815328/vertically-aligning-a-checkbox
-	http://jsfiddle.net/cC9Cs/2/
-*/
-#bookmarklet_collection_manager {
+/* ------------------ */
+/* FUNCTIONALITY */
+/* ------------------ */
+.originator{
 	position: absolute;
-	top: 9px;
-	right: 9px;
-	background-color: rgb( 240, 240, 240 );
-
-	color: rgb(80, 80, 80);
-	border: solid rgb( 200, 200, 200 ) 2px;
-}
-
-#bookmarklet_collection_manager h1 {
-	font-size: 19px;
-	font-variant: small-caps;
-
-	margin: 0;
-	padding-left: 4px;
-
-	background-color: rgb( 225, 225, 225 );
-	border-bottom: solid rgb( 200, 200, 200 ) 2px;
-}
-
-menu {
-    list-style: none;
-    padding: 2px 4px;
-    margin: 0;
-}
-
-.manager li {
-	margin-top: 2px 0;
-}
-
-/*label {
-	margin: 0;
-  display: inline-block;
-  vertical-align: middle;
-}
-
-input {
-  position: relative;
-  margin: 0;
-}*/
-
-/* http://webdesign.tutsplus.com/tutorials/quick-tip-easy-css3-checkboxes-and-radio-buttons--webdesign-8953 */
-/*input[type="checkbox"] {
-    display:none;
-}
-input[type="checkbox"] + label span {
-    display:inline-block;
-    width:19px;
-    height:19px;
-    background:url(check_radio_sheet.png) left top no-repeat;
-}*/
-
-/*http://cssdeck.com/labs/css-checkbox-styles*/
-/*input[type=checkbox] {
+	left: 0; top: 0;
 	visibility: hidden;
+
+	z-index: 200;
+	height: 1.5px; min-width: 0.5px;
+	/* Always rotate from top left corner*/
+	-webkit-transform-origin: top left; -moz-transform-origin: top left; +
+	-o-transform-origin: top left; transform-origin: top left;
+}
+
+/* This is in the js because it's important to see it there */
+/*.originator svg {
+	style: overflow: visible;
 }*/
-/*
-.squaredTwo {
-	width: 10px;
-	height: 10px;
-	background: #fcfff4;
-
-	background: -webkit-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
-	background: -moz-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
-	background: -o-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
-	background: -ms-linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
-	background: linear-gradient(top, #fcfff4 0%, #dfe5d7 40%, #b3bead 100%);
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#fcfff4', endColorstr='#b3bead',GradientType=0 );
-	/*margin: 20px auto;
-	margin: 0;
-
-	-webkit-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
-	-moz-box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
-	box-shadow: inset 0px 1px 1px white, 0px 1px 3px rgba(0,0,0,0.5);
-	position: relative;
-}
-
-.squaredTwo span {
-	cursor: pointer;
-	position: absolute;
-	width: 70%;
-	height: 70%;
-	left: 50%;
-	top: 50%;
-	transform: translate(-50%, -50%);
-
-	-webkit-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
-	-moz-box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
-	box-shadow: inset 0px 1px 1px rgba(0,0,0,0.5), 0px 1px 0px rgba(255,255,255,1);
-
-	background: -webkit-linear-gradient(top, #222 0%, #45484d 100%);
-	background: -moz-linear-gradient(top, #222 0%, #45484d 100%);
-	background: -o-linear-gradient(top, #222 0%, #45484d 100%);
-	background: -ms-linear-gradient(top, #222 0%, #45484d 100%);
-	background: linear-gradient(top, #222 0%, #45484d 100%);
-	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#222', endColorstr='#45484d',GradientType=0 );
-}
-
-.squaredTwo span:after {
-	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
-	filter: alpha(opacity=0);
-	opacity: 0;
-	content: '';
-	position: absolute;
-	width: 9px;
-	height: 5px;
-	background: transparent;
-	top: 4px;
-	left: 4px;
-	border: 3px solid #fcfff4;
-	border-top: none;
-	border-right: none;
-
-	-webkit-transform: rotate(-45deg);
-	-moz-transform: rotate(-45deg);
-	-o-transform: rotate(-45deg);
-	-ms-transform: rotate(-45deg);
-	transform: rotate(-45deg);
-}
-
-.squaredTwo span:hover::after {
-	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
-	filter: alpha(opacity=30);
-	opacity: 0.3;
-}
-
-.squaredTwo input[type=checkbox]:checked + span:after {
-	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
-	filter: alpha(opacity=100);
-	opacity: 1;
-}*/
-
-/* http://www.css3.com/implementing-custom-checkboxes-and-radio-buttons-with-css3/ (almost) */
-input[type=checkbox] {
-	/*visibility: hidden;*/
-	opacity: 0;
-	/*display: none;*/
-}
-
-/*.checkbox label:before {
-    border-radius: 3px;
-}
-
-input[type=checkbox]:checked {
-    content: "\2713";
-    text-shadow: 1px 1px 1px rgba(0, 0, 0, .2);
-    font-size: 15px;
-    color: #f3f3f3;
-    text-align: center;
-    line-height: 15px;
-}*/
-
-li {
-	/* To position checkbox correctly */
-	position:relative;
-	/*display: flex;
-	justify-content: flex-start;
-	align-items: center;*/
-}
-
-/* Mine */
-.checkbox-visual {
-	position: absolute;
-	left: 0;
-	top: 2px;
-}
-
-
-label {
-	margin: 0;
-	display: inline-block;
-	vertical-align: middle;
-}
-
-input {
-	position: relative;
-	margin: 0;
-}
-
-.checkbox-visual {
-	pointer-events: none;
-}

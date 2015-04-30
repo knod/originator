@@ -1,0 +1,23 @@
+/*labels.css*/
+
+
+/* ------------------ */
+/* FUNCTIONALITY 	*/
+/* ------------------ */
+.label-shadow-cutoff {
+	position: absolute;
+	z-index: 100;
+	overflow: hidden;
+	/* padding: figured out in js; */
+}
+
+/* ------------------ */
+/* SKIN 			*/
+/* ------------------ */
+.label-shadowed-elem {
+	border-radius: 4px 4px 0px 0px;
+	box-shadow: 0 0 3px .1px rgba(0, 0, 0, .5);
+	/* For text */
+	padding: 0 0.2rem;
+}
+
