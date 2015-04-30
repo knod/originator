@@ -5,6 +5,9 @@
 /* main2.js
 
 TODO:
+- Add green color and special text for body label
+
+DONE:
 - Pulse color of line and circles when they first appear?
  or just make them a color other than black?
 - Maybe put abs pos element's left and top values
@@ -1053,21 +1056,4 @@ Selector Gadget's way of handling the code:
 })();
 */
 
-function importCSS(href, look_for, onload) {
-  var s = document.createElement('link');
-  s.setAttribute('rel', 'stylesheet');
-  s.setAttribute('type', 'text/css');
-  s.setAttribute('media', 'screen');
-  s.setAttribute('href', href);
-  if (onload) wait_for_script_load(look_for, onload);
-  var head = document.getElementsByTagName('head')[0];
-  if (head) {
-    head.appendChild(s);
-  } else {
-    document.body.appendChild(s);
-  }
-}
-
-// FontAwesome
-importCSS('https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css');
 

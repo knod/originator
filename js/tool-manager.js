@@ -25,6 +25,11 @@ for each tool to use that name to access the manager...
 	manager.checkedClasses 		= 'fa fa-check-square-o checkbox-visual';
 	manager.uncheckedClasses 	= 'fa fa-square-o checkbox-visual';
 
+	// FontAwesome
+	utils.importCSS('https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css');
+	// tool manager css when we have a cdn
+	// utils.importCSS();
+
 	// ==========================
 	// FOR MAKING NEW MENU ITEMS
 	// ==========================
