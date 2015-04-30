@@ -11,8 +11,11 @@ var BookmarkletToolManager = function ( variableName ) {
 	manager.menu 		= null;
 	manager.items 		= [];
 
+	manager.checkedClasses 		= 'fa fa-check-square-o checkbox-visual';
+	manager.uncheckedClasses 	= 'fa fa-square-o checkbox-visual';
+
 	// =====================
-	// SETUP
+	// NEW MENU ITEMS
 	// =====================
 	manager.newInput = function ( item, managerName ) {
 	/*  */
@@ -59,10 +62,7 @@ var BookmarkletToolManager = function ( variableName ) {
 		var label 			= document.createElement( 'label' );
 		utils.setAttributes( label, {
 			'className': 'manager-label', 'for': inputID
-		} );
-
-		// label.className 	= 'manager-label';
-		// label['for'] 		= inputID;
+		});
 
 		var text 		= document.createTextNode( obj.labelText );
 		label.appendChild( text );
@@ -80,6 +80,28 @@ var BookmarkletToolManager = function ( variableName ) {
 	};  // End manager.newItem()
 
 
+
+	// =====================
+	// LOGIC (there's gotta be a better name... runtime?)
+	// =====================
+	manager.changeBoxAppearance = function ( eventTarget, checkboxState ) {
+	/*
+
+	Changes the fake checkbox appearance
+	*/ console.log(eventTarget);
+		var visualCheckbox 	= eventTarget.parentNode.getElementsByClassName( 'checkbox-visual' )[0];
+
+		if ( checkboxState === true ) {
+			
+		}
+
+
+	};  // End manager.changeBoxAppearance()
+
+
+	// =====================
+	// MANAGER INITIALIZATION
+	// =====================
 	manager.createNew = function ( variableName ) {
 	/* ( str ) -> DOM */
 
