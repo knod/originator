@@ -2,4 +2,21 @@
 For cdn?
 */
 
+/* ------------------ */
+/* FUNCTIONALITY */
+.originator{
+	position: absolute;
+	left: 0; top: 0;
+	visibility: hidden;
 
+	z-index: 200;
+	height: 1.5px; min-width: 0.5px;
+	/* Always rotate from top left corner*/
+	-webkit-transform-origin: top left; -moz-transform-origin: top left; +
+	-o-transform-origin: top left; transform-origin: top left;
+}
+
+/* This is in the js because it's important to see it there */
+/*.originator svg {
+	style: overflow: visible;
+}*/

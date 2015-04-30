@@ -2,9 +2,9 @@
 
 'use strict'
 
-var ColorUtils = {};
+window.BookmarkletsUtilsColor = {};
 
-colorUtils.rgbStrToNums = function ( rgb ) {
+BookmarkletsUtilsColor.rgbStrToNums = function ( rgb ) {
 /* ( str ) -> {}
 
 // http://stackoverflow.com/questions/13070054/convert-rgb-strings-to-hex-in-javascript
@@ -16,19 +16,19 @@ colorUtils.rgbStrToNums = function ( rgb ) {
 		blue 		= parseFloat( colorNums[2] );
 
 	return {r: red, g: green, b: blue};
-};  // End colorUtils.rgbStrToNums
+};  // End BookmarkletsUtilsColor.rgbStrToNums
 
 
-colorUtils.hslNumsToStr = function ( hsls ) {
+BookmarkletsUtilsColor.hslNumsToStr = function ( hsls ) {
 /* ( {} ) -> Str
 
 Converts strings to "hsl(num, num%, num%)"
 */
 	return 'hsl(' + hsls.h + ', ' + hsls.s + '%, ' + hsls.l + '%)';
-};  //  End colorUtils.hslNumsToStr()
+};  //  End BookmarkletsUtilsColor.hslNumsToStr()
 
 
-colorUtils.rgbNumsToHslNums = function ( rgbs ) {
+BookmarkletsUtilsColor.rgbNumsToHslNums = function ( rgbs ) {
 /* ( {} ) -> {}
 http://stackoverflow.com/questions/4793729/rgb-to-hsl-and-back-calculation-problems
 */
@@ -62,4 +62,4 @@ http://stackoverflow.com/questions/4793729/rgb-to-hsl-and-back-calculation-probl
     var hsls = { h: hue, s: satur, l: light };
 
     return  hsls;
-};  // end colorUtils.rgbNumsToHslNums()
+};  // end BookmarkletsUtilsColor.rgbNumsToHslNums()

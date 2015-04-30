@@ -7,7 +7,7 @@ TODO:
 
 'use strict';
 
-var BookmarkletToolManager = function ( variableName ) {
+window.BookmarkletToolManager = function ( variableName ) {
 /* ( str ) -> BookmarkletToolManager
 
 Creates and adds the tool manager to the DOM.
@@ -33,13 +33,13 @@ for each tool to use that name to access the manager...
 	// ==========================
 	// FOR MAKING NEW MENU ITEMS
 	// ==========================
-	manager.addNewInput = function ( item, inputID, managerName ) {
+	manager.addNewInput = function ( item, inputID, className ) {
 	/*  ( DOM, str, str ) -> other DOM
 	*/
 		var input = document.createElement( 'input' );
 		utils.setAttributes( input, {
 			'class': 'manager-checkbox', 'type': 'checkbox', 'checked': 'checked',
-			'id': inputID, 'name': managerName
+			'id': inputID, 'name': className
 		});
 
 		item.appendChild( input );
@@ -87,17 +87,17 @@ for each tool to use that name to access the manager...
 		// --- MENU ITEM --- \\
 		var item 	= document.createElement( 'li' );
 		// Two things will use this
-		var inputID = obj.managerName + '_toggle';
+		var inputID = obj.className + '_toggle';
 
 		// --- INSIDE MENU ITEM --- \\
-		manager.addNewInput( item, inputID, obj.managerName );
+		manager.addNewInput( item, inputID, obj.className );
 		manager.addNewIcon( item );
 		manager.addNewLabel( item, inputID, obj.labelText )
 
 		// --- DOM --- \\
 		manager.menu.appendChild( item );
 		// I think listener has to be done after node is added to the DOM
-		item.addEventListener( 'click', function (evnt) { obj.toggle( evnt ) } );
+		// item.addEventListener( 'click', function (evnt) { obj.toggle( evnt, manager ) } );
 
 		// --- INTERNAL --- \\
 		manager.items.push( item );
@@ -185,4 +185,4 @@ for each tool to use that name to access the manager...
 };  // BookmarkletToolManager()
 
 // Give this to the global namespace
-var bookmarkletToolManager = BookmarkletToolManager( 'bookletToolManager' );
+// var bookmarkletToolManager = BookmarkletToolManager( 'bookletToolManager' );

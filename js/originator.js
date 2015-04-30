@@ -1,6 +1,4 @@
-// originator.js
-// main3.js
-/* main2.js
+/* originator.js
 
 TODO:
 - Add green color and special text for body label
@@ -21,8 +19,8 @@ Resources no longer used:
 'use strict';
 
 
-var Originator = function ( manager ) {
-/* ( BookmarkletToolManager ) -> Originator
+window.Originator = function ( manager ) {
+/* ( none ) -> Originator
 
 */
 	var origr = {};
@@ -30,7 +28,7 @@ var Originator = function ( manager ) {
 	origr.node 				= null;
 	origr.oldTarget 		= null;
 	origr.currentTarget 	= null;
-	origr.cssFirstPart 		= null;
+
 	origr.circleLT 			= null;
 	origr.circleRB 			= null;
 
@@ -46,267 +44,57 @@ var Originator = function ( manager ) {
 
 	// ===============================================================
 	// =================
-	// GENERAL
+	// UTILITY OBJECTS
 	// =================
-	var utils 	= {};
-	var utils2 	= BookmarkletUtils;
+	var Utils 		= BookmarkletUtils,
+		// OrigrUtils 	= OriginatorUtils,
+		Utils_Color = BookmarkletsUtilsColor,
+		Utils_Math 	= BookmarkletsUtilsMath;
 
-	// --- INITIALIZATION ---
-	utils.setAttributes = function ( elem, attrs ) {
+	// ===============================================================
+	// =================
+	// TOOL MANAGER
+	// =================
+	origr.className = 'originator';
+
+	origr.toggle = function ( evnt, manager ) {
 	/*
 
-	Sets a bunch of attributes all at once because that's annoying
-	and messy
-	Usecase: setAttributes(elem, {"width": "50%, "height": "100%", ...});
+	Based on checkbox, disable or enable the originator tool
 	*/
-		for( var key in attrs ) {
-			elem.setAttribute( key, attrs[key] );
-		}
+		var target 		= evnt.target,
+			parent 		= target.parentNode,
+			checkbox 	= parent.getElementsByClassName( 'manager-checkbox' )[0];
 
-		return elem;
-	};  // End utils.setAttributes()
+		var checked 	= checkbox.checked;
 
+		if ( checked === true ) {
+			// Show checkmark
+			manager.changeIcon( checkbox );
+			origr.active = true;
 
-	// --- MOSTLY FOR ORIGINALTOR ---
-	utils.oneHasClass = function ( elems, testClass ) {
-	/* ( [ DOM ], str ) -> bool
-
-	Returns whether one element in the list of elements has a class
-	*/
-		var oneHasClass = false;
-
-		for ( var elemi = 0; elemi < elems.length; elemi++ ) {
-
-			if ( elems[ elemi ].classList.contains( testClass ) ) {
-				oneHasClass = true;
-			}
-		}
-
-		return oneHasClass;
-	};  // End oneHasClass()
-
-
-	utils.oneHasId = function ( elems, testId ) {
-	/* ( [ DOM ], str ) -> bool
-
-	Returns whether one element in the list of elements has an id of testId
-	*/
-		var oneHasId = false;
-
-		for ( var elemi = 0; elemi < elems.length; elemi++ ) {
-
-			if ( elems[ elemi ].id === testId ) {
-				oneHasId = true;
-			}
-		}
-
-		return oneHasId;
-	};  // End oneHasId()
-
-
-	utils.distanceBetween = function ( point1, point2 ) {
-	/* ( {}, {} ) -> num
-	
-	Returns the pixel distance between point1 and point2
-	*/
-		var xDistance = 0;
-		var yDistance = 0;
-
-		xDistance = point2.x - point1.x;
-		xDistance = xDistance * xDistance;
-
-		yDistance = point2.y - point1.y;
-		yDistance = yDistance * yDistance;
-
-		return Math.sqrt( xDistance + yDistance );
-
-	};  // End distanceBetween()
-
-
-	utils.degreesFromHorizontal = function ( point1, point2 ) {
-	/* ( {}, {} ) -> num
-
-	Returns number of degrees between a horizontal line to the right
-	and the line made by the two given points.
-	*/
-		var deltaY = point2.y - point1.y,
-			deltaX = point2.x - point1.x;
-
-		var angleInDegrees = Math.atan2( deltaY, deltaX ) * 180 / Math.PI;
-
-		return angleInDegrees;
-	};  // End degreesFromHorizontal()
-
-
-	utils.rotateByDegrees = function ( elem, degrees ) {
-	/* ( DOM, num ) -> same DOM */
-
-		elem.style.webkitTransform = 'rotate(' + degrees + 'deg)'; 
-		elem.style.mozTransform    = 'rotate(' + degrees + 'deg)'; 
-		elem.style.msTransform     = 'rotate(' + degrees + 'deg)'; 
-		elem.style.oTransform      = 'rotate(' + degrees + 'deg)'; 
-		elem.style.transform       = 'rotate(' + degrees + 'deg)';
-
-		return elem;
-	};  // End rotateByDegrees()
-
-
-	utils.resetRotation = function ( elem ) {
-	/* ( DOM ) -> same */
-
-		elem.style.webkitTransform = 'rotate( 0deg )'; 
-		elem.style.mozTransform    = 'rotate( 0deg )';
-		elem.style.msTransform     = 'rotate( 0deg )';
-		elem.style.oTransform      = 'rotate( 0deg )';
-		elem.style.transform       = 'rotate( 0deg )';
-
-		return elem;
-	};  // End resetRotation()
-
-
-	// --- MOSTLY FOR LABELS ---
-	utils.getElemsFromUntil = function ( childElem, ancestorElem ) {
-	/* ( HTML, HTML ) -> [ DOM ]
-
-	Return all ancestor of childElem up to and including ancestorElem
-	*/
-		var elemList 			= [];
-		var currentElem			= childElem;
-		var ancestorNotFound 	= true;
-
-		// Cycle through the ancestors, until the right ancestor is reached
-		// ??: Can document.body have a sibling?
-		while ( ancestorNotFound ) {
-
-			elemList.push( currentElem );
-
-			if ( currentElem === ancestorElem ) {
-				ancestorNotFound = false;
-			} else {
-				// For next loop iteration
-				currentElem = currentElem.parentNode;
-			}
-		}  // end while ancestorNotFound
-
-		if ( currentElem !== ancestorElem ) { elemList = "There was no such ancestor!"; }
-
-		return elemList;
-
-	};  // End utils.getElemsFromUntil()
-
-
-	utils.removeElements = function ( elemNodeList ) {
-	/* ( Node list ) -> same
-
-	Removes all elements in elemList from the DOM
-	*/
-
-		// Some browsers have dynamic node lists, others have static node lists
-		// Using nodeList[0] in each loop would therefore break sometimes
-		var elemArray = [].slice.call( elemNodeList );
-
-		for ( var elemi = 0; elemi < elemArray.length; elemi++ ) {
-
-			var elem = elemArray[ elemi ];
-			var parent = elem.parentNode;
-
-			parent.removeChild( elem );
+		// Not for 'undefined', just for 'false'
+		} else if ( checked === false ) {
+			manager.changeIcon( checkbox );
+			origr.active = false;
 
 		}
 
-		return elemNodeList;
-	};  // End utils.removeElements()
-
-
-	utils.isOutOfWindow = function ( elem ) {
-	/* ( DOM ) -> bool
-
-	Tests whether an element peeks above viewport.
-	Not sure how to do just out of window...
-	*/
-		var elemTop = utils.getOffsetRect( elem ).top;
-		return elemTop < 0
-	};  // End utils.isOutOfWindow()
-
-
-	utils.fixOutOfWindow = function ( elem ) {
-	/*
-
-	Tests if an element is out of the window. If it is,
-	it moves it into the window
-	*/
-		// Doesn't include the shadow, just the colored bit of the label
-		if ( utils.isOutOfWindow(elem) ) { elem.style.top = -1 * shadowContainerPadding; }
-		return elem;
-	};  // End fixOutOfWindow
-
-
-	// --- FOR BOTH ---
-	utils.getOffsetRect = function ( elem ) {
-	/* ( DOM ) -> {}
-
-	http://javascript.info/tutorial/coordinates
-	Gets the top and left offsets of an element relative
-	to the document (takes scrolling into account)
-	*/
-	    // (1)
-	    var box = elem.getBoundingClientRect()
-	     
-	    var body = document.body
-	    var docElem = document.documentElement
-	     
-	    // (2)
-	    var scrollTop = window.pageYOffset || docElem.scrollTop || body.scrollTop
-	    var scrollLeft = window.pageXOffset || docElem.scrollLeft || body.scrollLeft
-	     
-	    // (3)
-	    var clientTop = docElem.clientTop || body.clientTop || 0
-	    var clientLeft = docElem.clientLeft || body.clientLeft || 0
-	     
-	    // (4)
-	    var top  = box.top +  scrollTop - clientTop
-	    var left = box.left + scrollLeft - clientLeft
-	     
-	    return { top: Math.round(top), left: Math.round(left) }
-	}  // End utils.getOffsetRect()
-
-
-	utils.getPositionStyle = function ( elem ) {
-
-		var elemStyle 	= window.getComputedStyle( elem )
-		return elemStyle.getPropertyValue( 'position' );
-
-	}  // End utils.getPositionStyle()
-
-
-	utils.positionRelativeToParent = function ( elem ) {
-	/* ( DOM ) -> {}
-
-	Gets position relative to parent instead of offset parent
-	*/
-		var elemPos 	= utils.getOffsetRect( elem );
-		var elemLeft 	= elemPos.left,
-			elemTop 	= elemPos.top;
-
-		var parentPos 	= utils.getOffsetRect( elem.parentNode );
-		var parentLeft 	= parentPos.left,
-			parentTop 	= parentPos.top;
-
-		var xDiff 		= elemLeft - parentLeft;
-		var xDiffSign 	= Math.sqrt( xDiff * xDiff );
-
-		var yDiff 		= elemTop - parentTop;
-		var yDiffSign 	= Math.sqrt( yDiff * yDiff );
-
-		return {x: xDiffSign, y: yDiffSign}
-	};  // End utils.positionRelativeToParent
-
+		return evnt.target;
+	};  // End origr.toggle()
 
 
 	// ===============================================================
 	// =================
-	// APP LOGIC
+	// LOGIC
 	// =================
+
+	// ---------------- \\
+	// ---  --- \\
+	
+
+	// ---------------- \\
+	// --- ORIGINATOR --- \\
 	origr.shouldExclude = function ( currentElem ) {
 	/* ( DOM ) -> Bool
 
@@ -316,14 +104,15 @@ var Originator = function ( manager ) {
 		var exclude = false;
 
 		// --- Is or belongs to originator ---
-		var allElems 	= utils.getElemsFromUntil( currentElem, document.body.parentNode );
-		var isManager 	= utils.oneHasId( allElems, 'bookmarklet_collection_manager' );
-		var isOrigin 	= utils.oneHasClass( allElems, 'originator' );
+		var allElems 	= Utils.getElemsFromUntil( currentElem, document.body.parentNode );
+		var isManager 	= Utils.oneHasId( allElems, 'bookmarklet_collection_manager' );
+		var isOrigin 	= Utils.oneHasClass( allElems, origr.className );
 
-		var isLabel 	= utils.oneHasClass( allElems, 'label-shadow-cutoff' );
+		var isLabel 	= Utils.oneHasClass( allElems, 'label-shadow-cutoff' );
 
 		// --- result ---
 		if ( isOrigin || isLabel || isManager ) { exclude = true; }
+		// console.log(exclude);
 		return exclude;
 	};  // End origr.shouldExclude()
 
@@ -390,8 +179,8 @@ var Originator = function ( manager ) {
 		var min = 80, modifier = 30;
 
 		// lightness to 80%
-		var rgbNums 	= utils2.rgbStrToNums( rgbs ),
-			hsls 		= utils2.rgbNumsToHslNums( rgbNums );
+		var rgbNums 	= Utils_Color.rgbStrToNums( rgbs ),
+			hsls 		= Utils_Color.rgbNumsToHslNums( rgbNums );
 
 		// Prepare to send the new value to be converted
 		hsls.l 			= min;
@@ -399,7 +188,7 @@ var Originator = function ( manager ) {
 
 		// console.log('Child:', hsls);
 
-		return utils2.hslNumsToStr( hsls );
+		return Utils_Color.hslNumsToStr( hsls );
 	};  // End toChildColor()
 
 	var toParentColor = function ( rgbs ) {
@@ -410,8 +199,8 @@ var Originator = function ( manager ) {
 		var max = 35, modifier = 30;
 
 		// lightness to 30%
-		var rgbNums 	= utils2.rgbStrToNums( rgbs ),
-			hsls 		= utils2.rgbNumsToHslNums( rgbNums );
+		var rgbNums 	= Utils_Color.rgbStrToNums( rgbs ),
+			hsls 		= Utils_Color.rgbNumsToHslNums( rgbNums );
 
 		// Prepare to send the new value to be converted
 		hsls.l 			= max;
@@ -419,7 +208,7 @@ var Originator = function ( manager ) {
 
 		// console.log('Parent:', hsls);
 
-		return utils2.hslNumsToStr( hsls );
+		return Utils_Color.hslNumsToStr( hsls );
 	};  // End toParentColor()
 
 
@@ -431,7 +220,6 @@ var Originator = function ( manager ) {
 		var childColor 			= determineColor( childElem ),
 			childCircleColor 	= toChildColor( childColor );
 		origr.circleChild.setAttribute( 'fill', childCircleColor );
-		console.log();
 
 		var parentColor 		= determineColor( parentElem ),
 			parentCircleColor 	= toParentColor( parentColor );
@@ -449,21 +237,21 @@ var Originator = function ( manager ) {
 	*/
 		var origrNode_ = origr.node;
 		// Rotation is accumulative. Always reset first.
-		utils.resetRotation( origrNode_ );
+		Utils.resetRotation( origrNode_ );
 
 		// Positions left and top to x and y
-		var parentPos 	= utils.getOffsetRect( targetParent ),
+		var parentPos 	= Utils.getOffsetRect( targetParent ),
 			pCoords		= { 'x': parentPos.left, 'y': parentPos.top };
-		var targetPos 	= utils.getOffsetRect( currentTarget ),
+		var targetPos 	= Utils.getOffsetRect( currentTarget ),
 			tCoords		= { 'x': targetPos.left, 'y': targetPos.top };
 
 		// Line Length
-		var distance 	= utils.distanceBetween( pCoords, tCoords );
+		var distance 	= Utils_Math.distanceBetween( pCoords, tCoords );
 		origrNode_.style.width = distance + "px";
 
 		// Line rotation (from top left because of css)
-		var degrees 	= utils.degreesFromHorizontal( pCoords, tCoords );
-		utils.rotateByDegrees( origrNode_, degrees );
+		var degrees 	= Utils_Math.degreesFromHorizontal( pCoords, tCoords );
+		Utils.rotateByDegrees( origrNode_, degrees );
 
 		// Position
 		var parentLeft 	= parentPos.left;
@@ -486,7 +274,7 @@ var Originator = function ( manager ) {
 	Makes everything except the disable/enable button disappear
 	*/
 		var labels = document.getElementsByClassName( 'label-shadow-cutoff' );
-		utils.removeElements( labels );
+		Utils.removeElements( labels );
 
 		origr.node.style.visibility = 'hidden';
 
@@ -502,7 +290,7 @@ var Originator = function ( manager ) {
 
 		// Just always get rid of them. They'll be replaced further down if needed
 		var labels 		= document.getElementsByClassName( 'label-shadow-cutoff' );
-		utils.removeElements( labels );
+		Utils.removeElements( labels );
 
 		// If the target is removed, it still exists in our js as origr.currentTarget
 		// Check if it's actually in the DOM. Using 'body' for IE:
@@ -515,7 +303,7 @@ var Originator = function ( manager ) {
 		// want to do this.
 		if ( elemInDOM && (visibility !== 'hidden') && active ) {
 
-			var positionStyle = utils.getPositionStyle( currentTarget );
+			var positionStyle = Utils.getPositionStyle( currentTarget );
 
 			// --- CORRECT PARENT ---
 			// Absolutely positioned elements have this final ancestor
@@ -527,8 +315,8 @@ var Originator = function ( manager ) {
 
 			// --- LABELS --- \\
 			// Get the current element and all ancestors up to and including the determined parent
-			var elems = utils.getElemsFromUntil( currentTarget, targetParent );
-			labelElems( elems, positionStyle );
+			var elems = Utils.getElemsFromUntil( currentTarget, targetParent );
+			// labelElems( elems, positionStyle );
 
 			// --- ORIGINATOR --- \\
 			origr.placeOriginator( currentTarget, positionStyle, targetParent );
@@ -553,19 +341,8 @@ var Originator = function ( manager ) {
 
 	Container is always 0.5px high, will be rotated for placement
 	*/
-
 		var container 		= document.createElement('div');
-		container.className = 'originator';
-
-		var attributesStr 	= 'position: absolute; left: 0; top: 0; ' +
-			'visibility: hidden; z-index: 200; ' +
-			'height: 1.5px; min-width: 0.5px; ' +
-			// Always rotate from top left corner
-			'-webkit-transform-origin: top left; -moz-transform-origin: top left;' +
-            '-o-transform-origin: top left; transform-origin: top left;';
-
-		container.setAttribute( 'style', attributesStr );
-
+		container.className = origr.className;
 		return container;
 	};  // End buildContainerDiv()
 
@@ -574,12 +351,12 @@ var Originator = function ( manager ) {
 	/* ( str ) -> DOM */
 
 		var svg 		= document.createElementNS( NS,'svg' );
-		var attributes 	= {
+		var attributes 	= {  // ??: Why is version needed?
 			'version': '1.1', 'width': '100%', 'height': '100%',
 			'style': 'overflow: visible;'
 		};
 
-		utils.setAttributes( svg, attributes );
+		Utils.setAttributes( svg, attributes );
 
 		return svg;
 	};  // End buildSVG()
@@ -601,7 +378,7 @@ var Originator = function ( manager ) {
 		// To pulse a color first
 		line.style.transition = 'stroke .4s ease;';
 
-		utils.setAttributes( line, attributes);
+		Utils.setAttributes( line, attributes);
 		// line.setAttribute( 'stroke-linecap', 'butt' );
 
 		return line;
@@ -614,17 +391,16 @@ var Originator = function ( manager ) {
 	Build originator circles
 	*/
 		// Sizes
-		var radius = 4, strokeWidth = 1.5;
+		var radius 		= 4, strokeWidth = 1.5;
+		var circle 		= document.createElementNS( NS, 'circle' );
 
-		var circle 			= document.createElementNS( NS, 'circle' );
-
-		var attributes 		= {
+		var attributes 	= {
 			// They should be at the same height? Everything starts out horizontal
 			'cx': position, 'cy': 0, 'r': radius,
 			'fill': baseColor, 'stroke': outline, 'stroke-width': strokeWidth
 		};
 
-		utils.setAttributes( circle, attributes );
+		Utils.setAttributes( circle, attributes );
 
 		return circle;
 	};  // End buildCircle()
@@ -686,57 +462,6 @@ var Originator = function ( manager ) {
 	// EVENTS
 	// =================
 
-	// ---------------- \\
-	// --- DISABLER --- \\
-	origr.toggle = function ( evnt ) {
-	/*
-
-	Based on checkbox, disable or enable the originator tool
-	*/
-		var target 		= evnt.target,
-			parent 		= target.parentNode,
-			checkbox 	= parent.getElementsByClassName( 'manager-checkbox' )[0];
-
-		var checked 	= checkbox.checked;
-
-		if ( checked === true ) {
-			// Show checkmark
-			bookmarkletToolManager.changeIcon( checkbox );
-			origr.active = true;
-
-		// Not for 'undefined', just for 'false'
-		} else if ( checked === false ) {
-			bookmarkletToolManager.changeIcon( checkbox );
-			origr.active = false;
-
-		}
-
-		return evnt.target;
-	};  // End origr.toggle()
-
-
-	// This could be really useful in future
-	// var addEventListenerByClass = function (className, evnt, eventFunc) {
-	// /*
-
-	// http://stackoverflow.com/questions/12362256/addeventlistener-on-nodelist
-	// Maybe worth getting jQuery at this point?
-	// */
-	// 	var elemList = document.getElementsByClassName( className );
-	// 	for (var i = 0, len = elemList.length; i < len; i++) {
-	// 		elemList[ i ].addEventListener( evnt, eventFunc, false);
-	// 	}
-
-	// 	return elemList;
-	// }; // End addEventListenerByClass()
-
-
-	origr.managerName 	= 'originator';
-	origr.disabler = document.getElementById( origr.managerName + '_toggle' );
-	// To account for new and old scripts
-	if ( origr.disabler !== null ) {
-		origr.disabler.addEventListener( 'click', function ( evnt ) { origr.toggle( evnt); });
-	}
 
 
 	// ------------------- \\
@@ -781,10 +506,16 @@ var Originator = function ( manager ) {
 
 	origr.update();
 
-	origr.labelText 	= 'Position Guidance';
-	origr.managerName 	= 'originator';
 
-	bookmarkletToolManager.addNewItem( origr );
+
+	origr.disabler = document.getElementById( origr.className + '_toggle' );
+	// To account for new and old scripts
+	if ( origr.disabler !== null ) {
+		origr.disabler.addEventListener( 'click', function ( evnt ) { origr.toggle( evnt); });
+	}
+
+	origr.labelText 	= 'Position Guidance';
+	origr.managerItem = manager.addNewItem( origr );
 
 	return origr;
 };  // End Originator {}
@@ -793,7 +524,7 @@ var Originator = function ( manager ) {
 // ============
 // START
 // ============
-var originator3000 = new Originator();
+// var originator3000 = new Originator();
 
 
 /*
