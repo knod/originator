@@ -28,7 +28,7 @@ var Originator = function () {
 	origr.circleLT 			= null;
 	origr.circleRB 			= null;
 
-	origr.deactivated 		= false;
+	origr.active 			= true;
 	origr.loopPaused 		= false;
 
 	origr.name 				= 'originator';
@@ -709,7 +709,7 @@ var Originator = function () {
 	};  // End origr.hide()
 
 
-	origr.makeMagic = function ( currentTarget, deactivated ) {
+	origr.makeMagic = function ( currentTarget, active ) {
 	/*
 
 	In its own function so we can call it again on resize
@@ -728,7 +728,7 @@ var Originator = function () {
 
 		// If the DOM has mutated getting rid of the element, we don't
 		// want to do this.
-		if ( elemInDOM && visibility !== "hidden" && !deactivated ) {
+		if ( elemInDOM && (visibility !== 'hidden') && active ) {
 
 			var positionStyle = utils.getPositionStyle( currentTarget );
 
@@ -934,18 +934,19 @@ var Originator = function () {
 	Based on checkbox, disable or enable the originator tool
 	*/
 		var target 		= evnt.target;
-		var iconElem 	= target.parentNode.getElementsByClassName( 'checkbox-visual' )[0];
-
 		var checked 	= target.checked;
+
+		var iconElem 	= target.parentNode.getElementsByClassName( 'checkbox-visual' )[0];
 
 		if ( checked === true ) {
 			// Show checkmark
 			iconElem.className = 'fa fa-check-square-o checkbox-visual';
-			origr.deactivated = false;
+			origr.active = true;
 
-		} else {
+		// Not for 'undefined', just for 'false'
+		} else if ( checked === false ) {
 			iconElem.className = 'fa fa-square-o checkbox-visual';
-			origr.deactivated = true;
+			origr.active = false;
 
 		}
 
@@ -1011,29 +1012,20 @@ var Originator = function () {
 	origr.update = function () {
 		// Loop forever and ever?
 		if ( !origr.loopPaused ) {
-		// Deactivated state is taken care of in makeMagic
-			origr.makeMagic( origr.currentTarget, origr.deactivated );
+		// Deactive state is taken care of in makeMagic
+			origr.makeMagic( origr.currentTarget, origr.active );
 			window.requestAnimationFrame( origr.update );
 		}
 	};  // End update()
 
 	origr.update();
 
-
-	// --- MOVE WHEN CHANGE DETECTED? ---
-	// // This would be instead of update()
-	// var observer = new MutationObserver(function () {
-	// 	console.log('mutation');
-	// 	origr.makeMagic( origr.oldTarget );
-	// });  // end observer
-	// observer.observe(document, { childList: true, attributes: true });
-
 	origr.labelText 	= 'Position Guidance';
 	origr.managerName 	= 'originator';
 
-	// if (typeof bookmarkletToolManager !== 'undefined') {
-	// 	bookmarkletToolManager.newItem( origr );
-	// }
+	if (typeof bookmarkletToolManager !== 'undefined') {
+		bookmarkletToolManager.newItem( origr );
+	}
 
 	return origr;
 };  // End Originator {}
