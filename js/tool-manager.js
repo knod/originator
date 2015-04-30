@@ -16,7 +16,7 @@ for each tool to use that name to access the manager...
 */
 
 	var manager = {};
-	var utils 	= toolManagerUtils;  // shorter name inside here
+	var utils 	= BookmarkletUtils;  // shorter name inside here
 
 	// manager.container 	= null;  // Needed?
 	manager.menu 		= null;

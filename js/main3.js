@@ -6,6 +6,7 @@
 
 TODO:
 - Add green color and special text for body label
+- Fix originator showing on Tool Manager
 
 DONE:
 - Pulse color of line and circles when they first appear?
