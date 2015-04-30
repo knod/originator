@@ -937,7 +937,8 @@ var Originator = function () {
 		var iconElem 	= target.parentNode.getElementsByClassName( 'checkbox-visual' )[0];
 
 		var checked 	= target.checked;
-		if ( checked ) {
+
+		if ( checked === true ) {
 			// Show checkmark
 			iconElem.className = 'fa fa-check-square-o checkbox-visual';
 			origr.deactivated = false;
@@ -970,7 +971,10 @@ var Originator = function () {
 
 	origr.managerName 	= 'originator';
 	origr.disabler = document.getElementById( origr.managerName + '_toggle' );
-	origr.disabler.addEventListener( 'click', function ( evnt ) { origr.toggle( evnt); });
+	// To account for new and old scripts
+	if ( origr.disabler !== null ) {
+		origr.disabler.addEventListener( 'click', function ( evnt ) { origr.toggle( evnt); });
+	}
 
 
 	// ------------------- \\
