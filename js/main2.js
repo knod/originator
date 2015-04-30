@@ -968,8 +968,9 @@ var Originator = function () {
 	// }; // End addEventListenerByClass()
 
 
-	origr.disabler = document.getElementById( origr.name + '_toggle' );
-	// origr.disabler.addEventListener( 'click', function ( evnt ) { origr.toggle( evnt); });
+	origr.managerName 	= 'originator';
+	origr.disabler = document.getElementById( origr.managerName + '_toggle' );
+	origr.disabler.addEventListener( 'click', function ( evnt ) { origr.toggle( evnt); });
 
 
 	// ------------------- \\
@@ -1026,9 +1027,9 @@ var Originator = function () {
 	origr.labelText 	= 'Position Guidance';
 	origr.managerName 	= 'originator';
 
-	if (typeof bookmarkletToolManager !== 'undefined') {
-		bookmarkletToolManager.newItem( origr );
-	}
+	// if (typeof bookmarkletToolManager !== 'undefined') {
+	// 	bookmarkletToolManager.newItem( origr );
+	// }
 
 	return origr;
 };  // End Originator {}
