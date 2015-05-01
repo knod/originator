@@ -2,10 +2,10 @@
 
 'use strict';
 
-window.BookmarkletUtilsLabels = function ( Utils_DOM ) {
+HandHeldBookmarkletManagerTM.Utils.Labels = function ( Utils_DOM ) {
 
 	var labelUtils 	= {},
-		Utils 		= BookmarkletUtils;
+		Utils_DOM 		= Utils_DOM;
 
 	labelUtils.fixOutOfWindow = function ( elem, nudging ) {
 	/* ( Node, num ) -> same Node
@@ -15,7 +15,7 @@ window.BookmarkletUtilsLabels = function ( Utils_DOM ) {
 	down - caller determines negative or positive
 	*/
 		// Take away any extra space at the top
-		if ( Utils.isOutOfWindow(elem) ) {
+		if ( Utils_DOM.isOutOfWindow(elem) ) {
 			// Except whatever vertical shift you want
 			elem.style.top = nudging;
 		}

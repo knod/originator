@@ -11,39 +11,47 @@ Resources no longer used:
 
 'use strict';
 
+//(function () {
+var Originator = function ( args ) {
+/* 
+// ( manager, utilsDict, labelsFunct, baseColor )
+// ( BookmarkletToolManager, {}, HandHeldLabels() ) -> Originator
 
-window.Originator = function ( manager, utilsDict, labelsFunct, baseColor ) {
-/* ( BookmarkletToolManager, {}, HandHeldLabels() ) -> Originator
+Arguments that were requested (args) are:
+	[ 'toolManager', 'utilsDict', 'Labels', 'baseColor' ]
 
-What do we really need to pass in? Do we need to pass in its checkbox
-element too?
+What do we really need to pass in?
 */
+	console.log('args: ', args);
 	var origr = {};
 
 	origr.name 				= 'originator';
 
+	// --- DOM nodes --- \\
 	origr.node 				= null;
 	origr.oldTarget 		= null;
-	origr.currentTarget 	= null;
+	// origr.currentTarget 	= null;
 
 	origr.circleLT 			= null;
 	origr.circleRB 			= null;
 
+	// --- Control Flow --- \\
 	origr.exclude;
 	origr.active 			= true;
 	origr.loopPaused 		= false;
 
-	// baseColor needs to be for labels too. Needs to be in main?
-	origr.baseColor 		= baseColor;
-	origr.labelsObj 		= labelsFunct( origr.baseColor, utilsDict );
+	// // baseColor needs to be for labels too. Needs to be in main?
+	// origr.baseColor 		= baseColor;
+	// origr.labelsObj 		= LabelsFactory( origr.baseColor, utilsDict );
 
-	var outlineColor		= 'white';
+	// ??: Should I unpack all the arguments in one place?
 
 
 	// ===============================================================
 	// =================
 	// UTILITY OBJECTS
 	// =================
+	var utilsDict 	= args.utils;
 	var Utils_DOM 	= utilsDict.Utils_DOM,
 		// OrigrUtils 	= OriginatorUtils,
 		Utils_Color = utilsDict.Utils_Color,
@@ -52,10 +60,22 @@ element too?
 
 	// ===============================================================
 	// =================
+	// STYLE/STYLE SHARING
+	// =================
+	var outlineColor 	= 'white';
+	origr.baseColor		= args.baseColor;
+	origr.labelsObj 	= args.Labels( origr.baseColor, utilsDict );
+
+
+	// ===============================================================
+	// =================
 	// TOOL MANAGER
 	// =================
+	var manager 		= args.toolManager;
+
+	// _Tool Manager_ labelText
 	origr.labelText 	= 'Position Guidance';
-	origr.managerItem = manager.addNewItem( origr );
+	origr.managerNode 	= manager.addNewItem( origr );
 
 	origr.toggle = function ( evnt, manager ) {
 	/*
@@ -82,6 +102,12 @@ element too?
 
 		return evnt.target;
 	};  // End origr.toggle()
+
+	// --- Manager Event --- \\
+	// When manager checkbox is clicked on, toggle self
+	origr.managerNode.addEventListener(
+		'click', function ( evnt ) { origr.toggle( evnt, manager ); }
+	);
 
 
 	// ===============================================================
@@ -139,7 +165,6 @@ element too?
 	// ORIGINATOR
 	// ====================
 	// --- COLORS ---
-	// SEEMS TO WORK!!! :D :D :D
 	var determineColor = function ( elem ) {
 	/* ( DOM ) -> Str
 
@@ -173,7 +198,7 @@ element too?
 			hsls 		= Utils_Color.rgbNumsToHslNums( rgbNums );
 
 		// Prepare to send the new value to be converted
-		hsls.l 			= min;
+		hsls.l 	= min;
 		hsls.l 	= Math.min( ( hsls.l + modifier ), min );
 
 		// console.log('Child:', hsls);
@@ -181,9 +206,11 @@ element too?
 		return Utils_Color.hslNumsToStr( hsls );
 	};  // End toChildColor()
 
+
 	var toParentColor = function ( rgbs ) {
 	/* ( {nums} ) -> Str
 	
+	Changes circle's colors to match the parent color or border
 	Returns an hsl str ready to be used in a style value
 	*/
 		var max = 35, modifier = 30;
@@ -193,7 +220,7 @@ element too?
 			hsls 		= Utils_Color.rgbNumsToHslNums( rgbNums );
 
 		// Prepare to send the new value to be converted
-		hsls.l 			= max;
+		hsls.l 	= max;
 		hsls.l 	= Math.max( ( hsls.l - modifier ), max );
 
 		// console.log('Parent:', hsls);
@@ -205,7 +232,8 @@ element too?
 	var changeCirclesColor = function ( childElem, parentElem ) {
 	/*
 
-	Changes circle's colors to match the 
+	Changes circle's colors to match the child color or border
+	Returns an hsl str ready to be used in a style value
 	*/
 		var childColor 			= determineColor( childElem ),
 			childCircleColor 	= toChildColor( childColor );
@@ -258,7 +286,6 @@ element too?
 	};  // End placeOriginator()
 
 
-
 	origr.placeHelpers = function ( currentTarget ) {
 	/*
 
@@ -285,6 +312,7 @@ element too?
 	};  // End origr.placeHelpers()
 
 
+	// --- DECISIONS ABOUT RUNNING --- \\
 	origr.runIf = function ( currentTarget, active ) {
 	/*
 
@@ -312,6 +340,31 @@ element too?
 		}  // end if should show and/or place elements
 
 	};  // End origr.runIf()
+
+
+	document.addEventListener( 'click', function ( event ) {
+		// Basically just gets and sets targets and sets visibility
+		// Everything else is called in update()
+
+		var currentTarget = event.target;
+
+		// Don't try to track originator parts or labels, but do allow
+		// clicking so elements can be inspected
+		origr.exclude = origr.shouldExclude( currentTarget );
+
+		// If the element is an excluded one, don't change any targets
+		if ( !origr.exclude ) {
+			// "hidden" will prevent movement as well
+			// Note: This MUST not happen in update()
+			var visibility = origr.getNewVisibility( currentTarget, origr.oldTarget );
+			origr.node.style.visibility = visibility;
+
+
+			// Prepare for next click on non-originator element
+			origr.oldTarget = currentTarget;
+		}  // end if !origr.excluded
+
+	});  // end document on click
 
 
 
@@ -441,40 +494,6 @@ element too?
 	createNew();
 
 
-	// ============================================
-	// =================
-	// EVENTS
-	// =================
-
-
-
-	// ------------------- \\
-	// --- ORIGINATOR ---- \\
-	document.addEventListener( 'click', function ( event ) {
-		// Basically just gets and sets targets and sets visibility
-		// Everything else is called in update()
-
-		var currentTarget = event.target;
-
-		// Don't try to track originator parts or labels, but do allow
-		// clicking so elements can be inspected
-		origr.exclude = origr.shouldExclude( currentTarget );
-
-		// If the element is an excluded one, don't change any targets
-		if ( !origr.exclude ) {
-			// "hidden" will prevent movement as well
-			// Note: This MUST not happen in update()
-			var visibility = origr.getNewVisibility( currentTarget, origr.oldTarget );
-			origr.node.style.visibility = visibility;
-
-
-			// Prepare for next click on non-originator element
-			origr.oldTarget = currentTarget;
-		}  // end if !origr.excluded
-
-	});  // end document on click
-
-
 	// ========================================================
 	// ===================
 	// TRIGGER ORIGINATOR ACTIONS
@@ -494,13 +513,6 @@ element too?
 	origr.update();
 
 
-
-	// origr.disabler = document.getElementById( origr.name + '_toggle' );
-	// // To account for new and old scripts
-	// if ( origr.disabler !== null ) {
-	// 	origr.disabler.addEventListener( 'click', function ( evnt ) { origr.toggle( evnt); });
-	// }
-
 	return origr;
 };  // End Originator {}
 
@@ -509,6 +521,17 @@ element too?
 // START
 // ============
 // var originator3000 = new Originator();
+
+// Give main manager tool and have it instantiate originator
+var add = function () {
+	var addSelfEvent = new CustomEvent( 'newComponentAdded',
+		{ 'detail': {'key': 'originator', 'Factory': Originator,
+		'ownerDict': 'tools',
+		'propertiesNeeded': [ 'toolManager', 'utils', 'Labels', 'baseColor' ] } }
+	);
+	document.dispatchEvent( addSelfEvent );
+}
+
 
 
 /*
@@ -526,4 +549,6 @@ Selector Gadget's way of handling the code:
 })();
 */
 
+
+//})();  // End Originator enclosure
 

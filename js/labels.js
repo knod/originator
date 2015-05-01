@@ -2,7 +2,7 @@
 
 'use strict';
 
-window.HandHeldLabels = function ( baseColor, utilsDict ) {
+HandHeldBookmarkletManagerTM.Labels = function ( baseColor, utilsDict ) {
 
 	var labels = {};
 
