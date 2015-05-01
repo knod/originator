@@ -12,13 +12,15 @@ Resources no longer used:
 'use strict';
 
 
-window.Originator = function ( manager, utilsDict, labelsFunct ) {
+window.Originator = function ( manager, utilsDict, labelsFunct, baseColor ) {
 /* ( BookmarkletToolManager, {}, HandHeldLabels() ) -> Originator
 
 What do we really need to pass in? Do we need to pass in its checkbox
 element too?
 */
 	var origr = {};
+
+	origr.name 				= 'originator';
 
 	origr.node 				= null;
 	origr.oldTarget 		= null;
@@ -31,10 +33,8 @@ element too?
 	origr.active 			= true;
 	origr.loopPaused 		= false;
 
-	// origr.name 				= 'originator';
-
 	// baseColor needs to be for labels too. Needs to be in main?
-	origr.baseColor 		= 'rgb(55, 55, 55)';
+	origr.baseColor 		= baseColor;
 	origr.labelsObj 		= labelsFunct( origr.baseColor, utilsDict );
 
 	var outlineColor		= 'white';
@@ -54,7 +54,6 @@ element too?
 	// =================
 	// TOOL MANAGER
 	// =================
-	origr.className = 'originator';
 	origr.labelText 	= 'Position Guidance';
 	origr.managerItem = manager.addNewItem( origr );
 
@@ -99,7 +98,7 @@ element too?
 
 		// --- Is or belongs to originator ---
 		var allElems 	= Utils_DOM.getElemsFromUntil( currentElem, document.body.parentNode ),
-			isExcluded 	= Utils_DOM.oneHasClass( allElems, (origr.className + '-exclude') )
+			isExcluded 	= Utils_DOM.oneHasClass( allElems, (origr.name + '-exclude') )
 
 		// --- result ---
 		if ( isExcluded ) { origr.exclude = true; }
@@ -327,7 +326,7 @@ element too?
 	Container is always 0.5px high, will be rotated for placement
 	*/
 		var container 		= document.createElement('div');
-		container.className = origr.className + ' originator-exclude';
+		container.className = origr.name + ' originator-exclude';
 		return container;
 	};  // End buildContainerDiv()
 
@@ -496,7 +495,7 @@ element too?
 
 
 
-	// origr.disabler = document.getElementById( origr.className + '_toggle' );
+	// origr.disabler = document.getElementById( origr.name + '_toggle' );
 	// // To account for new and old scripts
 	// if ( origr.disabler !== null ) {
 	// 	origr.disabler.addEventListener( 'click', function ( evnt ) { origr.toggle( evnt); });

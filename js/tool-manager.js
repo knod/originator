@@ -33,13 +33,13 @@ for each tool to use that name to access the manager...
 	// ==========================
 	// FOR MAKING NEW MENU ITEMS
 	// ==========================
-	manager.addNewInput = function ( item, inputID, className ) {
+	manager.addNewInput = function ( item, inputID, toolName ) {
 	/*  ( DOM, str, str ) -> other DOM
 	*/
 		var input = document.createElement( 'input' );
 		utils.setAttributes( input, {
 			'class': 'manager-checkbox', 'type': 'checkbox', 'checked': 'checked',
-			'id': inputID, 'name': className
+			'id': inputID, 'name': toolName
 		});
 
 		item.appendChild( input );
@@ -81,24 +81,24 @@ for each tool to use that name to access the manager...
 	};  // End manager.addNewLabel()
 
 
-	manager.addNewItem = function ( obj ) {
+	manager.addNewItem = function ( tool ) {
 	/* ( str, str ) -> DOM */
 
 		// --- MENU ITEM --- \\
 		var item 	= document.createElement( 'li' );
 		// Two things will use this
-		var inputID = obj.className + '_toggle';
+		var inputID = tool.name + '_toggle';
 
 		// --- INSIDE MENU ITEM --- \\
-		manager.addNewInput( item, inputID, obj.className );
+		manager.addNewInput( item, inputID, tool.name );
 		manager.addNewIcon( item );
-		manager.addNewLabel( item, inputID, obj.labelText )
+		manager.addNewLabel( item, inputID, tool.labelText )
 
 		// --- DOM --- \\
 		manager.menu.appendChild( item );
 		// Exclude the container from the attention of this tool
 		manager.container.className = 
-			manager.container.className + ' ' + obj.className + '-exclude';
+			manager.container.className + ' ' + tool.name + '-exclude';
 
 		// --- INTERNAL --- \\
 		manager.items.push( item );

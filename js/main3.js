@@ -28,7 +28,9 @@ and tool managers
 */
 	var main = {}
 
-	main.utils = {
+	main.baseColor 	= 'rgb(55, 55, 55)';
+
+	main.utils 		= {
 		Utils_Math: BookmarkletsUtilsMath,
 		// This one is a function
 		Utils_Labels: BookmarkletUtilsLabels(),
@@ -36,9 +38,8 @@ and tool managers
 		Utils_DOM: BookmarkletUtils
 	}
 
-	main.labels = HandHeldLabels;  // It's actually a function
-
-	main.manager = BookmarkletToolManager( 'bookmarkletToolManager', main.utils );
+	main.labels 	= HandHeldLabels;  // It's actually a function
+	main.manager 	= BookmarkletToolManager( 'bookmarkletToolManager', main.utils );
 
 	// http://www.sitepoint.com/call-javascript-function-string-without-using-eval/
 	// http://stackoverflow.com/questions/359788/how-to-execute-a-javascript-function-when-i-have-its-name-as-a-string
@@ -55,14 +56,18 @@ and tool managers
 		if (typeof toolFunc === "function") {
 
 			// Only originator needs labels atm...
-			var newTool = toolFunc( main.manager, main.utils, main.labels );
+			var newTool = toolFunc( main.manager, main.utils, main.labels, main.baseColor );
 
 			// --- Disabling Event --- \\
 			newTool.managerItem.addEventListener(
 				'click', function (evnt) { newTool.toggle( evnt, main.manager ) }
 			);
 
-			main.currentTools.push = newTool;
+			// Which one?
+			main.currentTools.push 					= newTool;
+			// Make it lowercase first?
+			main[ funcStr.toLowerCase() ] 			= newTool;
+			main.tools[ funcStr.toLowerCase() ] 	= newTool;
 
 		} else {
 			console.log( funcStr, 'is not the name of a function in', window );
