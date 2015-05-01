@@ -27,10 +27,11 @@ element too?
 	origr.circleLT 			= null;
 	origr.circleRB 			= null;
 
+	origr.exclude;
 	origr.active 			= true;
 	origr.loopPaused 		= false;
 
-	origr.name 				= 'originator';
+	// origr.name 				= 'originator';
 
 	// baseColor needs to be for labels too. Needs to be in main?
 	origr.baseColor 		= 'rgb(55, 55, 55)';
@@ -54,6 +55,8 @@ element too?
 	// TOOL MANAGER
 	// =================
 	origr.className = 'originator';
+	origr.labelText 	= 'Position Guidance';
+	origr.managerItem = manager.addNewItem( origr );
 
 	origr.toggle = function ( evnt, manager ) {
 	/*
@@ -90,21 +93,18 @@ element too?
 	/* ( DOM ) -> Bool
 
 	Makes sure the current element doesn't belong to the list of
-	excluded elements
+	origr.excluded elements
 	*/
-		var exclude = false;
+		origr.exclude = false;
 
 		// --- Is or belongs to originator ---
-		var allElems 	= Utils_DOM.getElemsFromUntil( currentElem, document.body.parentNode );
-		var isManager 	= Utils_DOM.oneHasId( allElems, 'bookmarklet_collection_manager' );
-		var isOrigin 	= Utils_DOM.oneHasClass( allElems, origr.className );
-
-		var isLabel 	= Utils_DOM.oneHasClass( allElems, 'label-shadow-cutoff' );
+		var allElems 	= Utils_DOM.getElemsFromUntil( currentElem, document.body.parentNode ),
+			isExcluded 	= Utils_DOM.oneHasClass( allElems, (origr.className + '-exclude') )
 
 		// --- result ---
-		if ( isOrigin || isLabel || isManager ) { exclude = true; }
-		// console.log(exclude);
-		return exclude;
+		if ( isExcluded ) { origr.exclude = true; }
+		// console.log(origr.exclude);
+		return origr.exclude;
 	};  // End origr.shouldExclude()
 
 
@@ -259,54 +259,60 @@ element too?
 	};  // End placeOriginator()
 
 
-	origr.makeMagic = function ( currentTarget, active ) {
+
+	origr.placeHelpers = function ( currentTarget ) {
+	/*
+
+	Do the actual placement of things.
+	*/
+		var positionStyle = Utils_DOM.getPositionStyle( currentTarget );
+
+		// --- CORRECT PARENT ---
+		// Absolutely positioned elements have this final ancestor
+		var targetParent = currentTarget.offsetParent;
+		if ( positionStyle !== 'absolute' ) {
+			// Other position styles have their direct parent as their final ancestor
+			targetParent = currentTarget.parentNode;
+		}
+
+		// --- LABELS --- \\
+		// Get the current element and all ancestors up to and including the determined parent
+		var elems = Utils_DOM.getElemsFromUntil( currentTarget, targetParent );
+		origr.labelsObj.labelTheseElems( elems, positionStyle );
+
+		// --- ORIGINATOR --- \\
+		origr.placeOriginator( currentTarget, positionStyle, targetParent );
+
+	};  // End origr.placeHelpers()
+
+
+	origr.runIf = function ( currentTarget, active ) {
 	/*
 
 	In its own function so we can call it in update
 	*/
-
-		// Just always get rid of them. They'll be replaced further down if needed
-		// For times when new element is clicked on and originator isn't hidden,
-		// but new labels have to be placed.
+		// Just always get rid of them. They'll be replaced later if needed
 		origr.labelsObj.removeLabels();
 
 		// If the target is removed, it still exists in our js as origr.currentTarget
-		// Check if it's actually in the DOM. Using 'body' for IE:
+		// Check if it's actually in the DOM. If the DOM has mutated getting rid
+		// of the element, don't try to attach to it. Using 'body' for IE:
 		// https://connect.microsoft.com/IE/feedback/details/780874/node-contains-is-incorrect
 		// and http://stackoverflow.com/questions/5629684/how-to-check-if-element-exists-in-the-visible-dom csuwldcat
 		var elemInDOM 	= document.body.contains( currentTarget );
 		var visibility 	= origr.node.style.visibility;
 
-		// If the DOM has mutated getting rid of the element, we don't
-		// want to do this.
 		if ( elemInDOM && (visibility !== 'hidden') && active ) {
-
-			var positionStyle = Utils_DOM.getPositionStyle( currentTarget );
-
-			// --- CORRECT PARENT ---
-			// Absolutely positioned elements have this final ancestor
-			var targetParent = currentTarget.offsetParent;
-			if ( positionStyle !== 'absolute' ) {
-				// Other position styles have their direct parent as their final ancestor
-				targetParent = currentTarget.parentNode;
-			}
-
-			// --- LABELS --- \\
-			// Get the current element and all ancestors up to and including the determined parent
-			var elems = Utils_DOM.getElemsFromUntil( currentTarget, targetParent );
-			origr.labelsObj.labelTheseElems( elems, positionStyle );
-
-			// --- ORIGINATOR --- \\
-			origr.placeOriginator( currentTarget, positionStyle, targetParent );
+			origr.placeHelpers( currentTarget );
 
 		// If not in DOM, hidden, or inactive...
 		} else {
-			// Get rid of everything other than the disable button
+			// "Get rid of" all originator things
 			origr.node.style.visibility = 'hidden';
 
 		}  // end if should show and/or place elements
 
-	};  // End origr.makeMagic()
+	};  // End origr.runIf()
 
 
 
@@ -449,22 +455,23 @@ element too?
 		// Basically just gets and sets targets and sets visibility
 		// Everything else is called in update()
 
-		origr.currentTarget = event.target;
+		var currentTarget = event.target;
 
 		// Don't try to track originator parts or labels, but do allow
 		// clicking so elements can be inspected
-		var exclude = origr.shouldExclude( origr.currentTarget );
+		origr.exclude = origr.shouldExclude( currentTarget );
 
-		// At least change the oldTarget (down at the bottom)
-		if ( !exclude ) {
+		// If the element is an excluded one, don't change any targets
+		if ( !origr.exclude ) {
 			// "hidden" will prevent movement as well
 			// Note: This MUST not happen in update()
-			var visibility = origr.getNewVisibility( origr.currentTarget, origr.oldTarget );
+			var visibility = origr.getNewVisibility( currentTarget, origr.oldTarget );
 			origr.node.style.visibility = visibility;
 
+
 			// Prepare for next click on non-originator element
-			origr.oldTarget = origr.currentTarget;
-		}  // end if !excluded
+			origr.oldTarget = currentTarget;
+		}  // end if !origr.excluded
 
 	});  // end document on click
 
@@ -477,8 +484,10 @@ element too?
 	origr.update = function () {
 		// Loop forever and ever?
 		if ( !origr.loopPaused ) {
-		// Deactive state is taken care of in makeMagic
-			origr.makeMagic( origr.currentTarget, origr.active );
+		// Inactive state is taken care of in runIf
+			// As soon as there's a valid current target, it's made into an oldTarget
+			// So oldTarget is basically the currentTarget
+			origr.runIf( origr.oldTarget, origr.active );
 			window.requestAnimationFrame( origr.update );
 		}
 	};  // End update()
@@ -487,14 +496,11 @@ element too?
 
 
 
-	origr.disabler = document.getElementById( origr.className + '_toggle' );
-	// To account for new and old scripts
-	if ( origr.disabler !== null ) {
-		origr.disabler.addEventListener( 'click', function ( evnt ) { origr.toggle( evnt); });
-	}
-
-	origr.labelText 	= 'Position Guidance';
-	origr.managerItem = manager.addNewItem( origr );
+	// origr.disabler = document.getElementById( origr.className + '_toggle' );
+	// // To account for new and old scripts
+	// if ( origr.disabler !== null ) {
+	// 	origr.disabler.addEventListener( 'click', function ( evnt ) { origr.toggle( evnt); });
+	// }
 
 	return origr;
 };  // End Originator {}
