@@ -1,14 +1,15 @@
 // labels.js
 
 'use strict';
+// (function () {
 
-HandHeldBookmarkletManagerTM.Labels = function ( baseColor, utilsDict ) {
+var Labels = function ( baseColor, utilsDict ) {
 
 	var labels = {};
 
 	labels.nodeList 		= [];
 
-	labels.baseColor 			= baseColor
+	labels.baseColor 		= baseColor
 	labels.wrongColor		= 'tomato';
 	labels.rightColor 		= 'lightgreen';
 	labels.shadowPadding 	= 2;
@@ -195,3 +196,13 @@ HandHeldBookmarkletManagerTM.Labels = function ( baseColor, utilsDict ) {
 	return labels;
 };  // End HandHeldLabels {}
 
+var add2 = function () {
+	var addSelfEvent = new CustomEvent( 'newComponentAdded',
+		{ 'detail': {'key': 'Labels', 'Factory': Labels, // 'ownerDict': 'tools',
+		'propertiesNeeded': [],
+		'mustInstantiate': false } }
+	);
+	document.dispatchEvent( addSelfEvent );
+}
+
+// })();  // End Labels adds itself

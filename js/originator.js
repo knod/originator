@@ -523,11 +523,11 @@ What do we really need to pass in?
 // var originator3000 = new Originator();
 
 // Give main manager tool and have it instantiate originator
-var add = function () {
+var add1 = function () {
 	var addSelfEvent = new CustomEvent( 'newComponentAdded',
-		{ 'detail': {'key': 'originator', 'Factory': Originator,
-		'ownerDict': 'tools',
-		'propertiesNeeded': [ 'toolManager', 'utils', 'Labels', 'baseColor' ] } }
+		{ 'detail': {'key': 'originator', 'Factory': Originator, 'ownerDict': 'tools',
+		'propertiesNeeded': [ 'toolManager', 'utils', 'Labels', 'baseColor' ],
+		'mustInstantiate': true } }
 	);
 	document.dispatchEvent( addSelfEvent );
 }

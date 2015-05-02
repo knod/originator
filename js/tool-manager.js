@@ -3,6 +3,7 @@
 TODO:
 - Add a 'Remove' button for each tool?
 - Add a 'Remove All' button?
+- Call this Tool-Menu instead of Tool-Manager
 */
 
 'use strict';
