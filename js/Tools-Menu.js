@@ -7,7 +7,7 @@ TODO:
 
 'use strict';
 
-HandHeldBookmarkletManagerTM.manager = function ( variableName, utilsDict ) {
+HandHeldBookmarkletManagerTM.ToolsMenu = function ( variableName, utilsDict ) {
 /* ( str ) -> HandHeldBookmarkletManagerTM.manager
 
 Creates and adds the tool manager to the DOM.
