@@ -112,7 +112,7 @@ and tool managers
 	// ADD ALL TOOLS, manually I guess
 	// ========================
 	var originator = main.Tools.Originator( main.toolsMenu, main.utils, main.labels, main.baseColor );
-	originator.toolsMenuItem.addEventListener (
+	originator.menuItem.addEventListener (
 		'click', function ( evnt ) { originator.toggle( evnt, main.toolsMenu ); }
 	);
 	main.tools.originator = originator;
