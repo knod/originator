@@ -7,16 +7,16 @@ TODO:
 
 'use strict';
 
-window.BookmarkletToolManager = function ( variableName ) {
-/* ( str ) -> BookmarkletToolManager
+HandHeldBookmarkletManagerTM.manager = function ( variableName, utilsDict ) {
+/* ( str ) -> HandHeldBookmarkletManagerTM.manager
 
 Creates and adds the tool manager to the DOM.
 variableName = name of the variable that called this. Planning
 for each tool to use that name to access the manager...
 */
 
-	var manager = {};
-	var utils 	= BookmarkletUtils;  // shorter name inside here
+	var manager 	= {};
+	var utils_DOM 	= utilsDict.dom;  // shorter name inside here
 
 	manager.container 	= null;  // Needed?
 	manager.menu 		= null;
@@ -26,9 +26,9 @@ for each tool to use that name to access the manager...
 	manager.uncheckedClasses 	= 'fa fa-square-o checkbox-visual';
 
 	// FontAwesome
-	utils.importCSS('https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css');
+	utils_DOM.importCSS('https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css');
 	// tool manager css when we have a cdn
-	// utils.importCSS();
+	// utils_DOM.importCSS();
 
 	// ==========================
 	// FOR MAKING NEW MENU ITEMS
@@ -37,7 +37,7 @@ for each tool to use that name to access the manager...
 	/*  ( DOM, str, str ) -> other DOM
 	*/
 		var input = document.createElement( 'input' );
-		utils.setAttributes( input, {
+		utils_DOM.setAttributes( input, {
 			'class': 'manager-checkbox', 'type': 'checkbox', 'checked': 'checked',
 			'id': inputID, 'name': toolName
 		});
@@ -70,7 +70,7 @@ for each tool to use that name to access the manager...
 	checkbox (including the label text)
 	*/
 		var label 	= document.createElement( 'label' );
-		utils.setAttributes( label, {'class': 'manager-label', 'for': inputID} );
+		utils_DOM.setAttributes( label, {'class': 'manager-label', 'for': inputID} );
 
 		var text 	= document.createTextNode( labelText );
 		label.appendChild( text );
@@ -161,7 +161,7 @@ for each tool to use that name to access the manager...
 	/* ( str ) -> DOM */
 
 		var container = document.createElement( 'div' );
-		utils.setAttributes( container, {
+		utils_DOM.setAttributes( container, {
 			'id': 'bookmarklet_collection_manager', 'data-varName': variableName
 		});
 
@@ -183,7 +183,7 @@ for each tool to use that name to access the manager...
 	manager.createNew( variableName );
 
 	return manager;
-};  // BookmarkletToolManager()
+};  // HandHeldBookmarkletManagerTM.manager()
 
 // Give this to the global namespace
-// var bookmarkletToolManager = BookmarkletToolManager( 'bookletToolManager' );
+// var bookmarkletToolManager = HandHeldBookmarkletManagerTM.manager( 'bookletToolManager' );

@@ -2,7 +2,7 @@
 
 'use strict';
 
-window.BookmarkletUtilsLabels = function ( Utils_DOM ) {
+HandHeldBookmarkletManagerTM.utils.labels = function ( Utils_DOM ) {
 
 	var labelUtils 	= {},
 		Utils 		= BookmarkletUtils;
@@ -21,9 +21,7 @@ window.BookmarkletUtilsLabels = function ( Utils_DOM ) {
 		}
 
 		return elem;
-	};  // End BookmarkletUtilsLabels.fixOutOfWindow()
+	};  // End utils.labels.fixOutOfWindow()
 
 	return labelUtils;
 };
-
-// var bookmarkletUtilsLabels = BookmarkletUtilsLabels();

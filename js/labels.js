@@ -2,7 +2,7 @@
 
 'use strict';
 
-window.HandHeldLabels = function ( baseColor, utilsDict ) {
+HandHeldBookmarkletManagerTM.Labels = function ( baseColor, utilsDict ) {
 
 	var labels = {};
 
@@ -17,8 +17,8 @@ window.HandHeldLabels = function ( baseColor, utilsDict ) {
 	// =================
 	// Utilities
 	// =================
-	var Utils_DOM 		= utilsDict.Utils_DOM,
-		Utils_Labels 	= utilsDict.Utils_Labels;
+	var Utils_DOM 		= utilsDict.dom;//,
+		// Utils_Labels 	= utilsDict.labels;
 
 
 	// =================
@@ -106,7 +106,7 @@ window.HandHeldLabels = function ( baseColor, utilsDict ) {
 
 		// If it's now sticking out of the top of the DOM, bring it back in
 		// But leave the shadow out. Looks better that way.
-		Utils_Labels.fixOutOfWindow( label, (-1 * labels.shadowPadding) );
+		Utils_DOM.fixOutOfWindow( label, (-1 * labels.shadowPadding) );
 
 		return label;
 	};  // End labels.positionLabel()
@@ -193,5 +193,5 @@ window.HandHeldLabels = function ( baseColor, utilsDict ) {
 
 
 	return labels;
-};  // End HandHeldLabels {}
+};  // End HandHeldBookmarkletManagerTM.Labels {}
 

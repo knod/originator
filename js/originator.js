@@ -11,8 +11,10 @@ Resources no longer used:
 
 'use strict';
 
+// // Created at bottom using this function
+// HandHeldBookmarkletManagerTM.tools.originator;
 
-window.Originator = function ( manager, utilsDict, labelsFunct, baseColor ) {
+HandHeldBookmarkletManagerTM.Tools.Originator = function ( menu, utilsDict, labels, baseColor ) {
 /* ( BookmarkletToolManager, {}, HandHeldLabels() ) -> Originator
 
 What do we really need to pass in? Do we need to pass in its checkbox
@@ -35,7 +37,7 @@ element too?
 
 	// baseColor needs to be for labels too. Needs to be in main?
 	origr.baseColor 		= baseColor;
-	origr.labelsObj 		= labelsFunct( origr.baseColor, utilsDict );
+	origr.labelsObj 		= labels;// labelsFunct( origr.baseColor, utilsDict );
 
 	var outlineColor		= 'white';
 
@@ -44,38 +46,35 @@ element too?
 	// =================
 	// UTILITY OBJECTS
 	// =================
-	var Utils_DOM 	= utilsDict.Utils_DOM,
+	var Utils_DOM 	= utilsDict.dom,
 		// OrigrUtils 	= OriginatorUtils,
-		Utils_Color = utilsDict.Utils_Color,
-		Utils_Math 	= utilsDict.Utils_Math;
+		Utils_Color = utilsDict.color,
+		Utils_Math 	= utilsDict.math;
 
 
 	// ===============================================================
 	// =================
 	// TOOL MANAGER
 	// =================
-	origr.labelText 	= 'Position Guidance';
-	origr.managerItem = manager.addNewItem( origr );
+	origr.labelText = 'Position Guidance';
+	origr.menuItem 	= menu.addNewItem( origr );
 
-	origr.toggle = function ( evnt, manager ) {
+	origr.toggle = function ( evnt, menu ) {
 	/*
 
 	Based on checkbox, disable or enable the originator tool
 	*/
-		var target 		= evnt.target,
-			parent 		= target.parentNode,
-			checkbox 	= parent.getElementsByClassName( 'manager-checkbox' )[0];
-
-		var checked 	= checkbox.checked;
+		var checkbox = origr.menuItem.getElementsByTagName('input')[0],
+			checked  = checkbox.checked;
 
 		if ( checked === true ) {
 			// Show checkmark
-			manager.changeIcon( checkbox );
+			menu.changeIcon( checkbox );
 			origr.active = true;
 
 		// Not for 'undefined', just for 'false'
 		} else if ( checked === false ) {
-			manager.changeIcon( checkbox );
+			menu.changeIcon( checkbox );
 			origr.active = false;
 
 		}
@@ -493,14 +492,6 @@ element too?
 
 	origr.update();
 
-
-
-	// origr.disabler = document.getElementById( origr.name + '_toggle' );
-	// // To account for new and old scripts
-	// if ( origr.disabler !== null ) {
-	// 	origr.disabler.addEventListener( 'click', function ( evnt ) { origr.toggle( evnt); });
-	// }
-
 	return origr;
 };  // End Originator {}
 
@@ -508,8 +499,15 @@ element too?
 // ============
 // START
 // ============
-// var originator3000 = new Originator();
-
+// // This can be implemented once I've made things all cdn and such
+// (function () {
+// 	var main = HandHeldBookmarkletManagerTM;
+// 	var originator = main.Tools.Originator( main.menu, main.utils, main.labels, main.baseColor );
+// 	originator.menuItem.addEventListener (
+// 		'click', function ( evnt ) { originator.toggle( evnt, main.menu ); }
+// 	);
+// 	main.tools.originator = originator;
+// })();  // End self-calling anonymous function
 
 /*
 Selector Gadget's way of handling the code:
