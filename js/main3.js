@@ -93,7 +93,7 @@ and tool managers
 			main.importJS('https://rawgit.com/knod/originator/one-name-space/js/utilities-color.js',
 					'HandHeldBookmarkletManagerTM.utils.color', function () {
 				// Then Components
-				main.importJS('https://rawgit.com/knod/originator/one-name-space/js/Labels.js',
+				main.importJS('https://rawgit.com/knod/originator/one-name-space/js/labels.js',
 						'HandHeldBookmarkletManagerTM.Labels', function () {
 
 	main.labels = main.Labels( main.baseColor, main.utils );  // It's actually a function
@@ -103,7 +103,7 @@ and tool managers
 
 	main.toolsMenu 	= main.ToolsMenu( 'bookmarkletToolManager', main.utils );
 
-						main.importJS('https://rawgit.com/knod/originator/one-name-space/js/Originator.js',
+						main.importJS('https://rawgit.com/knod/originator/one-name-space/js/originator.js',
 								'HandHeldBookmarkletManagerTM.Tools.Originator', function () {
 							
 
