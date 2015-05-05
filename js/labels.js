@@ -113,7 +113,7 @@ HandHeldBookmarkletManagerTM.Labels = function ( baseColor, utilsDict ) {
 	};  // End labels.positionLabel()
 
 
-	labels.placeLabel = function ( elem, placeInChain, childPosition ) {
+	labels.placeLabel 		= function ( elem, placeInChain, childPosition ) {
 	/* ( DOM, str, str ) -> other DOM
 
 	Places a label at the top of an element. All show position style. Parents
@@ -150,18 +150,30 @@ HandHeldBookmarkletManagerTM.Labels = function ( baseColor, utilsDict ) {
 			labelString 	= 'position: ' + positionStyle + ' (' + leftStr + topStr + ')';
 		}
 
-		// --- NODE --- \\
-		var label 			= labels.createLabel( elem, labelColor, labelString );
-		document.body.appendChild( label );
 
-		// --- FINAL POSITION --- \\
-		labels.positionLabel( label, elem );
-
-		return label;
+		return { 'color': labelColor, 'string': labelString };
 	};  // End labels.placeLabel()
 
 
-	labels.labelTheseElems = function ( elemList, childPosition ) {
+	labels.labelOneElem 	= function ( elem, placeInChain, childPosition ) {
+	/* ( DOM, str, str ) -> other DOM
+
+	Keeps the creation of the node separate from the placement of
+	the node
+	*/
+
+		var labelParts 	= labels.placeLabel( elem, placeInChain, childPosition );
+
+		var label 		= labels.createLabel( elem, labelParts.color, labelParts.string );
+		document.body.appendChild( label );
+
+		labels.positionLabel( label, elem );
+
+		return label;
+	};  // End labels.labelOneElem()
+
+
+	labels.labelTheseElems 	= function ( elemList, childPosition ) {
 	/* ( [ DOM ] ) -> same
 
 	Places positionStyle labels on all the elements in the list
@@ -175,7 +187,7 @@ HandHeldBookmarkletManagerTM.Labels = function ( baseColor, utilsDict ) {
 				placeInChain = 'child';
 			}
 
-			var node = labels.placeLabel(
+			var node = labels.labelOneElem(
 				elemList[ elemi ], placeInChain, childPosition );
 
 			labels.nodeList.push( node );
@@ -183,6 +195,12 @@ HandHeldBookmarkletManagerTM.Labels = function ( baseColor, utilsDict ) {
 
 		return elemList;
 	};  // end labels.labelTheseElems()
+
+
+	labels.repositionLabels = function ( elemList, childPosition ) {
+
+
+	}
 
 
 	labels.removeLabels = function () {
