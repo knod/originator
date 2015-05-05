@@ -63,6 +63,7 @@ separately)
 
 		for ( var elemi = 0; elemi < elems.length; elemi++ ) {
 
+			console.log(elems[ elemi ]);
 			if ( elems[ elemi ].classList.contains( testClass ) ) {
 				oneHasClass = true;
 			}

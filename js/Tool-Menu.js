@@ -7,7 +7,7 @@ TODO:
 
 'use strict';
 
-HandHeldBookmarkletManagerTM.ToolMenu = function ( variableName, utilsDict ) {
+HandHeldBookmarkletManagerTM.ToolMenu = function ( variableName, utilsDict, removalClass ) {
 /* ( str ) -> HandHeldBookmarkletManagerTM.ToolMenu
 
 Creates and adds the tool manager to the DOM.
@@ -117,8 +117,6 @@ for each tool to use that name to access the manager...
 	Should I pass in the event target instead?
 	*/
 		var checked 	= checkbox.checked;
-		// var parent 		= eventTarget.parentNode;
-		// var checkbox 	= parent.getElementsByClassName( 'toolMenu-checkbox' )[0];
 		var iconElem 	= checkbox.parentNode.getElementsByClassName( 'tool-menu-checkbox-icon' )[0];
 
 		if ( checked === true ) {
@@ -163,7 +161,9 @@ for each tool to use that name to access the manager...
 
 		var container = document.createElement( 'div' );
 		utils_DOM.setAttributes( container, {
-			'id': 'bookmarklet_tool_menu', 'data-varName': variableName
+			'id': 'bookmarklet_tool_menu', 'data-varName': variableName,
+			// For removing all bookmarklets if needed.
+			'class': removalClass
 		});
 
 		toolMenu.addHeaderTo( container );

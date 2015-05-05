@@ -19,7 +19,7 @@ Resources no longer used:
 // // Created at bottom using this function
 // HandHeldBookmarkletManagerTM.tools.originator;
 
-HandHeldBookmarkletManagerTM.Tools.Originator = function ( menu, utilsDict, labels, baseColor ) {
+HandHeldBookmarkletManagerTM.Tools.Originator = function ( menu, utilsDict, labels, baseColor, removalClass ) {
 /* ( ToolManager, {}, Labels, str ) -> Originator
 
 What do we really need to pass in? Do we need to pass in its checkbox
@@ -336,7 +336,8 @@ element too?
 	Container is always 0.5px high, will be rotated for placement
 	*/
 		var container 		= document.createElement('div');
-		container.className = origr.name + ' originator-exclude';
+		// 'hand-held' is for removing everything if needed
+		container.className = removalClass + ' ' + origr.name + ' originator-exclude';
 		return container;
 	};  // End buildContainerDiv()
 
@@ -494,7 +495,10 @@ element too?
 
 		var target = mutation.target;
 		var exclude = origr.shouldExclude( target );
-		if ( mutation.previousSibling !== null ) {
+		// Why am I checking the previous sibling again?
+		if ( (mutation.previousSibling !== null) &&
+			(mutation.previousSibling.classList !== undefined)) {
+
 			exclude = exclude || origr.shouldExclude( mutation.previousSibling );
 		}
 			
@@ -536,7 +540,7 @@ element too?
 // Runs when the file is imported
 (function () {
 	var main = HandHeldBookmarkletManagerTM;
-	var originator = main.Tools.Originator( main.toolMenu, main.utils, main.labels, main.baseColor );
+	var originator = main.Tools.Originator( main.toolMenu, main.utils, main.labels, main.baseColor, main.removalClass );
 	originator.menuItem.addEventListener (
 		'click', function ( evnt ) { originator.toggle( evnt, main.toolMenu ); }
 	);

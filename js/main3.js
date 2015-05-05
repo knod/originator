@@ -36,7 +36,29 @@ and tool managers
 */
 	var main = HandHeldBookmarkletManagerTM;
 
-	main.baseColor 	= 'rgb(55, 55, 55)';
+	main.baseColor 		= 'rgb(55, 55, 55)';
+	main.removalClass 	= 'hand-held-bookmarklets';
+
+	main.removeAll = function () {
+	/*
+
+	Gets rid of the bookmarklet stuff
+	*/
+
+		var myBookmarklets = document.getElementsByClassName( main.removalClass );
+
+		// Remove all the other scripts
+		main.utils.dom.removeElements( main.allScripts );
+
+		// Remove all the elements
+		main.utils.dom.removeElements( myBookmarklets );
+		// Reset all the objects?
+		main.Tools 		= {}; main.tools 	= {};
+		main.utils 		= {};
+		main.toolMenu 	= {};
+		main.labels 	= {};
+
+	};  // End main.removeAll()
 
 
 	// ===============================================
@@ -69,6 +91,9 @@ and tool managers
 		} else {
 			document.body.appendChild( script );
 		}
+
+		// So it can be removed if needed
+		return script;
 	};  // End utils_dom.importCSS()
 
 	main.importJS = function (src, look_for, onload) {
@@ -82,6 +107,9 @@ and tool managers
 		} else {
 			document.body.appendChild( script );
 		}
+
+		// So it can be removed if needed
+		return script;
 	};  // End utils_dom.importJS()
 
 
@@ -150,44 +178,55 @@ and tool managers
 
 
 
+	main.startAll = function () {
+	/*  */
+
+		main.allScripts;
+		var mathScript, domScript, colorScript, labelsScript, toolMenuScript, originatorScript;
+
+		// First Utilities
+		mathScript = main.importJS( "http://127.0.0.1:8000/js/utilities-math.js",
+				"HandHeldBookmarkletManagerTM.utils.math", function () {
+			domScript = main.importJS("http://127.0.0.1:8000/js/utilities-dom.js",
+					"HandHeldBookmarkletManagerTM.utils.dom", function () {
+				colorScript = main.importJS("http://127.0.0.1:8000/js/utilities-color.js",
+						"HandHeldBookmarkletManagerTM.utils.color", function () {
+					// Then Components
+					labelsScript = main.importJS("http://127.0.0.1:8000/js/labels.js",
+							"HandHeldBookmarkletManagerTM.Labels", function () {
+
+		main.labels = main.Labels( main.baseColor, main.utils, main.removalClass );  // It's actually a function
+
+						toolMenuScript = main.importJS("http://127.0.0.1:8000/js/Tool-Menu.js",
+								"HandHeldBookmarkletManagerTM.ToolMenu", function () {
+
+		main.toolMenu 	= main.ToolMenu( "bookmarkletToolMenu", main.utils, main.removalClass );
+
+							// Then Tools
+							originatorScript = main.importJS("http://127.0.0.1:8000/js/Originator.js",
+									"HandHeldBookmarkletManagerTM.Tools.Originator", function () {
+								
+
+										// Originator adds itself
+
+		// Used to remove all scripts if needed.
+		main.allScripts = [ mathScript, domScript, colorScript, labelsScript, toolMenuScript, originatorScript ];
 
 
-	// First Utilities
-	main.importJS( "http://127.0.0.1:8000/js/utilities-math.js",
-			"HandHeldBookmarkletManagerTM.utils.math", function () {
-		main.importJS("http://127.0.0.1:8000/js/utilities-dom.js",
-				"HandHeldBookmarkletManagerTM.utils.dom", function () {
-			main.importJS("http://127.0.0.1:8000/js/utilities-color.js",
-					"HandHeldBookmarkletManagerTM.utils.color", function () {
-				// Then Components
-				main.importJS("http://127.0.0.1:8000/js/labels.js",
-						"HandHeldBookmarkletManagerTM.Labels", function () {
-
-	main.labels = main.Labels( main.baseColor, main.utils );  // It"s actually a function
-
-					main.importJS("http://127.0.0.1:8000/js/Tool-Menu.js",
-							"HandHeldBookmarkletManagerTM.ToolMenu", function () {
-
-	main.toolMenu 	= main.ToolMenu( "bookmarkletToolManager", main.utils );
-
-						// Then Tools
-						main.importJS("http://127.0.0.1:8000/js/Originator.js",
-								"HandHeldBookmarkletManagerTM.Tools.Originator", function () {
-							
-
-									// Originator adds itself
-
-
+							});  // End Tools Menu
 						});  // End Tools Menu
-					});  // End Tools Menu
-				});  // End Labels
-				// End Components
-			});  // End color utils
-		});  // End dom utils
-	});  // End math utils
-	// End Utilities
+					});  // End Labels
+					// End Components
+				});  // End color utils
+			});  // End dom utils
+		});  // End math utils
+		// End Utilities
 
 
+		return main;
+	};  // End main.startAll()
+
+	main.startAll();
 	return main;
 };  // End HandHeldBookmarkletManagerTM {}
 

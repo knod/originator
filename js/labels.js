@@ -2,7 +2,7 @@
 
 'use strict';
 
-HandHeldBookmarkletManagerTM.Labels = function ( baseColor, utilsDict ) {
+HandHeldBookmarkletManagerTM.Labels = function ( baseColor, utilsDict, removalClass ) {
 
 	var labels = {};
 
@@ -80,7 +80,7 @@ HandHeldBookmarkletManagerTM.Labels = function ( baseColor, utilsDict ) {
 	Create one label for an element
 	*/
 		var cutoff 			= labels.createShadowCutoff();
-		cutoff.className 	+= ' bookmarklets-labels';
+		cutoff.className 	= cutoff.className + ' ' + removalClass + ' bookmarklets-labels';
 		var shadowed 		= labels.createShadowed( labelColor, labelString );
 		cutoff.appendChild( shadowed );
 
