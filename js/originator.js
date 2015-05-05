@@ -2,7 +2,7 @@
 
 TODO:
 - Add green color and special text for body label
-- Fix originator showing on Tool Manager
+- Only remove labels when they actually need to be removed
 
 Resources no longer used:
 	- http://tzi.fr/js/snippet/convert-em-in-px (1 rem to pixels)
@@ -50,6 +50,8 @@ element too?
 		// OrigrUtils 	= OriginatorUtils,
 		Utils_Color = utilsDict.color,
 		Utils_Math 	= utilsDict.math;
+
+	Utils_DOM.importCSS('http://127.0.0.1:8000/css/originator.css');
 
 
 	// ===============================================================
@@ -499,29 +501,14 @@ element too?
 // ============
 // START
 // ============
-// // This can be implemented once I've made things all cdn and such
-// (function () {
-// 	var main = HandHeldBookmarkletManagerTM;
-// 	var originator = main.Tools.Originator( main.menu, main.utils, main.labels, main.baseColor );
-// 	originator.menuItem.addEventListener (
-// 		'click', function ( evnt ) { originator.toggle( evnt, main.menu ); }
-// 	);
-// 	main.tools.originator = originator;
-// })();  // End self-calling anonymous function
-
-/*
-Selector Gadget's way of handling the code:
-(function(){
-  importCSS('https://dv0akt2986vzh.cloudfront.net/stable/lib/selectorgadget.css');
-  importJS('https://ajax.googleapis.com/ajax/libs/jquery/1.3.1/jquery.min.js', 'jQuery', function() { // Load everything else when it is done.
-    jQuery.noConflict();
-    importJS('https://dv0akt2986vzh.cloudfront.net/stable/vendor/diff/diff_match_patch.js', 'diff_match_patch', function() {
-      importJS('https://dv0akt2986vzh.cloudfront.net/stable/lib/dom.js', 'DomPredictionHelper', function() {
-        importJS('https://dv0akt2986vzh.cloudfront.net/stable/lib/interface.js');
-      });
-    });
-  });
-})();
-*/
+// Runs when the file is imported
+(function () {
+	var main = HandHeldBookmarkletManagerTM;
+	var originator = main.Tools.Originator( main.toolMenu, main.utils, main.labels, main.baseColor );
+	originator.menuItem.addEventListener (
+		'click', function ( evnt ) { originator.toggle( evnt, main.toolMenu ); }
+	);
+	main.tools.originator = originator;
+})();  // End self-calling anonymous function
 
 

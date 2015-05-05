@@ -223,7 +223,7 @@ var Originator = function () {
 	};  // End utils.isOutOfWindow()
 
 
-	utils.fixOutOfWindow = function ( elem ) {
+	utils.fixAboveWindow = function ( elem ) {
 	/*
 
 	Tests if an element is out of the window. If it is,
@@ -232,7 +232,7 @@ var Originator = function () {
 		// Doesn't include the shadow, just the colored bit of the label
 		if ( utils.isOutOfWindow(elem) ) { elem.style.top = -1 * shadowContainerPadding; }
 		return elem;
-	};  // End fixOutOfWindow
+	};  // End fixAboveWindow
 
 
 	// --- FOR BOTH ---
@@ -433,7 +433,7 @@ var Originator = function () {
 		// var elemStyle 	= elem.getBoundingClientRect();
 
 		// If it's now sticking out of the top of the DOM, bring it back in
-		utils.fixOutOfWindow( label );
+		utils.fixAboveWindow( label );
 
 		return label;
 	};  // End positionLabel

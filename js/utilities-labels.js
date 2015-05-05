@@ -7,7 +7,7 @@ HandHeldBookmarkletManagerTM.utils.labels = function ( Utils_DOM ) {
 	var labelUtils 	= {},
 		Utils 		= BookmarkletUtils;
 
-	labelUtils.fixOutOfWindow = function ( elem, nudging ) {
+	labelUtils.fixAboveWindow = function ( elem, nudging ) {
 	/* ( Node, num ) -> same Node
 
 	Tests if an element is out of the window. If it is,
@@ -21,7 +21,7 @@ HandHeldBookmarkletManagerTM.utils.labels = function ( Utils_DOM ) {
 		}
 
 		return elem;
-	};  // End utils.labels.fixOutOfWindow()
+	};  // End utils.labels.fixAboveWindow()
 
 	return labelUtils;
 };

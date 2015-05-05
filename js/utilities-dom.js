@@ -208,7 +208,7 @@ separately)
 
 
 	// --- POSITIONS --- \\
-	utils_dom.fixOutOfWindow = function ( elem, nudging ) {
+	utils_dom.fixAboveWindow = function ( elem, nudging ) {
 	/* ( Node, num ) -> same Node
 
 	Tests if an element is out of the window. If it is,
@@ -222,7 +222,7 @@ separately)
 		}
 
 		return elem;
-	};  // End utils_dom.fixOutOfWindow()
+	};  // End utils_dom.fixAboveWindow()
 
 	// --- TRANSFORMS --- \\
 	utils_dom.rotateByDegrees = function ( elem, degrees ) {

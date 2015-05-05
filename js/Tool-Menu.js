@@ -1,4 +1,4 @@
-/* tools-manager.js
+/* Tool-Menu.js
 
 TODO:
 - Add a 'Remove' button for each tool?
@@ -7,70 +7,71 @@ TODO:
 
 'use strict';
 
-HandHeldBookmarkletManagerTM.ToolsMenu = function ( variableName, utilsDict ) {
-/* ( str ) -> HandHeldBookmarkletManagerTM.manager
+HandHeldBookmarkletManagerTM.ToolMenu = function ( variableName, utilsDict ) {
+/* ( str ) -> HandHeldBookmarkletManagerTM.ToolMenu
 
 Creates and adds the tool manager to the DOM.
 variableName = name of the variable that called this. Planning
 for each tool to use that name to access the manager...
 */
 
-	var manager 	= {};
-	var utils_DOM 	= utilsDict.dom;  // shorter name inside here
+	var toolMenu 	= {};
 
-	manager.container 	= null;  // Needed?
-	manager.menu 		= null;
-	manager.items 		= [];
+	toolMenu.container 	= null;  // Needed?
+	toolMenu.menu 		= null;
+	toolMenu.items 		= [];
 
-	manager.checkedClasses 		= 'fa fa-check-square-o checkbox-visual';
-	manager.uncheckedClasses 	= 'fa fa-square-o checkbox-visual';
+	toolMenu.checkedClasses 		= 'fa fa-check-square-o tool-menu-checkbox-icon';
+	toolMenu.uncheckedClasses 	= 'fa fa-square-o tool-menu-checkbox-icon';
 
+
+	var utils_DOM 		= utilsDict.dom;
 	// FontAwesome
 	utils_DOM.importCSS('https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css');
-	// tool manager css when we have a cdn
-	// utils_DOM.importCSS();
+	utils_DOM.importCSS('http://127.0.0.1:8000/css/tool-menu.css');
+
 
 	// ==========================
 	// FOR MAKING NEW MENU ITEMS
 	// ==========================
-	manager.addNewInput = function ( item, inputID, toolName ) {
+	toolMenu.addNewInput = function ( item, inputID, toolName ) {
 	/*  ( DOM, str, str ) -> other DOM
 	*/
 		var input = document.createElement( 'input' );
 		utils_DOM.setAttributes( input, {
-			'class': 'manager-checkbox', 'type': 'checkbox', 'checked': 'checked',
+			'class': 'bookmarklet-tools-menu-checkbox', 'type': 'checkbox', 'checked': 'checked',
 			'id': inputID, 'name': toolName
 		});
 
 		item.appendChild( input );
 
 		return input;
-	};  // End manager.addNewInput()
+	};  // End toolMenu.addNewInput()
 
 
-	manager.addNewIcon = function ( item ) {
+	toolMenu.addNewIcon = function ( item ) {
 	/* ( DOM ) -> other DOM
 
 	The thing that's actually visible instead of the checkbox
 	Fontawesome icon right now
 	*/
 		var visual 		 = document.createElement( 'span' );
-		visual.className = manager.checkedClasses;
+		visual.className = toolMenu.checkedClasses;
 
 		item.appendChild( visual );
 
 		return visual;
-	};  // End manager.addNewIcon()
+	};  // End toolMenu.addNewIcon()
 
 
-	manager.addNewLabel = function ( item, inputID, labelText ) {
+	toolMenu.addNewLabel = function ( item, inputID, labelText ) {
 	/* ( DOM, str, str ) -> other DOM
 
 	Creates, adds to the DOM, and returns, the label linked to the
 	checkbox (including the label text)
 	*/
 		var label 	= document.createElement( 'label' );
-		utils_DOM.setAttributes( label, {'class': 'manager-label', 'for': inputID} );
+		utils_DOM.setAttributes( label, {'class': 'bookmarklet-tools-menu-label', 'for': inputID} );
 
 		var text 	= document.createTextNode( labelText );
 		label.appendChild( text );
@@ -78,10 +79,10 @@ for each tool to use that name to access the manager...
 		item.appendChild( label );
 
 		return label;
-	};  // End manager.addNewLabel()
+	};  // End toolMenu.addNewLabel()
 
 
-	manager.addNewItem = function ( tool ) {
+	toolMenu.addNewItem = function ( tool ) {
 	/* ( str, str ) -> DOM */
 
 		// --- MENU ITEM --- \\
@@ -90,26 +91,26 @@ for each tool to use that name to access the manager...
 		var inputID = tool.name + '_toggle';
 
 		// --- INSIDE MENU ITEM --- \\
-		manager.addNewInput( item, inputID, tool.name );
-		manager.addNewIcon( item );
-		manager.addNewLabel( item, inputID, tool.labelText )
+		toolMenu.addNewInput( item, inputID, tool.name );
+		toolMenu.addNewIcon( item );
+		toolMenu.addNewLabel( item, inputID, tool.labelText )
 
 		// --- DOM --- \\
-		manager.menu.appendChild( item );
+		toolMenu.menu.appendChild( item );
 		// Exclude the container from the attention of this tool
-		manager.container.className = 
-			manager.container.className + ' ' + tool.name + '-exclude';
+		toolMenu.container.className = 
+			toolMenu.container.className + ' ' + tool.name + '-exclude';
 
 		// --- INTERNAL --- \\
-		manager.items.push( item );
+		toolMenu.items.push( item );
 		return item;
-	};  // End manager.addNewItem()
+	};  // End toolMenu.addNewItem()
 
 
 	// =====================
 	// LOGIC (there's gotta be a better name... runtime?)
 	// =====================
-	manager.changeIcon = function ( checkbox ) {
+	toolMenu.changeIcon = function ( checkbox ) {
 	/* ( DOM ) -> other DOM
 
 	Changes the fake checkbox appearance based on checkbox
@@ -117,35 +118,35 @@ for each tool to use that name to access the manager...
 	*/
 		var checked 	= checkbox.checked;
 		// var parent 		= eventTarget.parentNode;
-		// var checkbox 	= parent.getElementsByClassName( 'manager-checkbox' )[0];
-		var iconElem 	= checkbox.parentNode.getElementsByClassName( 'checkbox-visual' )[0];
+		// var checkbox 	= parent.getElementsByClassName( 'toolMenu-checkbox' )[0];
+		var iconElem 	= checkbox.parentNode.getElementsByClassName( 'tool-menu-checkbox-icon' )[0];
 
 		if ( checked === true ) {
-			iconElem.className = manager.checkedClasses;
+			iconElem.className = toolMenu.checkedClasses;
 		} else if ( checked === false ) {
-			iconElem.className = manager.uncheckedClasses;
+			iconElem.className = toolMenu.uncheckedClasses;
 		}
 
 		return checkbox;
-	};  // End manager.changeIcon()
+	};  // End toolMenu.changeIcon()
 
 
 	// =====================
-	// MANAGER INITIALIZATION
+	// toolMenu INITIALIZATION
 	// =====================
-	manager.addHeaderTo = function ( container ) {
+	toolMenu.addHeaderTo = function ( container ) {
 	/* ( DOM ) -> other DOM
 	*/
 		var header 	= document.createElement( 'h1' );
-		var title 	= document.createTextNode( 'Tool Manager' );
+		var title 	= document.createTextNode( 'Tool Menu' );
 		header.appendChild( title );
 
 		container.appendChild( header );
 
 		return header;
-	};  // End manager.addHeaderTo()
+	};  // End toolMenu.addHeaderTo()
 
-	manager.addMenuTo = function ( container ) {
+	toolMenu.addMenuTo = function ( container ) {
 	/* ( DOM ) -> other DOM
 
 	*/
@@ -155,35 +156,35 @@ for each tool to use that name to access the manager...
 		container.appendChild( menu );
 
 		return menu;
-	};  // End manager.addMenuTo()
+	};  // End toolMenu.addMenuTo()
 
-	manager.createNew = function ( variableName ) {
+	toolMenu.createNew = function ( variableName ) {
 	/* ( str ) -> DOM */
 
 		var container = document.createElement( 'div' );
 		utils_DOM.setAttributes( container, {
-			'id': 'bookmarklet_collection_manager', 'data-varName': variableName
+			'id': 'bookmarklet_tool_menu', 'data-varName': variableName
 		});
 
-		manager.addHeaderTo( container );
+		toolMenu.addHeaderTo( container );
 		// Into which each tool will add itself
-		manager.menu = manager.addMenuTo( container );
+		toolMenu.menu = toolMenu.addMenuTo( container );
 
 		// --- DOM --- \\
 		document.body.appendChild( container );
-		manager.container 	= container;
+		toolMenu.container 	= container;
 
 		return container
-	};  // manager.createNew()
+	};  // toolMenu.createNew()
 
 
 	// =====================
 	// START EVERYTHING
 	// =====================
-	manager.createNew( variableName );
+	toolMenu.createNew( variableName );
 
-	return manager;
-};  // HandHeldBookmarkletManagerTM.manager()
+	return toolMenu;
+};  // HandHeldBookmarkletManagerTM.ToolMenu()
 
 // Give this to the global namespace
-// var bookmarkletToolManager = HandHeldBookmarkletManagerTM.manager( 'bookletToolManager' );
+// var bookmarkletToolManager = HandHeldBookmarkletManagerTM.ToolMenu( 'bookletToolManager' );

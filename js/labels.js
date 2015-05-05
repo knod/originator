@@ -1,4 +1,4 @@
-// labels.js
+/* labels.js */
 
 'use strict';
 
@@ -79,8 +79,9 @@ HandHeldBookmarkletManagerTM.Labels = function ( baseColor, utilsDict ) {
 
 	Create one label for an element
 	*/
-		var cutoff 		= labels.createShadowCutoff();
-		var shadowed 	= labels.createShadowed( labelColor, labelString );
+		var cutoff 			= labels.createShadowCutoff();
+		cutoff.className 	+= ' bookmarklets-labels';
+		var shadowed 		= labels.createShadowed( labelColor, labelString );
 		cutoff.appendChild( shadowed );
 
 		return cutoff
@@ -106,7 +107,7 @@ HandHeldBookmarkletManagerTM.Labels = function ( baseColor, utilsDict ) {
 
 		// If it's now sticking out of the top of the DOM, bring it back in
 		// But leave the shadow out. Looks better that way.
-		Utils_DOM.fixOutOfWindow( label, (-1 * labels.shadowPadding) );
+		Utils_DOM.fixAboveWindow( label, (-1 * labels.shadowPadding) );
 
 		return label;
 	};  // End labels.positionLabel()

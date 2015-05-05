@@ -85,38 +85,97 @@ and tool managers
 	};  // End utils_dom.importJS()
 
 
-	// First Utilities
-	main.importJS( 'https://rawgit.com/knod/originator/one-name-space/js/utilities-math.js',
-			'HandHeldBookmarkletManagerTM.utils.math', function () {
-		main.importJS('https://rawgit.com/knod/originator/one-name-space/js/utilities-dom.js',
-				'HandHeldBookmarkletManagerTM.utils.dom', function () {
-			main.importJS('https://rawgit.com/knod/originator/one-name-space/js/utilities-color.js',
-					'HandHeldBookmarkletManagerTM.utils.color', function () {
-				// Then Components
-				main.importJS('https://rawgit.com/knod/originator/one-name-space/js/labels.js',
-						'HandHeldBookmarkletManagerTM.Labels', function () {
 
-	main.labels = main.Labels( main.baseColor, main.utils );  // It's actually a function
+	// Utilities
+	// //https://rawgit.com/knod/originator/one-name-space/js/utilities-labels.js
 
-					main.importJS('https://rawgit.com/knod/originator/one-name-space/js/Tools-Menu.js',
-							'HandHeldBookmarkletManagerTM.ToolsMenu', function () {
+	//https://rawgit.com/knod/originator/one-name-space/js/utilities-math.js
+	//https://rawgit.com/knod/originator/one-name-space/js/utilities-color.js
+	//https://rawgit.com/knod/originator/one-name-space/js/utilities-dom.js
 
-	main.toolsMenu 	= main.ToolsMenu( 'bookmarkletToolManager', main.utils );
+	// Components
+	// Wrong capitalization on github for some reason
+	//https://rawgit.com/knod/originator/one-name-space/js/labels.js
+	//https://rawgit.com/knod/originator/one-name-space/js/Tool-Menu.js
 
-						main.importJS('https://rawgit.com/knod/originator/one-name-space/js/originator.js',
-								'HandHeldBookmarkletManagerTM.Tools.Originator', function () {
+	// Tools
+	// Wrong capitalization on github for some reason
+	//https://rawgit.com/knod/originator/one-name-space/js/originator.js
+
+
+
+	// // First Utilities
+	// main.importJS( 'https://rawgit.com/knod/originator/one-name-space/js/utilities-math.js',
+	// 		'HandHeldBookmarkletManagerTM.utils.math', function () {
+	// 	main.importJS('https://rawgit.com/knod/originator/one-name-space/js/utilities-dom.js',
+	// 			'HandHeldBookmarkletManagerTM.utils.dom', function () {
+	// 		main.importJS('https://rawgit.com/knod/originator/one-name-space/js/utilities-color.js',
+	// 				'HandHeldBookmarkletManagerTM.utils.color', function () {
+	// 			// Then Components
+	// 			main.importJS('https://rawgit.com/knod/originator/one-name-space/js/labels.js',
+	// 					'HandHeldBookmarkletManagerTM.Labels', function () {
+
+	// main.labels = main.Labels( main.baseColor, main.utils );  // It's actually a function
+
+	// 				main.importJS('https://rawgit.com/knod/originator/one-name-space/js/Tool-Menu.js',
+	// 						'HandHeldBookmarkletManagerTM.ToolMenu', function () {
+
+	// main.ToolMenu 	= main.ToolMenu( 'bookmarkletToolManager', main.utils );
+
+	//					// Then Tools
+	// 					main.importJS('https://rawgit.com/knod/originator/one-name-space/js/originator.js',
+	// 							'HandHeldBookmarkletManagerTM.Tools.Originator', function () {
 							
 
 
-	// ======================== 
-	// ADD ALL TOOLS, manually I guess
-	// ========================
-	var originator = main.Tools.Originator( main.toolsMenu, main.utils, main.labels, main.baseColor );
-	originator.menuItem.addEventListener (
-		'click', function ( evnt ) { originator.toggle( evnt, main.toolsMenu ); }
-	);
-	main.tools.originator = originator;
+	// // ======================== 
+	// // ADD ALL TOOLS, manually I guess
+	// // ========================
+	// var originator = main.Tools.Originator( main.ToolMenu, main.utils, main.labels, main.baseColor );
+	// originator.menuItem.addEventListener (
+	// 	'click', function ( evnt ) { originator.toggle( evnt, main.ToolMenu ); }
+	// );
+	// main.tools.originator = originator;
 
+
+
+	// 					});  // End Tools Menu
+	// 				});  // End Tools Menu
+	// 			});  // End Labels
+	// 			// End Components
+	// 		});  // End color utils
+	// 	});  // End dom utils
+	// });  // End math utils
+	// // End Utilities
+
+
+
+
+
+	// First Utilities
+	main.importJS( "http://127.0.0.1:8000/js/utilities-math.js",
+			"HandHeldBookmarkletManagerTM.utils.math", function () {
+		main.importJS("http://127.0.0.1:8000/js/utilities-dom.js",
+				"HandHeldBookmarkletManagerTM.utils.dom", function () {
+			main.importJS("http://127.0.0.1:8000/js/utilities-color.js",
+					"HandHeldBookmarkletManagerTM.utils.color", function () {
+				// Then Components
+				main.importJS("http://127.0.0.1:8000/js/labels.js",
+						"HandHeldBookmarkletManagerTM.Labels", function () {
+
+	main.labels = main.Labels( main.baseColor, main.utils );  // It"s actually a function
+
+					main.importJS("http://127.0.0.1:8000/js/Tool-Menu.js",
+							"HandHeldBookmarkletManagerTM.ToolMenu", function () {
+
+	main.toolMenu 	= main.ToolMenu( "bookmarkletToolManager", main.utils );
+
+						// Then Tools
+						main.importJS("http://127.0.0.1:8000/js/Originator.js",
+								"HandHeldBookmarkletManagerTM.Tools.Originator", function () {
+							
+
+									// Originator adds itself
 
 
 						});  // End Tools Menu
@@ -128,93 +187,11 @@ and tool managers
 	});  // End math utils
 	// End Utilities
 
-// Utilities
-// //https://rawgit.com/knod/originator/one-name-space/js/utilities-labels.js
-
-//https://rawgit.com/knod/originator/one-name-space/js/utilities-math.js
-//https://rawgit.com/knod/originator/one-name-space/js/utilities-color.js
-//https://rawgit.com/knod/originator/one-name-space/js/utilities-dom.js
-
-// Components
-//
-//https://rawgit.com/knod/originator/one-name-space/js/Labels.js
-//https://rawgit.com/knod/originator/one-name-space/js/Menu.js
-
-// Tools
-//https://rawgit.com/knod/originator/one-name-space/js/Originator.js
-
-
-	// main.utils 		= {
-	// 	Utils_Math: BookmarkletsUtilsMath,
-	// 	// This one is a function
-	// 	Utils_Labels: BookmarkletUtilsLabels(),
-	// 	Utils_Color:  BookmarkletsUtilsColor,
-	// 	Utils_DOM: BookmarkletUtils
-	// }
-	// Maybe not do labels utils, maybe put labels utils in dom utils
-
-	// Import the component files?
-
-	// main.labels = main.Labels( main.baseColor, main.utils );  // It's actually a function
-
-	// main.importJS('https://rawgit.com/knod/originator/one-name-space/js/Menu.js', 'HandHeldBookmarkletManagerTM.manager', function () {
-	// 	console.log()
-	// 	// main.importJS('http://127.0.0.1:<port num>/filename');
-	// 	main.toolsMenu 	= main.ToolsMenu( 'bookmarkletToolManager', main.utils );
-
-	// 	// // http://www.sitepoint.com/call-javascript-function-string-without-using-eval/
-	// 	// // http://stackoverflow.com/questions/359788/how-to-execute-a-javascript-function-when-i-have-its-name-as-a-string
-	// 	// // http://stackoverflow.com/questions/912596/how-to-turn-a-string-into-a-javascript-function-call
-	// 	// main.possibleTools 	= [ 'Originator' ];
-	// 	// main.currentTools 	= [];
-
-	// 	// ======================== 
-	// 	// ADD ALL TOOLS, manually I guess
-	// 	// ========================
-	// 	// Import all the tools, and at the end, add them?
-	// 	var originator = main.Tools.Originator( main.toolsMenu, main.utils, main.labels, main.baseColor );
-	// 	originator.toolsMenuItem.addEventListener (
-	// 		'click', function ( evnt ) { originator.toggle( evnt, main.toolsMenu ); }
-	// 	);
-	// 	main.tools.originator = originator;
-
-
-	// 	// for ( var tooli = 0; tooli < main.possibleTools.length; tooli++ ) {
-	// 	// 	var funcStr 	= main.possibleTools[ tooli ],
-	// 	// 		toolFunc	= window[ funcStr ];
-
-	// 	// 	// Add any functions to our list of existing functions.
-	// 	// 	// Maybe tools should add themselves to the list?
-	// 	// 	if (typeof toolFunc === "function") {
-
-	// 	// 		// Only originator needs labels atm...
-	// 	// 		var newTool = toolFunc( main.toolsMenu, main.utils, main.labels, main.baseColor );
-
-	// 	// 		// --- Disabling Event --- \\
-	// 	// 		newTool.toolsMenuItem.addEventListener(
-	// 	// 			'click', function (evnt) { newTool.toggle( evnt, main.toolsMenu ) }
-	// 	// 		);
-
-	// 	// 		// Which one?
-	// 	// 		main.currentTools.push 					= newTool;
-	// 	// 		// Make it lowercase first?
-	// 	// 		main[ funcStr.toLowerCase() ] 			= newTool;
-	// 	// 		main.tools[ funcStr.toLowerCase() ] 	= newTool;
-
-	// 	// 	} else {
-	// 	// 		console.log( funcStr, 'is not the name of a function in', window );
-	// 	// 	}
-	// 	// }
-
-	// 	// Somehow, if another bookmarklet is added, run this again and add it...?
-	// 	// Maybe tools should add themselves to the manager, but then there's cross
-	// 	// contamination. Maybe each tool will give off a custom event?
-	// });
 
 	return main;
 };  // End HandHeldBookmarkletManagerTM {}
 
-// var handHeldBookmarkletsTM = HandHeldBookmarkletManagerTM.run();
+var handHeldBookmarkletsTM = HandHeldBookmarkletManagerTM.run();
 
 
 
