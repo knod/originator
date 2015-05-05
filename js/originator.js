@@ -3,6 +3,11 @@
 TODO:
 - Add green color and special text for body label
 - Only remove labels when they actually need to be removed
+	Or only change on mutation?
+- 
+
+NOTES:
+- console.log is non-blocking
 
 Resources no longer used:
 	- http://tzi.fr/js/snippet/convert-em-in-px (1 rem to pixels)
@@ -26,7 +31,8 @@ element too?
 
 	origr.node 				= null;
 	origr.oldTarget 		= null;
-	origr.currentTarget 	= null;
+	// origr.currentTarget 	= null;
+	// origr.oldRect;
 
 	origr.circleLT 			= null;
 	origr.circleRB 			= null;
@@ -98,7 +104,7 @@ element too?
 		origr.exclude = false;
 
 		// --- Is or belongs to originator ---
-		var allElems 	= Utils_DOM.getElemsFromUntil( currentElem, document.body.parentNode ),
+		var allElems 	= Utils_DOM.getElemsFromUntil( currentElem, document.body ),
 			isExcluded 	= Utils_DOM.oneHasClass( allElems, (origr.name + '-exclude') )
 
 		// --- result ---
@@ -466,32 +472,60 @@ element too?
 			var visibility = origr.getNewVisibility( currentTarget, origr.oldTarget );
 			origr.node.style.visibility = visibility;
 
-
 			// Prepare for next click on non-originator element
 			origr.oldTarget = currentTarget;
+
+			origr.runIf( origr.oldTarget, origr.active );
 		}  // end if !origr.excluded
 
 	});  // end document on click
 
-
 	// ========================================================
 	// ===================
-	// TRIGGER ORIGINATOR ACTIONS
+	// TRIGGER ON MUTATION
 	// ===================
-	// --- IN CASE OF CHANGES TO DOM OR VIEW --- \\
-	origr.update = function () {
-		// Loop forever and ever?
-		if ( !origr.loopPaused ) {
-		// Inactive state is taken care of in runIf
-			// As soon as there's a valid current target, it's made into an oldTarget
-			// So oldTarget is basically the currentTarget
-			origr.runIf( origr.oldTarget, origr.active );
-			window.requestAnimationFrame( origr.update );
+	// When DOM changes, redo stuff (limit it to just relevant elements?)
+	origr.onMutation = function ( mutation ) {
+	/* ( MutationRecord ) -> same MutationRecord
+
+	If the element is not part of the originator stuff, update everything's
+	positions
+	*/
+
+		var target = mutation.target;
+		var exclude = origr.shouldExclude( target );
+		if ( mutation.previousSibling !== null ) {
+			exclude = exclude || origr.shouldExclude( mutation.previousSibling );
 		}
-	};  // End update()
+			
+		if ( !exclude ) {
+			origr.runIf( origr.oldTarget, origr.active );
+		}
 
-	origr.update();
+		return mutation;
+	};  // End origr.onMutation()
 
+
+	// create an observer instance
+	origr.observer = new MutationObserver( function( mutations ) {
+
+		mutations.forEach( function( mutation ) {
+			origr.onMutation( mutation );
+		});    
+
+	});
+	 
+	// configuration of the observer:
+	var config = { attributes: true, childList: true, characterData: true,
+		subtree: true, attributeOldValue: true, characterDataOldValue: true };
+	 
+	// pass in the target node, as well as the observer options
+	origr.observer.observe( document.body , config);
+
+
+	// ==================================
+	// END
+	// ==================================
 	return origr;
 };  // End Originator {}
 

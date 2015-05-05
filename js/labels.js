@@ -22,7 +22,7 @@ HandHeldBookmarkletManagerTM.Labels = function ( baseColor, utilsDict ) {
 
 
 	// =================
-	// APP LOGIC
+	// CREATION
 	// =================
 	labels.createShadowCutoff = function () {
 	/* ( None ) -> DOM
@@ -88,6 +88,9 @@ HandHeldBookmarkletManagerTM.Labels = function ( baseColor, utilsDict ) {
 	};  // End labels.createLabel()
 
 
+	// ======================
+	// POSITION
+	// ======================
 	labels.positionLabel = function ( label, elem ) {
 	/* ( DOM, DOM ) -> label DOM
 
@@ -155,6 +158,9 @@ HandHeldBookmarkletManagerTM.Labels = function ( baseColor, utilsDict ) {
 	};  // End labels.placeLabel()
 
 
+	// =====================
+	// MANAGE CREATION AND PLACEMENT
+	// =====================
 	labels.labelOneElem 	= function ( elem, placeInChain, childPosition ) {
 	/* ( DOM, str, str ) -> other DOM
 
@@ -173,6 +179,24 @@ HandHeldBookmarkletManagerTM.Labels = function ( baseColor, utilsDict ) {
 	};  // End labels.labelOneElem()
 
 
+	// =====================
+	// MANAGER RE-PLACEMENT
+	// =====================
+	labels.repositionLabels = function ( elemList, childPosition ) {
+	/*
+
+	So that we don't have to remove and re-add the labels all the time
+	*/
+
+		// Not sure when to trigger this. When mutations don't move labeled
+		// element's positions? How to check for that? Is it worth it?
+
+	};  // End labels.repositionLabels()
+
+
+	// =====================
+	// RUN
+	// =====================
 	labels.labelTheseElems 	= function ( elemList, childPosition ) {
 	/* ( [ DOM ] ) -> same
 
@@ -197,12 +221,9 @@ HandHeldBookmarkletManagerTM.Labels = function ( baseColor, utilsDict ) {
 	};  // end labels.labelTheseElems()
 
 
-	labels.repositionLabels = function ( elemList, childPosition ) {
-
-
-	}
-
-
+	// =====================
+	// RESET
+	// =====================
 	labels.removeLabels = function () {
 		Utils_DOM.removeElements( labels.nodeList );
 		// Have to reset list, so we don't try to get rid
@@ -211,6 +232,9 @@ HandHeldBookmarkletManagerTM.Labels = function ( baseColor, utilsDict ) {
 	};  // End labels.removeLabels()
 
 
+	// =====================
+	// END
+	// =====================
 	return labels;
 };  // End HandHeldBookmarkletManagerTM.Labels {}
 
