@@ -15,7 +15,7 @@ Resources no longer used:
 // HandHeldBookmarkletManagerTM.tools.originator;
 
 HandHeldBookmarkletManagerTM.Tools.Originator = function ( menu, utilsDict, labels, baseColor ) {
-/* ( BookmarkletToolManager, {}, HandHeldLabels() ) -> Originator
+/* ( ToolManager, {}, Labels, str ) -> Originator
 
 What do we really need to pass in? Do we need to pass in its checkbox
 element too?
@@ -62,7 +62,7 @@ element too?
 	origr.menuItem 	= menu.addNewItem( origr );
 
 	origr.toggle = function ( evnt, menu ) {
-	/*
+	/* ( {}, ToolMenu ) -> DOM
 
 	Based on checkbox, disable or enable the originator tool
 	*/
@@ -182,6 +182,7 @@ element too?
 		return Utils_Color.hslNumsToStr( hsls );
 	};  // End toChildColor()
 
+
 	var toParentColor = function ( rgbs ) {
 	/* ( {nums} ) -> Str
 	
@@ -204,7 +205,7 @@ element too?
 
 
 	var changeCirclesColor = function ( childElem, parentElem ) {
-	/*
+	/* ( DOM, DOM ) -> [str]
 
 	Changes circle's colors to match the 
 	*/
@@ -219,9 +220,10 @@ element too?
 		return [ origr.circleChild.getAttribute('fill'), origr.circleParent.getAttribute('fill') ]
 	};  // End changeCirclesColor()
 
-	// --- EVERYTHING ELSE ---
+
+	// --- EVERYTHING ELSE --- \\
 	origr.placeOriginator = function ( currentTarget, positionStyle, targetParent ) {
-	/* ( DOM, DOM ) -> DOM
+	/* ( DOM, str, DOM ) -> DOM
 
 	Places the originator at the correct starting and ending points.
 	Returns the element that was passed in as the currentTarget
@@ -292,6 +294,7 @@ element too?
 	In its own function so we can call it in update
 	*/
 		// Just always get rid of them. They'll be replaced later if needed
+		// This makes it impossible to examine them in the inspector
 		origr.labelsObj.removeLabels();
 
 		// If the target is removed, it still exists in our js as origr.currentTarget
@@ -371,7 +374,7 @@ element too?
 
 
 	var buildCircle = function ( NS, position, outline ) {
-	/* ( str, str ) -> DOM
+	/* ( str, str, str ) -> DOM
 
 	Build originator circles
 	*/
@@ -446,11 +449,6 @@ element too?
 	// =================
 	// EVENTS
 	// =================
-
-
-
-	// ------------------- \\
-	// --- ORIGINATOR ---- \\
 	document.addEventListener( 'click', function ( event ) {
 		// Basically just gets and sets targets and sets visibility
 		// Everything else is called in update()
