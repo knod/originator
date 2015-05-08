@@ -27,25 +27,27 @@ element too?
 */
 	var origr = {};
 
-	origr.name 				= 'originator';
+	origr.name 			= 'originator';
 
-	origr.node 				= null;
-	origr.oldTarget 		= null;
+	origr.node 			= null;
+	origr.oldTarget 	= null;
 	// origr.currentTarget 	= null;
 	// origr.oldRect;
 
-	origr.circleLT 			= null;
-	origr.circleRB 			= null;
+	origr.circleLT 		= null;
+	origr.circleRB 		= null;
 
+	// Bools to determine reactions
 	origr.exclude;
-	origr.active 			= true;
-	origr.loopPaused 		= false;
+	origr.active 		= true;
+	origr.removed 		= false;
+	// origr.loopPaused 	= false;
 
 	// baseColor needs to be for labels too. Needs to be in main?
-	origr.baseColor 		= baseColor;
-	origr.labelsObj 		= labels;// labelsFunct( origr.baseColor, utilsDict );
+	origr.baseColor 	= baseColor;
+	origr.labelsObj 	= labels;// labelsFunct( origr.baseColor, utilsDict );
 
-	var outlineColor		= 'white';
+	var outlineColor	= 'white';
 
 
 	// ===============================================================
@@ -401,7 +403,7 @@ element too?
 	};  // End buildCircle()
 
 
-	var createNew 	= function () {
+	origr.createNew 	= function () {
 	/*
 
 	Creates the originator DOM element, its node
@@ -449,18 +451,21 @@ element too?
 		return container;
 	};  // End createNew()
 
-	createNew();
+	origr.createNew();
 
 
 	// ============================================
 	// =================
-	// EVENTS
+	// USER ACTIONS
 	// =================
-	document.addEventListener( 'click', function ( event ) {
-		// Basically just gets and sets targets and sets visibility
-		// Everything else is called in update()
+	// --- EVENTS --- \\
+	origr.respondToClick = function ( evnt ) {
+	/*
 
-		var currentTarget = event.target;
+	Maybe so the manager can call this for every tool instead?
+	*/
+
+		var currentTarget = evnt.target;
 
 		// Don't try to track originator parts or labels, but do allow
 		// clicking so elements can be inspected
@@ -479,12 +484,18 @@ element too?
 			origr.runIf( origr.oldTarget, origr.active );
 		}  // end if !origr.excluded
 
+	};  // End origr.respond()
+
+	document.addEventListener( 'click', function ( evnt ) {
+	// Basically just gets and sets targets and sets visibility
+		if ( origr.removed ) { return true; }
+
+		origr.respondToClick( evnt );
+
 	});  // end document on click
 
-	// ========================================================
-	// ===================
-	// TRIGGER ON MUTATION
-	// ===================
+
+	// --- MUTATION --- \\
 	// When DOM changes, redo stuff (limit it to just relevant elements?)
 	origr.onMutation = function ( mutation ) {
 	/* ( MutationRecord ) -> same MutationRecord
@@ -492,6 +503,7 @@ element too?
 	If the element is not part of the originator stuff, update everything's
 	positions
 	*/
+		if ( origr.removed ) { return true;
 
 		var target = mutation.target;
 		var exclude = origr.shouldExclude( target );
@@ -525,6 +537,37 @@ element too?
 	 
 	// pass in the target node, as well as the observer options
 	origr.observer.observe( document.body , config);
+
+
+	// =================================================================
+	// ==================
+	// ADD AND REMOVE
+	// ==================
+	// !!! I have no idea how to do this... if there's no originator,
+	// then we can't get in here. So this has to be in the main script?
+	origr.addSelf 		= function () {
+	/* Add originatator stuff */
+		// var main = HandHeldBookmarkletManagerTM;
+		// var originator = main.Tools.Originator( main.toolMenu, main.utils, main.labels, main.baseColor, main.removalClass );
+		// originator.menuItem.addEventListener (
+		// 	'click', function ( evnt ) { originator.toggle( evnt, main.toolMenu ); }
+		// );
+		// main.tools.originator = originator;
+
+		origr.createNew();
+
+	};
+
+	origr.removeSelf 	= function () {
+	/* Remove originator stuff */
+
+		// Make it not visible
+		// run runner so labels get destroyed and originator is hidden
+		// Remove originator node? Have to, I think.
+
+		origr.removed = true;
+
+	};  // End removeSelf()
 
 
 	// ==================================

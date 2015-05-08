@@ -63,7 +63,6 @@ separately)
 
 		for ( var elemi = 0; elemi < elems.length; elemi++ ) {
 
-			console.log(elems[ elemi ]);
 			if ( elems[ elemi ].classList.contains( testClass ) ) {
 				oneHasClass = true;
 			}
@@ -198,9 +197,16 @@ separately)
 		for ( var elemi = 0; elemi < elemArray.length; elemi++ ) {
 
 			var elem = elemArray[ elemi ];
-			var parent = elem.parentNode;
 
-			parent.removeChild( elem );
+			// In case parent has already been removed, as is the case
+			// when removing all the bookmarklet elements from the page
+			if ( elem.parentNode !== null ) {
+
+				var parent = elem.parentNode;
+
+				parent.removeChild( elem );
+
+			}
 
 		}
 

@@ -4,8 +4,11 @@ TODO:
 - Get stuff out of global namespace
 
 Resources no longer used:
-	- http://tzi.fr/js/snippet/convert-em-in-px (1 rem to pixels)
-		getRootElementFontSize()
+- http://tzi.fr/js/snippet/convert-em-in-px (1 rem to pixels)
+	getRootElementFontSize()
+- Custom event method: http://jsfiddle.net/jump7b9k/2/
+- If label is clicked on, put it on the top
+
 */
 
 'use strict';
@@ -24,11 +27,39 @@ HandHeldBookmarkletManagerTM.utils 	= {};
 HandHeldBookmarkletManagerTM.Tools 	= {};
 HandHeldBookmarkletManagerTM.tools 	= {};
 
+HandHeldBookmarkletManagerTM.removed = false;
 
 
+
+// HandHeldBookmarkletManagerTM.removeOne = function () {
+
+
+// };  // End HandHeldBookmarkletManagerTM.removeOne()
+
+
+// HandHeldBookmarkletManagerTM.removeAll = function () {
+// /*
+
+// Gets rid of the bookmarklet stuff
+// */
+
+// 	var myBookmarklets = document.getElementsByClassName( main.removalClass );
+
+// 	// Remove all the other scripts
+// 	main.utils.dom.removeElements( main.allScripts );
+
+// 	// Remove all the elements
+// 	main.utils.dom.removeElements( myBookmarklets );
+// 	// Reset all the objects?
+// 	main.Tools 		= {}; main.tools 	= {};
+// 	main.utils 		= {};
+// 	main.toolMenu 	= {};
+// 	main.labels 	= {};
+
+// };  // End HandHeldBookmarkletManagerTM.removeAll()
 
 // ??: HOW DO I TAKE STUFF OUT OF THE GLOBAL NAMESPACE?!
-HandHeldBookmarkletManagerTM.run = function () {
+HandHeldBookmarkletManagerTM.begin = function () {
 /* ( none ) -> HandHeldBookmarkletManagerTM
 
 Handles the setting up of all Hand Held Bookmarklest TM tools
@@ -38,27 +69,6 @@ and tool managers
 
 	main.baseColor 		= 'rgb(55, 55, 55)';
 	main.removalClass 	= 'hand-held-bookmarklets';
-
-	main.removeAll = function () {
-	/*
-
-	Gets rid of the bookmarklet stuff
-	*/
-
-		var myBookmarklets = document.getElementsByClassName( main.removalClass );
-
-		// Remove all the other scripts
-		main.utils.dom.removeElements( main.allScripts );
-
-		// Remove all the elements
-		main.utils.dom.removeElements( myBookmarklets );
-		// Reset all the objects?
-		main.Tools 		= {}; main.tools 	= {};
-		main.utils 		= {};
-		main.toolMenu 	= {};
-		main.labels 	= {};
-
-	};  // End main.removeAll()
 
 
 	// ===============================================
@@ -210,7 +220,7 @@ and tool managers
 										// Originator adds itself
 
 		// Used to remove all scripts if needed.
-		main.allScripts = [ mathScript, domScript, colorScript, labelsScript, toolMenuScript, originatorScript ];
+		// main.allScripts = [ mathScript, domScript, colorScript, labelsScript, toolMenuScript, originatorScript ];
 
 
 							});  // End Tools Menu
@@ -227,10 +237,11 @@ and tool managers
 	};  // End main.startAll()
 
 	main.startAll();
+
 	return main;
 };  // End HandHeldBookmarkletManagerTM {}
 
-var handHeldBookmarkletsTM = HandHeldBookmarkletManagerTM.run();
+var handHeldBookmarkletsTM = HandHeldBookmarkletManagerTM.begin();
 
 
 
