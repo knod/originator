@@ -165,6 +165,10 @@ and tool managers
 	main.toolMenu 	= main.ToolMenu( "bookmarkletToolManager", main.utils );
 
 	main.removeAll 	= function () {
+	/*
+
+	Removes all the tool elements from the page
+	*/
 
 		for ( var toolKey in main.tools ) {
 			main.tools[ toolKey ].removeSelf();
@@ -172,6 +176,7 @@ and tool managers
 
 		main.toolMenu.removeSelf()
 
+		return main;
 	};
 
 	document.addEventListener( 'removeAll clicked', main.removeAll );

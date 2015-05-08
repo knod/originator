@@ -69,19 +69,6 @@ element too?
 	origr.menuItem 	= menu.addNewItem( origr );
 
 	// --- ACTIVATE/DEACTIVATE --- \\
-	origr.deactivate = function () {
-	/* ( None ) -> Originator
-	
-	Currently just so main manager can deactivate everything
-	Currently no reason for an origr.activate
-	*/
-		origr.active = false;
-		origr.runIf( origr.oldTarget, origr.active );
-
-		return origr;
-	};  // origr.deactivate()
-
-
 	origr.toggle = function ( evnt, menu ) {
 	/* ( {}, ToolMenu ) -> DOM
 
@@ -93,14 +80,10 @@ element too?
 		menu.changeIcon( checkbox );
 
 		if ( checked === true ) {
-			// Show checkmark
-			origr.active = true;
-			origr.node.style.visibility = 'visible';
-
+			origr.createNew();
 		// Not for 'undefined', just for 'false'
 		} else if ( checked === false ) {
-			origr.active = false;
-
+			origr.removeSelf();
 		}
 
 		// Make it disappear or reappear
@@ -287,7 +270,7 @@ element too?
 
 
 
-	origr.placeHelpers = function ( currentTarget ) {
+	origr.placeHelpers 	= function ( currentTarget ) {
 	/*
 
 	Do the actual placement of things.
@@ -313,7 +296,7 @@ element too?
 	};  // End origr.placeHelpers()
 
 
-	origr.runIf = function ( currentTarget, active ) {
+	origr.runIf 		= function ( currentTarget, active ) {
 	/*
 
 	In its own function so we can call it whenever needed,
@@ -361,7 +344,7 @@ element too?
 	};  // End buildContainerDiv()
 
 
-	var buildSVG 	= function ( NS ) {
+	var buildSVG 		= function ( NS ) {
 	/* ( str ) -> DOM */
 
 		var svg 		= document.createElementNS( NS,'svg' );
@@ -376,7 +359,7 @@ element too?
 	};  // End buildSVG()
 
 
-	var buildLine 	= function ( NS, strokeColor, strokeWidth ) {
+	var buildLine 		= function ( NS, strokeColor, strokeWidth ) {
 	/* ( str, str, num ) -> DOM
 
 	Build one originator line. Goes straigh across horizontally.
@@ -399,7 +382,7 @@ element too?
 	}  // End buildLine()
 
 
-	var buildCircle = function ( NS, position, outline ) {
+	var buildCircle 	= function ( NS, position, outline ) {
 	/* ( str, str, str ) -> DOM
 
 	Build originator circles
@@ -420,7 +403,7 @@ element too?
 	};  // End buildCircle()
 
 
-	var createNew 	= function () {
+	origr.createNew 	= function () {
 	/*
 
 	Creates the originator DOM element, its node
@@ -432,6 +415,7 @@ element too?
 		// --- CONTAINERS --- \\
 		var container 	= buildContainerDiv();
 		document.body.appendChild( container );
+		container.style.visibility = 'visible';
 
 		// Needed for all svg stuff for some reason
 		var NS 			= 'http://www.w3.org/2000/svg';
@@ -464,6 +448,8 @@ element too?
 		origr.node 			= container;
 		origr.circleChild 	= childCircle;
 		origr.circleParent 	= parentCircle;
+		// For re-activation after deactivation
+		origr.active 		= true;
 
 		return container;
 	};  // End createNew()
@@ -546,7 +532,7 @@ element too?
 	// REMOVAL (??)
 	// ==================================
 	origr.removeSelf = function () {
-	/*
+	/* ( None ) -> True
 
 	Should I just set it to inactive? Or should I remove all the nodes?
 	*/
@@ -561,7 +547,7 @@ element too?
 	// ==================================
 	// END
 	// ==================================
-	createNew();
+	origr.createNew();
 	return origr;
 };  // End Originator {}
 
