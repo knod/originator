@@ -2,24 +2,21 @@
 
 TODO:
 - Get stuff out of global namespace
+- If label is clicked on, put it on the top
+- Test adding the bookmarklet multiplle times
 
 Resources no longer used:
 - http://tzi.fr/js/snippet/convert-em-in-px (1 rem to pixels)
 	getRootElementFontSize()
 - Custom event method: http://jsfiddle.net/jump7b9k/2/
-- If label is clicked on, put it on the top
+
 */
 
 'use strict';
 
 //===============================
-//===============================
-//===============================
-// Refactoring
-//===============================
-// DON'T WANT THIS IN TOOL MANAGER because then
-// Tool Manager will be calling Tool, but also visa versa
-// Wait for some signal
+// SET UP FOR WHEN OTHER SCRIPTS ARE ADDED
+// ==============================
 var HandHeldBookmarkletManagerTM 	= {};
 
 HandHeldBookmarkletManagerTM.utils 	= {};
@@ -27,9 +24,6 @@ HandHeldBookmarkletManagerTM.Tools 	= {};
 HandHeldBookmarkletManagerTM.tools 	= {};
 
 
-
-
-// ??: HOW DO I TAKE STUFF OUT OF THE GLOBAL NAMESPACE?!
 HandHeldBookmarkletManagerTM.run = function () {
 /* ( none ) -> HandHeldBookmarkletManagerTM
 
@@ -152,8 +146,6 @@ and tool managers
 
 
 
-
-
 	// First Utilities
 	main.importJS( "http://127.0.0.1:8000/js/utilities-math.js",
 			"HandHeldBookmarkletManagerTM.utils.math", function () {
@@ -171,6 +163,18 @@ and tool managers
 							"HandHeldBookmarkletManagerTM.ToolMenu", function () {
 
 	main.toolMenu 	= main.ToolMenu( "bookmarkletToolManager", main.utils );
+
+	main.removeAll 	= function () {
+
+		for ( var toolKey in main.tools ) {
+			main.tools[ toolKey ].removeSelf();
+		}
+
+		main.toolMenu.removeSelf()
+
+	};
+
+	document.addEventListener( 'removeAll clicked', main.removeAll );
 
 						// Then Tools
 						main.importJS("http://127.0.0.1:8000/js/Originator.js",

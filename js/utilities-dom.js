@@ -46,6 +46,7 @@ separately)
 				ancestorNotFound = false;
 			} else {
 				// For next loop iteration
+				if (currentElem.parentNode === null) {console.log(currentElem)}
 				currentElem = currentElem.parentNode;
 			}
 		}  // end while ancestorNotFound

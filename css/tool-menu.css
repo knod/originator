@@ -12,7 +12,7 @@ Attempts at Resources:
 /* ------------------- */
 #bookmarklet_tool_menu,
 #bookmarklet_tool_menu div,
-#bookmarklet_tool_menu menu,
+#bookmarklet_tool_menu menu, ol, ul,
 #bookmarklet_tool_menu li,
 #bookmarklet_tool_menu h1,
 #bookmarklet_tool_menu h2,
@@ -25,6 +25,8 @@ Attempts at Resources:
 	line-height: 1.2;
 	vertical-align: baseline;
 	text-align: left;
+
+	position: relative;
 }
 
 menu {
@@ -55,9 +57,34 @@ menu, ol, ul, li {
 }
 
 #bookmarklet_tool_menu h1 {
+	position: relative;
+
 	margin: 0;
 	padding: 0 4px;
 	text-align: center
+}
+
+.vertical-center {
+	position: absolute;
+	/* Only looks good in 100% zoom? :/ */
+	top: 50%;
+	transform: translate( 0, -50%);
+
+}
+
+#bookmarklet_tool_menu .tool-menu-remove-all-icon {
+	position: absolute;
+	right: 2px;
+	top: 0;
+
+	font-size: .9rem;
+}
+
+#bookmarklet_tool_menu .fa-times:hover {
+	color: brown;
+}
+#bookmarklet_tool_menu .fa-times:active {
+	color: crimson;
 }
 
 #bookmarklet_tool_menu menu {
@@ -83,8 +110,8 @@ menu, ol, ul, li {
 	position: absolute;
 	left: 0;
 	/* Only looks good in 100% zoom :/ */
-	top: 50%;
-	transform: translate( 0, -50%);
+	/*top: 50%;
+	transform: translate( 0, -50%);*/
 }
 
 #bookmarklet_tool_menu label {

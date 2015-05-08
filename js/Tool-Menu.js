@@ -17,16 +17,22 @@ for each tool to use that name to access the manager...
 
 	var toolMenu 	= {};
 
+	// --- DOM NODES --- \\
 	toolMenu.container 	= null;  // Needed?
 	toolMenu.menu 		= null;
 	toolMenu.items 		= [];
 
-	toolMenu.checkedClasses 		= 'fa fa-check-square-o tool-menu-checkbox-icon';
-	toolMenu.uncheckedClasses 	= 'fa fa-square-o tool-menu-checkbox-icon';
+	// --- ICONS --- \\
+	// TODO: Add hover color (what color?)
+	toolMenu.checkedClasses 	= 'fa fa-check-square-o vertical-center tool-menu-checkbox-icon';
+	toolMenu.uncheckedClasses 	= 'fa fa-square-o vertical-center tool-menu-checkbox-icon';
+	// Colors for hover and click taken care of in css
+	toolMenu.removerClasses 	 = 'fa fa-times tool-menu-remove-all-icon';
 
-
+	// --- UTILITIES --- \\
 	var utils_DOM 		= utilsDict.dom;
-	// FontAwesome
+
+	// --- STYLING --- \\
 	utils_DOM.importCSS('https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css');
 	utils_DOM.importCSS('http://127.0.0.1:8000/css/tool-menu.css');
 
@@ -134,17 +140,48 @@ for each tool to use that name to access the manager...
 	// =====================
 	// toolMenu INITIALIZATION
 	// =====================
+	toolMenu.addRemoveAllTo = function ( container ) {
+	/* ( DOM ) -> other DOM
+
+	Button for removing all elements
+	*/
+		var remover 		= document.createElement( 'span' );
+		remover.className 	= toolMenu.removerClasses;
+
+		// --- EVENT --- \\
+		// Using a declared function so that the event can be removed more easily
+		var dispatchRemovalEvent = function () {
+			// Triggers removal of bookmarklets and tool menu
+			var removeAllEvent = new CustomEvent('removeAll clicked' );
+			document.dispatchEvent( removeAllEvent )
+			// Remove after use
+			remover.removeEventListener( 'click', dispatchRemovalEvent );
+		};  // End dispatchRemovalEvent()
+
+		remover.addEventListener( 'click', dispatchRemovalEvent );  // End on click
+
+		// --- DOM --- \\
+		container.appendChild( remover );
+
+		return remover;
+
+	};  // End toolMenu.addRemoveAllTo()
+
 	toolMenu.addHeaderTo = function ( container ) {
 	/* ( DOM ) -> other DOM
 	*/
 		var header 	= document.createElement( 'h1' );
+		
 		var title 	= document.createTextNode( 'Tool Menu' );
 		header.appendChild( title );
+
+		toolMenu.addRemoveAllTo( header );
 
 		container.appendChild( header );
 
 		return header;
 	};  // End toolMenu.addHeaderTo()
+
 
 	toolMenu.addMenuTo = function ( container ) {
 	/* ( DOM ) -> other DOM
@@ -157,6 +194,7 @@ for each tool to use that name to access the manager...
 
 		return menu;
 	};  // End toolMenu.addMenuTo()
+
 
 	toolMenu.createNew = function ( variableName ) {
 	/* ( str ) -> DOM */
@@ -176,6 +214,18 @@ for each tool to use that name to access the manager...
 
 		return container
 	};  // toolMenu.createNew()
+
+
+	toolMenu.removeSelf = function () {
+	/*
+
+	For main manager to call when everything is removed
+	*/
+		var node = toolMenu.container;
+		node.parentNode.removeChild( node );
+
+		return true;
+	};  // End toolMenu.removeSelf()
 
 
 	// =====================

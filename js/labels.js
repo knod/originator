@@ -224,12 +224,12 @@ HandHeldBookmarkletManagerTM.Labels = function ( baseColor, utilsDict ) {
 	// =====================
 	// RESET
 	// =====================
-	labels.removeLabels = function () {
+	labels.removeSelf = function () {
 		Utils_DOM.removeElements( labels.nodeList );
 		// Have to reset list, so we don't try to get rid
 		// of elements that are no longer in the DOM
 		labels.nodeList = [];
-	};  // End labels.removeLabels()
+	};  // End labels.removeSelf()
 
 
 	// =====================

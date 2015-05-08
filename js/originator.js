@@ -4,7 +4,7 @@ TODO:
 - Add green color and special text for body label
 - Only remove labels when they actually need to be removed
 	Or only change on mutation?
-- 
+- Adjust position when window is resized
 
 NOTES:
 - console.log is non-blocking
@@ -62,10 +62,25 @@ element too?
 
 	// ===============================================================
 	// =================
-	// TOOL MANAGER
+	// TOGGLE ACTIVE STATUS
 	// =================
+	// --- TOOL MENU --- \\
 	origr.labelText = 'Position Guidance';
 	origr.menuItem 	= menu.addNewItem( origr );
+
+	// --- ACTIVATE/DEACTIVATE --- \\
+	origr.deactivate = function () {
+	/* ( None ) -> Originator
+	
+	Currently just so main manager can deactivate everything
+	Currently no reason for an origr.activate
+	*/
+		origr.active = false;
+		origr.runIf( origr.oldTarget, origr.active );
+
+		return origr;
+	};  // origr.deactivate()
+
 
 	origr.toggle = function ( evnt, menu ) {
 	/* ( {}, ToolMenu ) -> DOM
@@ -301,11 +316,12 @@ element too?
 	origr.runIf = function ( currentTarget, active ) {
 	/*
 
-	In its own function so we can call it in update
+	In its own function so we can call it whenever needed,
+	like on click or on mutation
 	*/
 		// Just always get rid of them. They'll be replaced later if needed
 		// This makes it impossible to examine them in the inspector
-		origr.labelsObj.removeLabels();
+		origr.labelsObj.removeSelf();
 
 		// If the target is removed, it still exists in our js as origr.currentTarget
 		// Check if it's actually in the DOM. If the DOM has mutated getting rid
@@ -452,16 +468,17 @@ element too?
 		return container;
 	};  // End createNew()
 
-	createNew();
-
 
 	// ============================================
 	// =================
-	// EVENTS
+	// USER ACTIONS
 	// =================
+	// --- EVENTS --- \\
 	document.addEventListener( 'click', function ( event ) {
-		// Basically just gets and sets targets and sets visibility
-		// Everything else is called in update()
+	// Basically just gets and sets targets and sets visibility
+	// Everything else is called in runIf()
+
+		if (origr.active === false) { return false; }
 
 		var currentTarget = event.target;
 
@@ -472,7 +489,7 @@ element too?
 		// If the element is an excluded one, don't change any targets
 		if ( !origr.exclude ) {
 			// "hidden" will prevent movement as well
-			// Note: This MUST not happen in update()
+			// Note: This MUST not happen in runIf()
 			var visibility = origr.getNewVisibility( currentTarget, origr.oldTarget );
 			origr.node.style.visibility = visibility;
 
@@ -484,10 +501,8 @@ element too?
 
 	});  // end document on click
 
-	// ========================================================
-	// ===================
-	// TRIGGER ON MUTATION
-	// ===================
+
+	// --- MUTATION --- \\
 	// When DOM changes, redo stuff (limit it to just relevant elements?)
 	origr.onMutation = function ( mutation ) {
 	/* ( MutationRecord ) -> same MutationRecord
@@ -495,6 +510,7 @@ element too?
 	If the element is not part of the originator stuff, update everything's
 	positions
 	*/
+		if (origr.active === false) { return false; }
 
 		var target = mutation.target;
 		var exclude = origr.shouldExclude( target );
@@ -526,10 +542,26 @@ element too?
 	// pass in the target node, as well as the observer options
 	origr.observer.observe( document.body , config);
 
+	// ==================================
+	// REMOVAL (??)
+	// ==================================
+	origr.removeSelf = function () {
+	/*
+
+	Should I just set it to inactive? Or should I remove all the nodes?
+	*/
+		origr.active = false;
+		Utils_DOM.removeElements( [origr.node] );
+		origr.labelsObj.removeSelf();
+
+		return true;
+	};  // End origr.removeSelf()
+
 
 	// ==================================
 	// END
 	// ==================================
+	createNew();
 	return origr;
 };  // End Originator {}
 
