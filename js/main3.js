@@ -4,8 +4,10 @@ TODO:
 - Get stuff out of global namespace
 
 Resources no longer used:
-	- http://tzi.fr/js/snippet/convert-em-in-px (1 rem to pixels)
-		getRootElementFontSize()
+- http://tzi.fr/js/snippet/convert-em-in-px (1 rem to pixels)
+	getRootElementFontSize()
+- Custom event method: http://jsfiddle.net/jump7b9k/2/
+- If label is clicked on, put it on the top
 */
 
 'use strict';

@@ -75,17 +75,21 @@ element too?
 		var checkbox = origr.menuItem.getElementsByTagName('input')[0],
 			checked  = checkbox.checked;
 
+		menu.changeIcon( checkbox );
+
 		if ( checked === true ) {
 			// Show checkmark
-			menu.changeIcon( checkbox );
 			origr.active = true;
+			origr.node.style.visibility = 'visible';
 
 		// Not for 'undefined', just for 'false'
 		} else if ( checked === false ) {
-			menu.changeIcon( checkbox );
 			origr.active = false;
 
 		}
+
+		// Make it disappear or reappear
+		origr.runIf( origr.oldTarget, origr.active );
 
 		return evnt.target;
 	};  // End origr.toggle()
@@ -121,7 +125,7 @@ element too?
 	Gets a style.visibility value depending on what is clicked on
 	*/
 
-		// --- DETERMINE VISIBILITY --- \\
+		// --- DETERMINE CURRENT VISIBILITY --- \\
 		var isVisible = false;
 		if ( origr.node.style.visibility === 'visible' ) { isVisible = true; }
 

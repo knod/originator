@@ -29,6 +29,9 @@ separately)
 	Return all ancestor of childElem up to and including ancestorElem
 	TODO: Stop at body (or html?)
 	*/
+		// HTML is the top, it has no reachable ancestors
+		if ( childElem.tagName === "HTML" ) { return [ childElem ]; }
+
 		var elemList 			= [];
 		var currentElem			= childElem;
 		var ancestorNotFound 	= true;
@@ -200,6 +203,16 @@ separately)
 			var parent = elem.parentNode;
 
 			parent.removeChild( elem );
+
+			// // In case parent has already been removed, as is the case
+			// // when removing all the bookmarklet elements from the page
+			// if ( elem.parentNode !== null ) {
+
+			// 	var parent = elem.parentNode;
+
+			// 	parent.removeChild( elem );
+
+			// }
 
 		}
 
