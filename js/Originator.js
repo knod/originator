@@ -76,7 +76,7 @@ element too?
 	*/
 		var checkbox = origr.menuItem.getElementsByTagName('input')[0],
 			checked  = checkbox.checked;
-
+console.log(checked)
 		menu.changeIcon( checkbox );
 
 		if ( checked === true ) {
@@ -97,7 +97,7 @@ element too?
 	// =================
 	// LOGIC
 	// =================
-	origr.shouldExclude = function ( currentElem ) {
+	origr.shouldExclude = function ( currentElem, excludeBody ) {
 	/* ( DOM ) -> Bool
 
 	Makes sure the current element doesn't belong to the list of
@@ -106,12 +106,25 @@ element too?
 		origr.exclude = false;
 
 		// --- Is or belongs to originator ---
-		var allElems 	= Utils_DOM.getElemsFromUntil( currentElem, document.body ),
-			isExcluded 	= Utils_DOM.oneHasClass( allElems, (origr.name + '-exclude') )
+		// !!! EXPERIMENT (html as the "until" parent) !!!
+		var allElems 	= Utils_DOM.getElemsFromUntil( currentElem, document.body.parentNode );
+
+		var isExcluded = false;
+
+		// For mutation because body will be mutating all the time as stuff is added, etc.
+		if ( excludeBody === true ) {
+			isExcluded 	= (currentElem.tagName === 'BODY') || (currentElem.tagName === 'HTML')
+		}
+	
+		// If it's not already excluded
+		if ( !isExcluded ) {
+			// Check if it's been tagged to be excluded
+			isExcluded 	= Utils_DOM.oneHasClass( allElems, (origr.name + '-exclude') );
+		}
 
 		// --- result ---
 		if ( isExcluded ) { origr.exclude = true; }
-		// console.log(origr.exclude);
+
 		return origr.exclude;
 	};  // End origr.shouldExclude()
 
@@ -302,9 +315,12 @@ element too?
 	In its own function so we can call it whenever needed,
 	like on click or on mutation
 	*/
+
+		if ( !origr.active ) { return false; }
+
 		// Just always get rid of them. They'll be replaced later if needed
 		// This makes it impossible to examine them in the inspector
-		origr.labelsObj.removeSelf();
+		origr.labelsObj.removeLabels();
 
 		// If the target is removed, it still exists in our js as origr.currentTarget
 		// Check if it's actually in the DOM. If the DOM has mutated getting rid
@@ -415,6 +431,7 @@ element too?
 		// --- CONTAINERS --- \\
 		var container 	= buildContainerDiv();
 		document.body.appendChild( container );
+		// !!!! Cant' make it visible at the very begining !!!!
 		container.style.visibility = 'visible';
 
 		// Needed for all svg stuff for some reason
@@ -499,9 +516,12 @@ element too?
 		if (origr.active === false) { return false; }
 
 		var target = mutation.target;
-		console.trace('target:', target)
-		var exclude = origr.shouldExclude( target );
-		// if ( mutation.previousSibling !== null ) {
+
+		// Make sure body is excluded as well. It'll be mutating all over
+		// the place
+		var excludeBody = true;
+		var exclude = origr.shouldExclude( target, excludeBody );
+		// if ( (mutation.previousSibling !== null) ) {
 		// 	exclude = exclude || origr.shouldExclude( mutation.previousSibling );
 		// }
 			
@@ -518,7 +538,6 @@ element too?
 
 		mutations.forEach( function( mutation ) {
 			origr.onMutation( mutation );
-			// console.log(mutation)
 		});    
 
 	});
@@ -540,7 +559,9 @@ element too?
 	*/
 		origr.active = false;
 		Utils_DOM.removeElements( [origr.node] );
-		origr.labelsObj.removeSelf();
+		origr.node = null;
+
+		origr.labelsObj.removeLabels();
 
 		return true;
 	};  // End origr.removeSelf()
@@ -550,6 +571,7 @@ element too?
 	// END
 	// ==================================
 	origr.createNew();
+	
 	return origr;
 };  // End Originator {}
 
@@ -562,7 +584,7 @@ element too?
 	var main = HandHeldBookmarkletManagerTM;
 	var originator = main.Tools.Originator( main.toolMenu, main.utils, main.labels, main.baseColor );
 	originator.menuItem.addEventListener (
-		'click', function ( evnt ) { originator.toggle( evnt, main.toolMenu ); }
+		'mouseup', function ( evnt ) { originator.toggle( evnt, main.toolMenu ); }
 	);
 	main.tools.originator = originator;
 })();  // End self-calling anonymous function
