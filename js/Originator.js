@@ -584,6 +584,8 @@ console.log(checked)
 	var main = HandHeldBookmarkletManagerTM;
 	var originator = main.Tools.Originator( main.toolMenu, main.utils, main.labels, main.baseColor );
 	originator.menuItem.addEventListener (
+		// !!!: ??: With 'click' the checkbox responds, though other stuff breaks
+		// With mouseup, the checkbox doesn't respond the first time, but other stuff is ok
 		'mouseup', function ( evnt ) { originator.toggle( evnt, main.toolMenu ); }
 	);
 	main.tools.originator = originator;
