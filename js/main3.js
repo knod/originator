@@ -100,39 +100,66 @@ and tool managers
 
 
 
+	// First Utilities
+	main.importJS( 'https://rawgit.com/knod/originator/gh-pages/js/utilities-math.js',
+			'HandHeldBookmarkletManagerTM.utils.math', function () {
+		main.importJS('https://rawgit.com/knod/originator/gh-pages/js/utilities-dom.js',
+				'HandHeldBookmarkletManagerTM.utils.dom', function () {
+			main.importJS('https://rawgit.com/knod/originator/gh-pages/js/utilities-color.js',
+					'HandHeldBookmarkletManagerTM.utils.color', function () {
+				// Then Components
+				main.importJS('https://rawgit.com/knod/originator/gh-pages/js/Labels.js',
+						'HandHeldBookmarkletManagerTM.Labels', function () {
+
+	main.labels = main.Labels( main.baseColor, main.utils );  // It's actually a function
+
+					main.importJS('https://rawgit.com/knod/originator/gh-pages/js/Tool-Menu.js',
+							'HandHeldBookmarkletManagerTM.ToolMenu', function () {
+
+	main.toolMenu 	= main.ToolMenu( 'bookmarkletToolManager', main.utils );
+
+						// Then Tools
+						main.importJS('https://rawgit.com/knod/originator/gh-pages/js/Originator.js',
+								'HandHeldBookmarkletManagerTM.Tools.Originator', function () {
+							
+							// Tools add themselves
+
+
+						});  // End Tools Menu
+					});  // End Tools Menu
+				});  // End Labels
+				// End Components
+			});  // End color utils
+		});  // End dom utils
+	});  // End math utils
+	// End Utilities
+
+
+
 	// // First Utilities
-	// main.importJS( 'https://rawgit.com/knod/originator/one-name-space/js/utilities-math.js',
-	// 		'HandHeldBookmarkletManagerTM.utils.math', function () {
-	// 	main.importJS('https://rawgit.com/knod/originator/one-name-space/js/utilities-dom.js',
-	// 			'HandHeldBookmarkletManagerTM.utils.dom', function () {
-	// 		main.importJS('https://rawgit.com/knod/originator/one-name-space/js/utilities-color.js',
-	// 				'HandHeldBookmarkletManagerTM.utils.color', function () {
+	// main.importJS( "http://127.0.0.1:8000/js/utilities-math.js",
+	// 		"HandHeldBookmarkletManagerTM.utils.math", function () {
+	// 	main.importJS("http://127.0.0.1:8000/js/utilities-dom.js",
+	// 			"HandHeldBookmarkletManagerTM.utils.dom", function () {
+	// 		main.importJS("http://127.0.0.1:8000/js/utilities-color.js",
+	// 				"HandHeldBookmarkletManagerTM.utils.color", function () {
 	// 			// Then Components
-	// 			main.importJS('https://rawgit.com/knod/originator/one-name-space/js/labels.js',
-	// 					'HandHeldBookmarkletManagerTM.Labels', function () {
+	// 			main.importJS("http://127.0.0.1:8000/js/Labels.js",
+	// 					"HandHeldBookmarkletManagerTM.Labels", function () {
 
-	// main.labels = main.Labels( main.baseColor, main.utils );  // It's actually a function
+	// main.labels = main.Labels( main.baseColor, main.utils );  // It"s actually a function
 
-	// 				main.importJS('https://rawgit.com/knod/originator/one-name-space/js/Tool-Menu.js',
-	// 						'HandHeldBookmarkletManagerTM.ToolMenu', function () {
+	// 				main.importJS("http://127.0.0.1:8000/js/Tool-Menu.js",
+	// 						"HandHeldBookmarkletManagerTM.ToolMenu", function () {
 
-	// main.ToolMenu 	= main.ToolMenu( 'bookmarkletToolManager', main.utils );
+	// main.toolMenu 	= main.ToolMenu( "bookmarkletToolManager", main.utils );
 
-	//					// Then Tools
-	// 					main.importJS('https://rawgit.com/knod/originator/one-name-space/js/originator.js',
-	// 							'HandHeldBookmarkletManagerTM.Tools.Originator', function () {
+	// 					// Then Tools
+	// 					main.importJS("http://127.0.0.1:8000/js/Originator.js",
+	// 							"HandHeldBookmarkletManagerTM.Tools.Originator", function () {
 							
 
-
-	// // ======================== 
-	// // ADD ALL TOOLS, manually I guess
-	// // ========================
-	// var originator = main.Tools.Originator( main.ToolMenu, main.utils, main.labels, main.baseColor );
-	// originator.menuItem.addEventListener (
-	// 	'click', function ( evnt ) { originator.toggle( evnt, main.ToolMenu ); }
-	// );
-	// main.tools.originator = originator;
-
+	// 								// Originator adds itself
 
 
 	// 					});  // End Tools Menu
@@ -144,25 +171,6 @@ and tool managers
 	// });  // End math utils
 	// // End Utilities
 
-
-
-	// First Utilities
-	main.importJS( "http://127.0.0.1:8000/js/utilities-math.js",
-			"HandHeldBookmarkletManagerTM.utils.math", function () {
-		main.importJS("http://127.0.0.1:8000/js/utilities-dom.js",
-				"HandHeldBookmarkletManagerTM.utils.dom", function () {
-			main.importJS("http://127.0.0.1:8000/js/utilities-color.js",
-					"HandHeldBookmarkletManagerTM.utils.color", function () {
-				// Then Components
-				main.importJS("http://127.0.0.1:8000/js/Labels.js",
-						"HandHeldBookmarkletManagerTM.Labels", function () {
-
-	main.labels = main.Labels( main.baseColor, main.utils );  // It"s actually a function
-
-					main.importJS("http://127.0.0.1:8000/js/Tool-Menu.js",
-							"HandHeldBookmarkletManagerTM.ToolMenu", function () {
-
-	main.toolMenu 	= main.ToolMenu( "bookmarkletToolManager", main.utils );
 
 	main.removeAll 	= function () {
 	/*
@@ -179,23 +187,6 @@ and tool managers
 	};
 
 	document.addEventListener( 'removeAll clicked', main.removeAll );
-
-						// Then Tools
-						main.importJS("http://127.0.0.1:8000/js/Originator.js",
-								"HandHeldBookmarkletManagerTM.Tools.Originator", function () {
-							
-
-									// Originator adds itself
-
-
-						});  // End Tools Menu
-					});  // End Tools Menu
-				});  // End Labels
-				// End Components
-			});  // End color utils
-		});  // End dom utils
-	});  // End math utils
-	// End Utilities
 
 
 	return main;
