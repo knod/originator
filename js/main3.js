@@ -154,7 +154,7 @@ and tool managers
 			main.importJS("http://127.0.0.1:8000/js/utilities-color.js",
 					"HandHeldBookmarkletManagerTM.utils.color", function () {
 				// Then Components
-				main.importJS("http://127.0.0.1:8000/js/labels.js",
+				main.importJS("http://127.0.0.1:8000/js/Labels.js",
 						"HandHeldBookmarkletManagerTM.Labels", function () {
 
 	main.labels = main.Labels( main.baseColor, main.utils );  // It"s actually a function
@@ -170,6 +170,7 @@ and tool managers
 	Removes all the tool elements from the page
 	*/
 		for ( var toolKey in main.tools ) {
+			// Each tool removes any labels it uses
 			main.tools[ toolKey ].removeSelf();
 		}
 		main.toolMenu.removeSelf()

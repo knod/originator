@@ -23,38 +23,48 @@ separately)
 	// ELEMENT DATA (except related functions, which are below)
 	// ==================
 	// --- GETTING ELEMENTS --- \\
+	utils_dom.doesElemHaveAncestor = function () {};  // End utils_dom.doesElemHaveAncestor()
+
+
 	utils_dom.getElemsFromUntil = function ( childElem, ancestorElem ) {
 	/* ( HTML, HTML ) -> [ DOM ]
 
 	Return all ancestor of childElem up to and including ancestorElem
 	TODO: Stop at body (or html?)
 	*/
-		// HTML is the top, it has no reachable ancestors
-		if ( childElem.tagName === "HTML" ) { return [ childElem ]; }
-
 		var elemList 			= [];
 		var currentElem			= childElem;
-		var ancestorNotFound 	= true;
+		var ancestorFound 	= false;
+		// ??: What should we return if the parent is null?
+		var parentIsNull 		= false;
 
 		// Cycle through the ancestors, until the right ancestor is reached
-		// ??: Can document.body have a parent?
-		while ( ancestorNotFound ) {
+		// ??: Can document.body have a parent? Yes, it's HTML
+		while ( !ancestorFound && !parentIsNull ) {
 
+			// ??: Should we return the element even if its parent is null?
+			// What will be done with this list?
 			elemList.push( currentElem );
 
+			// First time through, this checks if the child is also the ancestor
 			if ( currentElem === ancestorElem ) {
-				ancestorNotFound = false;
+				ancestorFound = true;
+
+			// I *think* this happens when an element has been removed from the DOM
+			// or if that element was never a parent to start with
+			} else if ( currentElem.parentNode === null ) {
+				parentIsNull = true;
+				// Return only the child if the parent doesn't exist? And log a message.
+				elemList = [childElem];
+				console.trace( childElem, 'has no ancestor', ancestorElem );
+
+			// Otherwise, go through the loop again
 			} else {
-				// For next loop iteration
-				if (currentElem.parentNode === null) {console.log('currentElem:', currentElem);debugger;}
 				currentElem = currentElem.parentNode;
 			}
-		}  // end while ancestorNotFound
-
-		if ( currentElem !== ancestorElem ) { elemList = "There was no such ancestor!"; }
+		}  // end while !ancestorFound && !parentIsNull
 
 		return elemList;
-
 	};  // End utils_dom.getElemsFromUntil()
 
 
