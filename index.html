@@ -12,6 +12,15 @@
 
 	<body>
 		<p>This is the new page. You can go see <a href='index2.html'>the old page</a></p>
+		
+		<p><a href="javascript:(function(){
+			s=document.createElement('script');
+			s.setAttribute('type','text/javascript');
+			s.setAttribute('src','http://127.0.0.1:8000/js/main3.js');
+			document.body.appendChild(s);
+			})();">
+			The Bookmarklet Itself (?)
+		</a></p>
 
 		<div class="regular">
 

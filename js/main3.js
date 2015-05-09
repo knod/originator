@@ -169,11 +169,9 @@ and tool managers
 
 	Removes all the tool elements from the page
 	*/
-
 		for ( var toolKey in main.tools ) {
 			main.tools[ toolKey ].removeSelf();
 		}
-
 		main.toolMenu.removeSelf()
 
 		return main;

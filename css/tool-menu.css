@@ -19,14 +19,19 @@ Attempts at Resources:
 #bookmarklet_tool_menu input,
 #bookmarklet_tool_menu label,
 #bookmarklet_tool_menu span {
+	position: relative;
+	float: none;
+
 	margin: 0;
 	padding: 0;
-	font-size: 100%;
+	width: auto;
+	height: auto;
+
+	font-size: 1rem;
 	line-height: 1.2;
+
 	vertical-align: baseline;
 	text-align: left;
-
-	position: relative;
 }
 
 menu {

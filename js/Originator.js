@@ -499,10 +499,11 @@ element too?
 		if (origr.active === false) { return false; }
 
 		var target = mutation.target;
+		console.trace('target:', target)
 		var exclude = origr.shouldExclude( target );
-		if ( mutation.previousSibling !== null ) {
-			exclude = exclude || origr.shouldExclude( mutation.previousSibling );
-		}
+		// if ( mutation.previousSibling !== null ) {
+		// 	exclude = exclude || origr.shouldExclude( mutation.previousSibling );
+		// }
 			
 		if ( !exclude ) {
 			origr.runIf( origr.oldTarget, origr.active );
@@ -517,6 +518,7 @@ element too?
 
 		mutations.forEach( function( mutation ) {
 			origr.onMutation( mutation );
+			// console.log(mutation)
 		});    
 
 	});
