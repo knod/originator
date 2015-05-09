@@ -2,86 +2,207 @@
 
 TODO:
 - Get stuff out of global namespace
+- If label is clicked on, put it on the top
+- Test adding the bookmarklet multiplle times
 
 Resources no longer used:
-	- http://tzi.fr/js/snippet/convert-em-in-px (1 rem to pixels)
-		getRootElementFontSize()
+- http://tzi.fr/js/snippet/convert-em-in-px (1 rem to pixels)
+	getRootElementFontSize()
+- Custom event method: http://jsfiddle.net/jump7b9k/2/
+
 */
 
 'use strict';
 
 //===============================
-//===============================
-//===============================
-// Refactoring
-//===============================
-// DON'T WANT THIS IN TOOL MANAGER because then
-// Tool Manager will be calling Tool, but also visa versa
-// Wait for some signal
+// SET UP FOR WHEN OTHER SCRIPTS ARE ADDED
+// ==============================
+var HandHeldBookmarkletManagerTM 	= {};
 
-// ??: HOW DO I TAKE STUFF OUT OF THE GLOBAL NAMESPACE?!
-var HandHeldBookmarkletManagerTM = function () {
+HandHeldBookmarkletManagerTM.utils 	= {};
+HandHeldBookmarkletManagerTM.Tools 	= {};
+HandHeldBookmarkletManagerTM.tools 	= {};
+
+
+HandHeldBookmarkletManagerTM.run = function () {
 /* ( none ) -> HandHeldBookmarkletManagerTM
 
 Handles the setting up of all Hand Held Bookmarklest TM tools
 and tool managers
 */
-	var main = {}
+	var main = HandHeldBookmarkletManagerTM;
 
 	main.baseColor 	= 'rgb(55, 55, 55)';
 
-	main.utils 		= {
-		Utils_Math: BookmarkletsUtilsMath,
-		// This one is a function
-		Utils_Labels: BookmarkletUtilsLabels(),
-		Utils_Color:  BookmarkletsUtilsColor,
-		Utils_DOM: BookmarkletUtils
-	}
 
-	main.labels 	= HandHeldLabels;  // It's actually a function
-	main.manager 	= BookmarkletToolManager( 'bookmarkletToolManager', main.utils );
+	// ===============================================
+	// ==================
+	// IMPORTING
+	// ==================
+	// From selector gadget bookmarklet
 
-	// http://www.sitepoint.com/call-javascript-function-string-without-using-eval/
-	// http://stackoverflow.com/questions/359788/how-to-execute-a-javascript-function-when-i-have-its-name-as-a-string
-	// http://stackoverflow.com/questions/912596/how-to-turn-a-string-into-a-javascript-function-call
-	main.possibleTools 	= [ 'Originator' ];
-	main.currentTools 	= [];
+	main.wait_for_script_load = function ( look_for, callback ) {
+		var interval = setInterval( function() {
 
-	for ( var tooli = 0; tooli < main.possibleTools.length; tooli++ ) {
-		var funcStr 	= main.possibleTools[ tooli ],
-			toolFunc	= window[ funcStr ];
+			if (eval("typeof " + look_for) != 'undefined') {
+				clearInterval( interval );
+				callback();
+			}
 
-		// Add any functions to our list of existing functions.
-		// Maybe tools should add themselves to the list?
-		if (typeof toolFunc === "function") {
+		}, 50);
+	};  // End utils_dom.wait_for_script_load()
 
-			// Only originator needs labels atm...
-			var newTool = toolFunc( main.manager, main.utils, main.labels, main.baseColor );
-
-			// --- Disabling Event --- \\
-			newTool.managerItem.addEventListener(
-				'click', function (evnt) { newTool.toggle( evnt, main.manager ) }
-			);
-
-			// Which one?
-			main.currentTools.push 					= newTool;
-			// Make it lowercase first?
-			main[ funcStr.toLowerCase() ] 			= newTool;
-			main.tools[ funcStr.toLowerCase() ] 	= newTool;
-
+	main.importCSS = function (href, look_for, onload) {
+		var script = document.createElement('link');
+		script.setAttribute('rel', 'stylesheet');
+		script.setAttribute('type', 'text/css');
+		script.setAttribute('media', 'screen');
+		script.setAttribute('href', href);
+		if ( onload ) main.wait_for_script_load( look_for, onload );
+			var head = document.getElementsByTagName('head')[0];
+		if ( head ) {
+			head.appendChild( script );
 		} else {
-			console.log( funcStr, 'is not the name of a function in', window );
+			document.body.appendChild( script );
 		}
-	}
+	};  // End utils_dom.importCSS()
 
-	// Somehow, if another bookmarklet is added, run this again and add it...?
-	// Maybe tools should add themselves to the manager, but then there's cross
-	// contamination. Maybe each tool will give off a custom event?
+	main.importJS = function (src, look_for, onload) {
+		var script = document.createElement('script');
+		script.setAttribute('type', 'text/javascript');
+		script.setAttribute('src', src);
+		if (onload) main.wait_for_script_load( look_for, onload );
+			var head = document.getElementsByTagName('head')[0];
+		if (head) {
+			head.appendChild( script );
+		} else {
+			document.body.appendChild( script );
+		}
+	};  // End utils_dom.importJS()
+
+
+
+	// Utilities
+	// //https://rawgit.com/knod/originator/one-name-space/js/utilities-labels.js
+
+	//https://rawgit.com/knod/originator/one-name-space/js/utilities-math.js
+	//https://rawgit.com/knod/originator/one-name-space/js/utilities-color.js
+	//https://rawgit.com/knod/originator/one-name-space/js/utilities-dom.js
+
+	// Components
+	// Wrong capitalization on github for some reason
+	//https://rawgit.com/knod/originator/one-name-space/js/labels.js
+	//https://rawgit.com/knod/originator/one-name-space/js/Tool-Menu.js
+
+	// Tools
+	// Wrong capitalization on github for some reason
+	//https://rawgit.com/knod/originator/one-name-space/js/originator.js
+
+
+
+	// // First Utilities
+	// main.importJS( 'https://rawgit.com/knod/originator/one-name-space/js/utilities-math.js',
+	// 		'HandHeldBookmarkletManagerTM.utils.math', function () {
+	// 	main.importJS('https://rawgit.com/knod/originator/one-name-space/js/utilities-dom.js',
+	// 			'HandHeldBookmarkletManagerTM.utils.dom', function () {
+	// 		main.importJS('https://rawgit.com/knod/originator/one-name-space/js/utilities-color.js',
+	// 				'HandHeldBookmarkletManagerTM.utils.color', function () {
+	// 			// Then Components
+	// 			main.importJS('https://rawgit.com/knod/originator/one-name-space/js/labels.js',
+	// 					'HandHeldBookmarkletManagerTM.Labels', function () {
+
+	// main.labels = main.Labels( main.baseColor, main.utils );  // It's actually a function
+
+	// 				main.importJS('https://rawgit.com/knod/originator/one-name-space/js/Tool-Menu.js',
+	// 						'HandHeldBookmarkletManagerTM.ToolMenu', function () {
+
+	// main.ToolMenu 	= main.ToolMenu( 'bookmarkletToolManager', main.utils );
+
+	//					// Then Tools
+	// 					main.importJS('https://rawgit.com/knod/originator/one-name-space/js/originator.js',
+	// 							'HandHeldBookmarkletManagerTM.Tools.Originator', function () {
+							
+
+
+	// // ======================== 
+	// // ADD ALL TOOLS, manually I guess
+	// // ========================
+	// var originator = main.Tools.Originator( main.ToolMenu, main.utils, main.labels, main.baseColor );
+	// originator.menuItem.addEventListener (
+	// 	'click', function ( evnt ) { originator.toggle( evnt, main.ToolMenu ); }
+	// );
+	// main.tools.originator = originator;
+
+
+
+	// 					});  // End Tools Menu
+	// 				});  // End Tools Menu
+	// 			});  // End Labels
+	// 			// End Components
+	// 		});  // End color utils
+	// 	});  // End dom utils
+	// });  // End math utils
+	// // End Utilities
+
+
+
+	// First Utilities
+	main.importJS( "http://127.0.0.1:8000/js/utilities-math.js",
+			"HandHeldBookmarkletManagerTM.utils.math", function () {
+		main.importJS("http://127.0.0.1:8000/js/utilities-dom.js",
+				"HandHeldBookmarkletManagerTM.utils.dom", function () {
+			main.importJS("http://127.0.0.1:8000/js/utilities-color.js",
+					"HandHeldBookmarkletManagerTM.utils.color", function () {
+				// Then Components
+				main.importJS("http://127.0.0.1:8000/js/labels.js",
+						"HandHeldBookmarkletManagerTM.Labels", function () {
+
+	main.labels = main.Labels( main.baseColor, main.utils );  // It"s actually a function
+
+					main.importJS("http://127.0.0.1:8000/js/Tool-Menu.js",
+							"HandHeldBookmarkletManagerTM.ToolMenu", function () {
+
+	main.toolMenu 	= main.ToolMenu( "bookmarkletToolManager", main.utils );
+
+	main.removeAll 	= function () {
+	/*
+
+	Removes all the tool elements from the page
+	*/
+
+		for ( var toolKey in main.tools ) {
+			main.tools[ toolKey ].removeSelf();
+		}
+
+		main.toolMenu.removeSelf()
+
+		return main;
+	};
+
+	document.addEventListener( 'removeAll clicked', main.removeAll );
+
+						// Then Tools
+						main.importJS("http://127.0.0.1:8000/js/Originator.js",
+								"HandHeldBookmarkletManagerTM.Tools.Originator", function () {
+							
+
+									// Originator adds itself
+
+
+						});  // End Tools Menu
+					});  // End Tools Menu
+				});  // End Labels
+				// End Components
+			});  // End color utils
+		});  // End dom utils
+	});  // End math utils
+	// End Utilities
+
 
 	return main;
 };  // End HandHeldBookmarkletManagerTM {}
 
-var handHeldBookmarkletsTM = HandHeldBookmarkletManagerTM();
+var handHeldBookmarkletsTM = HandHeldBookmarkletManagerTM.run();
 
 
 

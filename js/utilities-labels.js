@@ -2,12 +2,12 @@
 
 'use strict';
 
-window.BookmarkletUtilsLabels = function ( Utils_DOM ) {
+HandHeldBookmarkletManagerTM.utils.labels = function ( Utils_DOM ) {
 
 	var labelUtils 	= {},
 		Utils 		= BookmarkletUtils;
 
-	labelUtils.fixOutOfWindow = function ( elem, nudging ) {
+	labelUtils.fixAboveWindow = function ( elem, nudging ) {
 	/* ( Node, num ) -> same Node
 
 	Tests if an element is out of the window. If it is,
@@ -21,9 +21,7 @@ window.BookmarkletUtilsLabels = function ( Utils_DOM ) {
 		}
 
 		return elem;
-	};  // End BookmarkletUtilsLabels.fixOutOfWindow()
+	};  // End utils.labels.fixAboveWindow()
 
 	return labelUtils;
 };
-
-// var bookmarkletUtilsLabels = BookmarkletUtilsLabels();

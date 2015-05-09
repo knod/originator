@@ -1,8 +1,8 @@
-// labels.js
+/* labels.js */
 
 'use strict';
 
-window.HandHeldLabels = function ( baseColor, utilsDict ) {
+HandHeldBookmarkletManagerTM.Labels = function ( baseColor, utilsDict ) {
 
 	var labels = {};
 
@@ -17,12 +17,12 @@ window.HandHeldLabels = function ( baseColor, utilsDict ) {
 	// =================
 	// Utilities
 	// =================
-	var Utils_DOM 		= utilsDict.Utils_DOM,
-		Utils_Labels 	= utilsDict.Utils_Labels;
+	var Utils_DOM 		= utilsDict.dom;//,
+		// Utils_Labels 	= utilsDict.labels;
 
 
 	// =================
-	// APP LOGIC
+	// CREATION
 	// =================
 	labels.createShadowCutoff = function () {
 	/* ( None ) -> DOM
@@ -79,14 +79,18 @@ window.HandHeldLabels = function ( baseColor, utilsDict ) {
 
 	Create one label for an element
 	*/
-		var cutoff 		= labels.createShadowCutoff();
-		var shadowed 	= labels.createShadowed( labelColor, labelString );
+		var cutoff 			= labels.createShadowCutoff();
+		cutoff.className 	+= ' bookmarklets-labels';
+		var shadowed 		= labels.createShadowed( labelColor, labelString );
 		cutoff.appendChild( shadowed );
 
 		return cutoff
 	};  // End labels.createLabel()
 
 
+	// ======================
+	// POSITION
+	// ======================
 	labels.positionLabel = function ( label, elem ) {
 	/* ( DOM, DOM ) -> label DOM
 
@@ -106,13 +110,13 @@ window.HandHeldLabels = function ( baseColor, utilsDict ) {
 
 		// If it's now sticking out of the top of the DOM, bring it back in
 		// But leave the shadow out. Looks better that way.
-		Utils_Labels.fixOutOfWindow( label, (-1 * labels.shadowPadding) );
+		Utils_DOM.fixAboveWindow( label, (-1 * labels.shadowPadding) );
 
 		return label;
 	};  // End labels.positionLabel()
 
 
-	labels.placeLabel = function ( elem, placeInChain, childPosition ) {
+	labels.placeLabel 		= function ( elem, placeInChain, childPosition ) {
 	/* ( DOM, str, str ) -> other DOM
 
 	Places a label at the top of an element. All show position style. Parents
@@ -149,18 +153,51 @@ window.HandHeldLabels = function ( baseColor, utilsDict ) {
 			labelString 	= 'position: ' + positionStyle + ' (' + leftStr + topStr + ')';
 		}
 
-		// --- NODE --- \\
-		var label 			= labels.createLabel( elem, labelColor, labelString );
-		document.body.appendChild( label );
 
-		// --- FINAL POSITION --- \\
-		labels.positionLabel( label, elem );
-
-		return label;
+		return { 'color': labelColor, 'string': labelString };
 	};  // End labels.placeLabel()
 
 
-	labels.labelTheseElems = function ( elemList, childPosition ) {
+	// =====================
+	// MANAGE CREATION AND PLACEMENT
+	// =====================
+	labels.labelOneElem 	= function ( elem, placeInChain, childPosition ) {
+	/* ( DOM, str, str ) -> other DOM
+
+	Keeps the creation of the node separate from the placement of
+	the node
+	*/
+
+		var labelParts 	= labels.placeLabel( elem, placeInChain, childPosition );
+
+		var label 		= labels.createLabel( elem, labelParts.color, labelParts.string );
+		document.body.appendChild( label );
+
+		labels.positionLabel( label, elem );
+
+		return label;
+	};  // End labels.labelOneElem()
+
+
+	// =====================
+	// MANAGER RE-PLACEMENT
+	// =====================
+	labels.repositionLabels = function ( elemList, childPosition ) {
+	/*
+
+	So that we don't have to remove and re-add the labels all the time
+	*/
+
+		// Not sure when to trigger this. When mutations don't move labeled
+		// element's positions? How to check for that? Is it worth it?
+
+	};  // End labels.repositionLabels()
+
+
+	// =====================
+	// RUN
+	// =====================
+	labels.labelTheseElems 	= function ( elemList, childPosition ) {
 	/* ( [ DOM ] ) -> same
 
 	Places positionStyle labels on all the elements in the list
@@ -174,7 +211,7 @@ window.HandHeldLabels = function ( baseColor, utilsDict ) {
 				placeInChain = 'child';
 			}
 
-			var node = labels.placeLabel(
+			var node = labels.labelOneElem(
 				elemList[ elemi ], placeInChain, childPosition );
 
 			labels.nodeList.push( node );
@@ -184,14 +221,20 @@ window.HandHeldLabels = function ( baseColor, utilsDict ) {
 	};  // end labels.labelTheseElems()
 
 
-	labels.removeLabels = function () {
+	// =====================
+	// RESET
+	// =====================
+	labels.removeSelf = function () {
 		Utils_DOM.removeElements( labels.nodeList );
 		// Have to reset list, so we don't try to get rid
 		// of elements that are no longer in the DOM
 		labels.nodeList = [];
-	};  // End labels.removeLabels()
+	};  // End labels.removeSelf()
 
 
+	// =====================
+	// END
+	// =====================
 	return labels;
-};  // End HandHeldLabels {}
+};  // End HandHeldBookmarkletManagerTM.Labels {}
 

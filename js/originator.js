@@ -2,7 +2,12 @@
 
 TODO:
 - Add green color and special text for body label
-- Fix originator showing on Tool Manager
+- Only remove labels when they actually need to be removed
+	Or only change on mutation?
+- Adjust position when window is resized
+
+NOTES:
+- console.log is non-blocking
 
 Resources no longer used:
 	- http://tzi.fr/js/snippet/convert-em-in-px (1 rem to pixels)
@@ -11,9 +16,11 @@ Resources no longer used:
 
 'use strict';
 
+// // Created at bottom using this function
+// HandHeldBookmarkletManagerTM.tools.originator;
 
-window.Originator = function ( manager, utilsDict, labelsFunct, baseColor ) {
-/* ( BookmarkletToolManager, {}, HandHeldLabels() ) -> Originator
+HandHeldBookmarkletManagerTM.Tools.Originator = function ( menu, utilsDict, labels, baseColor ) {
+/* ( ToolManager, {}, Labels, str ) -> Originator
 
 What do we really need to pass in? Do we need to pass in its checkbox
 element too?
@@ -24,7 +31,8 @@ element too?
 
 	origr.node 				= null;
 	origr.oldTarget 		= null;
-	origr.currentTarget 	= null;
+	// origr.currentTarget 	= null;
+	// origr.oldRect;
 
 	origr.circleLT 			= null;
 	origr.circleRB 			= null;
@@ -35,7 +43,7 @@ element too?
 
 	// baseColor needs to be for labels too. Needs to be in main?
 	origr.baseColor 		= baseColor;
-	origr.labelsObj 		= labelsFunct( origr.baseColor, utilsDict );
+	origr.labelsObj 		= labels;// labelsFunct( origr.baseColor, utilsDict );
 
 	var outlineColor		= 'white';
 
@@ -44,41 +52,42 @@ element too?
 	// =================
 	// UTILITY OBJECTS
 	// =================
-	var Utils_DOM 	= utilsDict.Utils_DOM,
+	var Utils_DOM 	= utilsDict.dom,
 		// OrigrUtils 	= OriginatorUtils,
-		Utils_Color = utilsDict.Utils_Color,
-		Utils_Math 	= utilsDict.Utils_Math;
+		Utils_Color = utilsDict.color,
+		Utils_Math 	= utilsDict.math;
+
+	Utils_DOM.importCSS('http://127.0.0.1:8000/css/originator.css');
 
 
 	// ===============================================================
 	// =================
-	// TOOL MANAGER
+	// TOGGLE ACTIVE STATUS
 	// =================
-	origr.labelText 	= 'Position Guidance';
-	origr.managerItem = manager.addNewItem( origr );
+	// --- TOOL MENU --- \\
+	origr.labelText = 'Position Guidance';
+	origr.menuItem 	= menu.addNewItem( origr );
 
-	origr.toggle = function ( evnt, manager ) {
-	/*
+	// --- ACTIVATE/DEACTIVATE --- \\
+	origr.toggle = function ( evnt, menu ) {
+	/* ( {}, ToolMenu ) -> DOM
 
 	Based on checkbox, disable or enable the originator tool
 	*/
-		var target 		= evnt.target,
-			parent 		= target.parentNode,
-			checkbox 	= parent.getElementsByClassName( 'manager-checkbox' )[0];
+		var checkbox = origr.menuItem.getElementsByTagName('input')[0],
+			checked  = checkbox.checked;
 
-		var checked 	= checkbox.checked;
+		menu.changeIcon( checkbox );
 
 		if ( checked === true ) {
-			// Show checkmark
-			manager.changeIcon( checkbox );
-			origr.active = true;
-
+			origr.createNew();
 		// Not for 'undefined', just for 'false'
 		} else if ( checked === false ) {
-			manager.changeIcon( checkbox );
-			origr.active = false;
-
+			origr.removeSelf();
 		}
+
+		// Make it disappear or reappear
+		origr.runIf( origr.oldTarget, origr.active );
 
 		return evnt.target;
 	};  // End origr.toggle()
@@ -97,7 +106,7 @@ element too?
 		origr.exclude = false;
 
 		// --- Is or belongs to originator ---
-		var allElems 	= Utils_DOM.getElemsFromUntil( currentElem, document.body.parentNode ),
+		var allElems 	= Utils_DOM.getElemsFromUntil( currentElem, document.body ),
 			isExcluded 	= Utils_DOM.oneHasClass( allElems, (origr.name + '-exclude') )
 
 		// --- result ---
@@ -114,7 +123,7 @@ element too?
 	Gets a style.visibility value depending on what is clicked on
 	*/
 
-		// --- DETERMINE VISIBILITY --- \\
+		// --- DETERMINE CURRENT VISIBILITY --- \\
 		var isVisible = false;
 		if ( origr.node.style.visibility === 'visible' ) { isVisible = true; }
 
@@ -181,6 +190,7 @@ element too?
 		return Utils_Color.hslNumsToStr( hsls );
 	};  // End toChildColor()
 
+
 	var toParentColor = function ( rgbs ) {
 	/* ( {nums} ) -> Str
 	
@@ -203,7 +213,7 @@ element too?
 
 
 	var changeCirclesColor = function ( childElem, parentElem ) {
-	/*
+	/* ( DOM, DOM ) -> [str]
 
 	Changes circle's colors to match the 
 	*/
@@ -218,9 +228,10 @@ element too?
 		return [ origr.circleChild.getAttribute('fill'), origr.circleParent.getAttribute('fill') ]
 	};  // End changeCirclesColor()
 
-	// --- EVERYTHING ELSE ---
+
+	// --- EVERYTHING ELSE --- \\
 	origr.placeOriginator = function ( currentTarget, positionStyle, targetParent ) {
-	/* ( DOM, DOM ) -> DOM
+	/* ( DOM, str, DOM ) -> DOM
 
 	Places the originator at the correct starting and ending points.
 	Returns the element that was passed in as the currentTarget
@@ -259,7 +270,7 @@ element too?
 
 
 
-	origr.placeHelpers = function ( currentTarget ) {
+	origr.placeHelpers 	= function ( currentTarget ) {
 	/*
 
 	Do the actual placement of things.
@@ -285,13 +296,15 @@ element too?
 	};  // End origr.placeHelpers()
 
 
-	origr.runIf = function ( currentTarget, active ) {
+	origr.runIf 		= function ( currentTarget, active ) {
 	/*
 
-	In its own function so we can call it in update
+	In its own function so we can call it whenever needed,
+	like on click or on mutation
 	*/
 		// Just always get rid of them. They'll be replaced later if needed
-		origr.labelsObj.removeLabels();
+		// This makes it impossible to examine them in the inspector
+		origr.labelsObj.removeSelf();
 
 		// If the target is removed, it still exists in our js as origr.currentTarget
 		// Check if it's actually in the DOM. If the DOM has mutated getting rid
@@ -331,7 +344,7 @@ element too?
 	};  // End buildContainerDiv()
 
 
-	var buildSVG 	= function ( NS ) {
+	var buildSVG 		= function ( NS ) {
 	/* ( str ) -> DOM */
 
 		var svg 		= document.createElementNS( NS,'svg' );
@@ -346,7 +359,7 @@ element too?
 	};  // End buildSVG()
 
 
-	var buildLine 	= function ( NS, strokeColor, strokeWidth ) {
+	var buildLine 		= function ( NS, strokeColor, strokeWidth ) {
 	/* ( str, str, num ) -> DOM
 
 	Build one originator line. Goes straigh across horizontally.
@@ -369,8 +382,8 @@ element too?
 	}  // End buildLine()
 
 
-	var buildCircle = function ( NS, position, outline ) {
-	/* ( str, str ) -> DOM
+	var buildCircle 	= function ( NS, position, outline ) {
+	/* ( str, str, str ) -> DOM
 
 	Build originator circles
 	*/
@@ -390,7 +403,7 @@ element too?
 	};  // End buildCircle()
 
 
-	var createNew 	= function () {
+	origr.createNew 	= function () {
 	/*
 
 	Creates the originator DOM element, its node
@@ -402,6 +415,7 @@ element too?
 		// --- CONTAINERS --- \\
 		var container 	= buildContainerDiv();
 		document.body.appendChild( container );
+		container.style.visibility = 'visible';
 
 		// Needed for all svg stuff for some reason
 		var NS 			= 'http://www.w3.org/2000/svg';
@@ -434,25 +448,23 @@ element too?
 		origr.node 			= container;
 		origr.circleChild 	= childCircle;
 		origr.circleParent 	= parentCircle;
+		// For re-activation after deactivation
+		origr.active 		= true;
 
 		return container;
 	};  // End createNew()
 
-	createNew();
-
 
 	// ============================================
 	// =================
-	// EVENTS
+	// USER ACTIONS
 	// =================
-
-
-
-	// ------------------- \\
-	// --- ORIGINATOR ---- \\
+	// --- EVENTS --- \\
 	document.addEventListener( 'click', function ( event ) {
-		// Basically just gets and sets targets and sets visibility
-		// Everything else is called in update()
+	// Basically just gets and sets targets and sets visibility
+	// Everything else is called in runIf()
+
+		if (origr.active === false) { return false; }
 
 		var currentTarget = event.target;
 
@@ -463,44 +475,79 @@ element too?
 		// If the element is an excluded one, don't change any targets
 		if ( !origr.exclude ) {
 			// "hidden" will prevent movement as well
-			// Note: This MUST not happen in update()
+			// Note: This MUST not happen in runIf()
 			var visibility = origr.getNewVisibility( currentTarget, origr.oldTarget );
 			origr.node.style.visibility = visibility;
 
-
 			// Prepare for next click on non-originator element
 			origr.oldTarget = currentTarget;
+
+			origr.runIf( origr.oldTarget, origr.active );
 		}  // end if !origr.excluded
 
 	});  // end document on click
 
 
-	// ========================================================
-	// ===================
-	// TRIGGER ORIGINATOR ACTIONS
-	// ===================
-	// --- IN CASE OF CHANGES TO DOM OR VIEW --- \\
-	origr.update = function () {
-		// Loop forever and ever?
-		if ( !origr.loopPaused ) {
-		// Inactive state is taken care of in runIf
-			// As soon as there's a valid current target, it's made into an oldTarget
-			// So oldTarget is basically the currentTarget
-			origr.runIf( origr.oldTarget, origr.active );
-			window.requestAnimationFrame( origr.update );
+	// --- MUTATION --- \\
+	// When DOM changes, redo stuff (limit it to just relevant elements?)
+	origr.onMutation = function ( mutation ) {
+	/* ( MutationRecord ) -> same MutationRecord
+
+	If the element is not part of the originator stuff, update everything's
+	positions
+	*/
+		if (origr.active === false) { return false; }
+
+		var target = mutation.target;
+		var exclude = origr.shouldExclude( target );
+		if ( mutation.previousSibling !== null ) {
+			exclude = exclude || origr.shouldExclude( mutation.previousSibling );
 		}
-	};  // End update()
+			
+		if ( !exclude ) {
+			origr.runIf( origr.oldTarget, origr.active );
+		}
 
-	origr.update();
+		return mutation;
+	};  // End origr.onMutation()
 
 
+	// create an observer instance
+	origr.observer = new MutationObserver( function( mutations ) {
 
-	// origr.disabler = document.getElementById( origr.name + '_toggle' );
-	// // To account for new and old scripts
-	// if ( origr.disabler !== null ) {
-	// 	origr.disabler.addEventListener( 'click', function ( evnt ) { origr.toggle( evnt); });
-	// }
+		mutations.forEach( function( mutation ) {
+			origr.onMutation( mutation );
+		});    
 
+	});
+	 
+	// configuration of the observer:
+	var config = { attributes: true, childList: true, characterData: true,
+		subtree: true, attributeOldValue: true, characterDataOldValue: true };
+	 
+	// pass in the target node, as well as the observer options
+	origr.observer.observe( document.body , config);
+
+	// ==================================
+	// REMOVAL (??)
+	// ==================================
+	origr.removeSelf = function () {
+	/* ( None ) -> True
+
+	Should I just set it to inactive? Or should I remove all the nodes?
+	*/
+		origr.active = false;
+		Utils_DOM.removeElements( [origr.node] );
+		origr.labelsObj.removeSelf();
+
+		return true;
+	};  // End origr.removeSelf()
+
+
+	// ==================================
+	// END
+	// ==================================
+	origr.createNew();
 	return origr;
 };  // End Originator {}
 
@@ -508,22 +555,14 @@ element too?
 // ============
 // START
 // ============
-// var originator3000 = new Originator();
-
-
-/*
-Selector Gadget's way of handling the code:
-(function(){
-  importCSS('https://dv0akt2986vzh.cloudfront.net/stable/lib/selectorgadget.css');
-  importJS('https://ajax.googleapis.com/ajax/libs/jquery/1.3.1/jquery.min.js', 'jQuery', function() { // Load everything else when it is done.
-    jQuery.noConflict();
-    importJS('https://dv0akt2986vzh.cloudfront.net/stable/vendor/diff/diff_match_patch.js', 'diff_match_patch', function() {
-      importJS('https://dv0akt2986vzh.cloudfront.net/stable/lib/dom.js', 'DomPredictionHelper', function() {
-        importJS('https://dv0akt2986vzh.cloudfront.net/stable/lib/interface.js');
-      });
-    });
-  });
-})();
-*/
+// Runs when the file is imported
+(function () {
+	var main = HandHeldBookmarkletManagerTM;
+	var originator = main.Tools.Originator( main.toolMenu, main.utils, main.labels, main.baseColor );
+	originator.menuItem.addEventListener (
+		'click', function ( evnt ) { originator.toggle( evnt, main.toolMenu ); }
+	);
+	main.tools.originator = originator;
+})();  // End self-calling anonymous function
 
 

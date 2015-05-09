@@ -1,0 +1,143 @@
+/*tools-manager.css
+
+Attempts at Resources:
+	http://stackoverflow.com/questions/9815328/vertically-aligning-a-checkbox
+	http://jsfiddle.net/cC9Cs/2/
+	http://webdesign.tutsplus.com/tutorials/quick-tip-easy-css3-checkboxes-and-radio-buttons--webdesign-8953
+	http://www.css3.com/implementing-custom-checkboxes-and-radio-buttons-with-css3/
+*/
+
+/* ------------------- */
+/* RESET */
+/* ------------------- */
+#bookmarklet_tool_menu,
+#bookmarklet_tool_menu div,
+#bookmarklet_tool_menu menu, ol, ul,
+#bookmarklet_tool_menu li,
+#bookmarklet_tool_menu h1,
+#bookmarklet_tool_menu h2,
+#bookmarklet_tool_menu input,
+#bookmarklet_tool_menu label,
+#bookmarklet_tool_menu span {
+	margin: 0;
+	padding: 0;
+	font-size: 100%;
+	line-height: 1.2;
+	vertical-align: baseline;
+	text-align: left;
+
+	position: relative;
+}
+
+menu {
+	display: block;
+}
+
+menu, ol, ul, li {
+	list-style: none;
+}
+
+
+/* ------------------- */
+/* FUNCTION */
+/* ------------------- */
+#bookmarklet_tool_menu .tool-menu-checkbox-icon {
+	/* So that actul checkbox can get clicked on */
+	pointer-events: none;
+}
+
+
+/* ------------------- */
+/* STRUCTURE */
+/* ------------------- */
+#bookmarklet_tool_menu {
+	position: fixed;
+	top: 9px;
+	right: 9px;
+}
+
+#bookmarklet_tool_menu h1 {
+	position: relative;
+
+	margin: 0;
+	padding: 0 4px;
+	text-align: center
+}
+
+.vertical-center {
+	position: absolute;
+	/* Only looks good in 100% zoom? :/ */
+	top: 50%;
+	transform: translate( 0, -50%);
+
+}
+
+#bookmarklet_tool_menu .tool-menu-remove-all-icon {
+	position: absolute;
+	right: 2px;
+	top: 0;
+
+	font-size: .9rem;
+}
+
+#bookmarklet_tool_menu .fa-times:hover {
+	color: brown;
+}
+#bookmarklet_tool_menu .fa-times:active {
+	color: crimson;
+}
+
+#bookmarklet_tool_menu menu {
+	padding: 2px 4px;
+	margin: 0;
+}
+
+#bookmarklet_tool_menu li {
+	list-style: none;
+	margin: 2px 0;
+	position:relative;
+}
+
+/* Make my own checkbox, a fontawesome one */
+#bookmarklet_tool_menu input[type=checkbox] {
+	opacity: 0;
+
+	position: relative;
+	margin: 0;
+}
+
+#bookmarklet_tool_menu .tool-menu-checkbox-icon {
+	position: absolute;
+	left: 0;
+	/* Only looks good in 100% zoom :/ */
+	/*top: 50%;
+	transform: translate( 0, -50%);*/
+}
+
+#bookmarklet_tool_menu label {
+	margin: 0;
+	display: inline-block;
+
+	vertical-align: middle;
+	/* Because there are no linebreaks or space when using js */
+	margin-left: 6px;
+}
+
+
+/* ------------------- */
+/* SKIN */
+/* ------------------- */
+#bookmarklet_tool_menu {
+	background-color: rgb( 240, 240, 240 );
+	color: rgb(80, 80, 80);
+	border: solid rgb( 200, 200, 200 ) 2px;
+}
+
+#bookmarklet_tool_menu h1 {
+	font-size: 19px;
+	font-variant: small-caps;
+
+	font-weight: bold;
+	background-color: rgb( 225, 225, 225 );
+	border-bottom: solid rgb( 200, 200, 200 ) 2px;
+}
