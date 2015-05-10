@@ -572,6 +572,11 @@ console.log(checked)
 	// ==================================
 	origr.createNew();
 	
+	// Testing initial value of checkbox
+		var checkbox = originator.menuItem.getElementsByTagName('input')[0],
+			checked  = checkbox.checked;
+console.log(checked)
+
 	return origr;
 };  // End Originator {}
 

@@ -127,9 +127,9 @@ for each tool to use that name to access the manager...
 		// var checkbox 	= parent.getElementsByClassName( 'toolMenu-checkbox' )[0];
 		var iconElem 	= checkbox.parentNode.getElementsByClassName( 'tool-menu-checkbox-icon' )[0];
 
-		if ( checked === true ) {
+		if ( checked === false ) {
 			iconElem.className = toolMenu.checkedClasses;
-		} else if ( checked === false ) {
+		} else if ( checked === true ) {
 			iconElem.className = toolMenu.uncheckedClasses;
 		}
 
