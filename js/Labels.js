@@ -102,11 +102,12 @@ HandHeldBookmarkletManagerTM.Labels = function ( baseColor, utilsDict ) {
 			elemTop 	= elemRect.top;
 
 		// Account for container's padding (which there for the shadow)
-		label.style.left 	= elemLeft - labels.shadowPadding;
+		var labelLeft 	= elemLeft - labels.shadowPadding,
 		// Get the bottom completely lined up
-		var labelHeight 	= label.offsetHeight;
+			labelHeight = label.offsetHeight,
 		// For some reason it seems to always end up a little higher. Math.
-		label.style.top 	= (elemTop - labelHeight) + 1;
+			labelTop 	= (elemTop - labelHeight) + 1;
+		Utils_DOM.setPosition( label, {left: labelLeft, top: labelTop} )
 
 		// If it's now sticking out of the top of the DOM, bring it back in
 		// But leave the shadow out. Looks better that way.

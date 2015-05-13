@@ -66,18 +66,17 @@ element too?
 	// =================
 	// --- TOOL MENU --- \\
 	origr.labelText = 'Position Guidance';
-	origr.menuItem 	= menu.addNewItem( origr );
+	origr.inputItem 	= menu.addNewItem( origr );
 
 	// --- ACTIVATE/DEACTIVATE --- \\
-	origr.toggle = function ( evnt, menu ) {
+	origr.toggle = function ( evnt, toolMenu ) {
 	/* ( {}, ToolMenu ) -> DOM
 
 	Based on checkbox, disable or enable the originator tool
 	*/
-		var checkbox = origr.menuItem.getElementsByTagName('input')[0],
-			checked  = checkbox.checked;
-console.log(checked)
-		menu.changeIcon( checkbox );
+
+		var checked  = origr.inputItem.checked;
+		toolMenu.changeIcon( origr.inputItem );
 
 		if ( checked === true ) {
 			origr.createNew();
@@ -268,11 +267,7 @@ console.log(checked)
 		Utils_DOM.rotateByDegrees( origrNode_, degrees );
 
 		// Position
-		var parentLeft 	= parentPos.left;
-		origrNode_.style.left 	= parentLeft;
-
-		var parentTop 	= parentPos.top;
-		origrNode_.style.top 	= parentTop;
+		Utils_DOM.setPosition( origrNode_, {left: parentPos.left, top: parentPos.top} )
 
 		// Color
 		changeCirclesColor( currentTarget, targetParent );
@@ -280,7 +275,6 @@ console.log(checked)
 		return currentTarget;
 
 	};  // End placeOriginator()
-
 
 
 	origr.placeHelpers 	= function ( currentTarget ) {
@@ -571,11 +565,6 @@ console.log(checked)
 	// END
 	// ==================================
 	origr.createNew();
-	
-	// Testing initial value of checkbox
-		var checkbox = origr.menuItem.getElementsByTagName('input')[0],
-			checked  = checkbox.checked;
-console.log(checked)
 
 	return origr;
 };  // End Originator {}
@@ -588,10 +577,8 @@ console.log(checked)
 (function () {
 	var main = HandHeldBookmarkletManagerTM;
 	var originator = main.Tools.Originator( main.toolMenu, main.utils, main.labels, main.baseColor );
-	originator.menuItem.addEventListener (
-		// !!!: ??: With 'click' the checkbox responds, though other stuff breaks
-		// With mouseup, the checkbox doesn't respond the first time, but other stuff is ok
-		'mouseup', function ( evnt ) { originator.toggle( evnt, main.toolMenu ); }
+	originator.inputItem.addEventListener (
+		'change', function ( evnt ) { originator.toggle( evnt, main.toolMenu ); }
 	);
 	main.tools.originator = originator;
 })();  // End self-calling anonymous function

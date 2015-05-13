@@ -183,6 +183,18 @@ separately)
 	// CHANGING ELEMENTS (except related functions, which are below)
 	// ===================
 	// --- GENERAL --- \\
+	utils_dom.setPosition = function ( elem, position ) {
+	/* ( DOM, {} ) -> same DOM
+
+	Basically just adds 'px' to the end of a value
+	*/
+		elem.style.left = position.left + 'px';
+		elem.style.top 	= position.top + 'px';
+
+		return elem;
+	};  // End utils_dom.setPosition()
+
+
 	utils_dom.setAttributes = function ( elem, attrs ) {
 	/*
 
@@ -242,7 +254,7 @@ separately)
 		// Take away any extra space at the top
 		if ( utils_dom.isOutOfWindow(elem) ) {
 			// Except whatever vertical shift you want
-			elem.style.top = nudging;
+			elem.style.top = nudging + 'px';
 		}
 
 		return elem;

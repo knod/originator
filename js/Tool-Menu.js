@@ -97,7 +97,7 @@ for each tool to use that name to access the manager...
 		var inputID = tool.name + '_toggle';
 
 		// --- INSIDE MENU ITEM --- \\
-		toolMenu.addNewInput( item, inputID, tool.name );
+		var input = toolMenu.addNewInput( item, inputID, tool.name );  // checkbox
 		toolMenu.addNewIcon( item );
 		toolMenu.addNewLabel( item, inputID, tool.labelText )
 
@@ -109,7 +109,7 @@ for each tool to use that name to access the manager...
 
 		// --- INTERNAL --- \\
 		toolMenu.items.push( item );
-		return item;
+		return input;
 	};  // End toolMenu.addNewItem()
 
 
@@ -123,13 +123,11 @@ for each tool to use that name to access the manager...
 	Should I pass in the event target instead?
 	*/
 		var checked 	= checkbox.checked;
-		// var parent 		= eventTarget.parentNode;
-		// var checkbox 	= parent.getElementsByClassName( 'toolMenu-checkbox' )[0];
 		var iconElem 	= checkbox.parentNode.getElementsByClassName( 'tool-menu-checkbox-icon' )[0];
 
-		if ( checked === false ) {
+		if ( checked === true ) {
 			iconElem.className = toolMenu.checkedClasses;
-		} else if ( checked === true ) {
+		} else if ( checked === false ) {
 			iconElem.className = toolMenu.uncheckedClasses;
 		}
 

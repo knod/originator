@@ -20,7 +20,10 @@ NOT SURE THIS IS WORTH IT JUST FOR ONE ELEMENT
 	-o-transform-origin: top left; transform-origin: top left;
 }
 
-/* This is in the js because it's important to see it there */
-/*.originator svg {
-	style: overflow: visible;
-}*/
+
+.originator svg {
+	position: absolute;
+
+	/* This is in the js because it's important to see it there */
+	/*style: overflow: visible;*/
+}
